@@ -198,7 +198,7 @@ pkgAcqIndex::pkgAcqIndex(pkgAcquire *Owner,pkgRepository *Repository,
 
    // Create the item
    // CNC:2002-07-03
-   Desc.URI = URI + _config->Find("Acquire::ComprExtension", ".bz2");
+   Desc.URI = URI + _config->Find("Acquire::ComprExtension", ".gz");
    Desc.Description = URIDesc;
    Desc.Owner = this;
    Desc.ShortDesc = ShortDesc;
@@ -368,10 +368,10 @@ void pkgAcqIndex::Done(const string Message,unsigned long Size,const string MD5,
    Decompression = true;
    DestFile += ".decomp";
    // CNC:2002-07-03
-   Desc.URI = "bzip2:" + FileName;
+   Desc.URI = "gzip:" + FileName;
    QueueURI(Desc);
    // CNC:2002-07-03
-   Mode = "bzip2";
+   Mode = "gzip";
 }
 									/*}}}*/
 
