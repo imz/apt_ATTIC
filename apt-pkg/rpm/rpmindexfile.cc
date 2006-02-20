@@ -664,6 +664,7 @@ class rpmSLTypeGen : public pkgSourceList::Type
       else
 	 BaseURI = URI + Dist + '/';
 
+      //cout << "XXXX GetRepo " << URI << " " << Dist << " " << BaseURI << endl;
       Rep = new pkgRepository(URI,Dist,Vendor,BaseURI);
       RepList.push_back(Rep);
       return Rep;
