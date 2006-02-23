@@ -45,7 +45,6 @@ Dir::Ignore-Files-Silently:: "~\$";(
 Dir::Ignore-Files-Silently:: "\\\.[[:alnum:]]+(-\[a-z\]\+)?\$";)*' \
     'Dir::Locale "/usr/share/locale";' \
     'Acquire "";
-Acquire::ComprExtension "\.bz2";
 Acquire::DistroID "ALT Linux";
 Acquire::CDROM "";
 Acquire::CDROM::Mount "/media/ALTLinux";
