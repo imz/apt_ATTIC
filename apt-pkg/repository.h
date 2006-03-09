@@ -24,6 +24,7 @@ class pkgRepository
    map<string,Checksum> IndexChecksums; // path -> checksum data
 
    bool GotRelease;
+   string CheckMethod;
 
    public:
 
@@ -41,6 +42,7 @@ class pkgRepository
    virtual bool IsAuthenticated() const { return !FingerPrintList.empty(); }
    virtual bool FindChecksums(string URI,unsigned long &Size, string &MD5);
    // LORG:2006-02-23
+   virtual string GetCheckMethod() {return CheckMethod;};
    virtual string GetComprMethod(string URI) {return "bz2";};
 
    pkgRepository(string URI,string Dist, const pkgSourceList::Vendor *Vendor,
@@ -49,6 +51,7 @@ class pkgRepository
 	Acquire(1)
    {
       if (Vendor) FingerPrintList = Vendor->FingerPrintList;
+      CheckMethod = "MD5-Hash";
    };
 
 };
