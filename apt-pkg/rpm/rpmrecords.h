@@ -46,6 +46,7 @@ class rpmRecordParser : public pkgRecords::Parser
    // These refer to the archive file for the Version
    virtual string FileName() override;
    virtual string MD5Hash() override;
+   virtual string SHA1Hash() override;
    virtual string SourcePkg() override;
 
    // These are some general stats about the package
