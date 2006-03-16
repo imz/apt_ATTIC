@@ -154,6 +154,7 @@ class pkgAcqArchive : public pkgAcquire::Item
    pkgSourceList *Sources;
    pkgRecords *Recs;
    string MD5;
+   string ChkType;
    string &StoreFilename;
    pkgCache::VerFileIterator Vf;
    unsigned int Retries;
@@ -170,6 +171,9 @@ class pkgAcqArchive : public pkgAcquire::Item
    virtual string MD5Sum() override {return MD5;}
    virtual string DescURI() override {return Desc.URI;}
    virtual void Finished() override;
+
+   // LORG:2006-03-16
+   virtual string ChecksumType() override {return ChkType;}
 
    pkgAcqArchive(pkgAcquire *Owner,pkgSourceList *Sources,
 		 pkgRecords *Recs,pkgCache::VerIterator const &Version,
