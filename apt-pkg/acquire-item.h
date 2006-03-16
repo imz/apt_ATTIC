@@ -148,6 +148,7 @@ class pkgAcqArchive : public pkgAcquire::Item
    pkgSourceList *Sources;
    pkgRecords *Recs;
    string MD5;
+   string ChkType;
    string &StoreFilename;
    pkgCache::VerFileIterator Vf;
    unsigned int Retries;
