@@ -268,7 +268,7 @@ void GlobalError::Discard()
    }
 
    PendingFlag = false;
-};
+}
 									/*}}}*/
 // GlobalError::Insert - Insert a new item at the end			/*{{{*/
 // ---------------------------------------------------------------------
