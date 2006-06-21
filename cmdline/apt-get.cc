@@ -1942,24 +1942,13 @@ bool DoSource(CommandLine &CmdL)
       for (vector<pkgSrcRecords::File>::const_iterator I = Lst.begin();
 	   I != Lst.end(); I++)
       {
-	 // Try to guess what sort of file it is we are getting.
-	 // CNC:2002-07-06
-	 if (I->Type == "dsc" || I->Type == "srpm")
-	 {
+	 if (I->Type == "srpm") {
 	    Dsc[J].Package = Last->Package();
 	    Dsc[J].Version = Last->Version();
 	    Dsc[J].Dsc = flNotDir(I->Path);
+	 } else {
+	    continue;
 	 }
-
-	 // Diff only mode only fetches .diff files
-	 if (_config->FindB("APT::Get::Diff-Only",false) == true &&
-	     I->Type != "diff")
-	    continue;
-
-	 // Tar only mode only fetches .tar files
-	 if (_config->FindB("APT::Get::Tar-Only",false) == true &&
-	     I->Type != "tar")
-	    continue;
 
 	if (_config->FindB("Debug::pkgAcquire::Auth",false) == true)
 	    cerr << "I->Path = " << I->Path << ", I->MD5Hash = " << I->MD5Hash << endl;
@@ -2053,14 +2042,9 @@ bool DoSource(CommandLine &CmdL)
       {
 	 string Dir = Dsc[I].Package + '-' + Cache->VS().UpstreamVersion(Dsc[I].Version.c_str());
 
-	 // Diff only mode only fetches .diff files
-	 if (_config->FindB("APT::Get::Diff-Only",false) == true ||
-	     _config->FindB("APT::Get::Tar-Only",false) == true ||
-	     Dsc[I].Dsc.empty() == true)
+	 if (Dsc[I].Dsc.empty() == true)
 	    continue;
 
-// CNC:2002-07-06
-#if 1
 	 if (_config->FindB("APT::Get::Compile",false) == true)
 	 {
 	    char S[500];
@@ -2086,46 +2070,6 @@ bool DoSource(CommandLine &CmdL)
 	       _exit(1);
 	    }
 	 }
-#else
-	 // See if the package is already unpacked
-	 struct stat Stat;
-	 if (stat(Dir.c_str(),&Stat) == 0 &&
-	     S_ISDIR(Stat.st_mode) != 0)
-	 {
-	    ioprintf(c0out ,_("Skipping unpack of already unpacked source in %s\n"),
-			      Dir.c_str());
-	 }
-	 else
-	 {
-	    // Call dpkg-source
-	    char S[500];
-	    snprintf(S,sizeof(S),"%s -x %s",
-		     _config->Find("Dir::Bin::dpkg-source","dpkg-source").c_str(),
-		     Dsc[I].Dsc.c_str());
-	    if (system(S) != 0)
-	    {
-	       fprintf(stderr,_("Unpack command '%s' failed.\n"),S);
-	       _exit(1);
-	    }
-	 }
-
-	 // Try to compile it with dpkg-buildpackage
-	 if (_config->FindB("APT::Get::Compile",false) == true)
-	 {
-	    // Call dpkg-buildpackage
-	    char S[500];
-	    snprintf(S,sizeof(S),"cd %s && %s %s",
-		     Dir.c_str(),
-		     _config->Find("Dir::Bin::dpkg-buildpackage","dpkg-buildpackage").c_str(),
-		     _config->Find("DPkg::Build-Options","-b -uc").c_str());
-
-	    if (system(S) != 0)
-	    {
-	       fprintf(stderr,_("Build command '%s' failed.\n"),S);
-	       _exit(1);
-	    }
-	 }
-#endif
       }
 
       _exit(0);
@@ -2671,8 +2615,6 @@ int main(int argc,const char *argv[])
       {0,"upgrade","APT::Get::upgrade",0},
       {0,"force-yes","APT::Get::force-yes",0},
       {0,"print-uris","APT::Get::Print-URIs",0},
-      {0,"diff-only","APT::Get::Diff-Only",0},
-      {0,"tar-only","APT::Get::tar-Only",0},
       {0,"purge","APT::Get::Purge",0},
       {0,"list-cleanup","APT::Get::List-Cleanup",0},
       {0,"reinstall","APT::Get::ReInstall",0},
