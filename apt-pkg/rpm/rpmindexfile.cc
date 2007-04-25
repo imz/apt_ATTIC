@@ -125,7 +125,8 @@ string rpmListIndex::Info(string Type) const
 /* */
 inline string rpmListIndex::IndexFile(string Type) const
 {
-   return _config->FindDir("Dir::State::lists")+URItoFileName(IndexURI(Type));
+   return _config->FindDir("Dir::State::lists") +
+	  URItoFileName(IndexURI(Type));
 }
 
 
