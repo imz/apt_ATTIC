@@ -98,5 +98,5 @@ bool pkgRepository::FindChecksums(const string URI,
    MD5 = Found->second.MD5;
    return true;
 }
-									/*}}}*/
+
 // vim:sts=3:sw=3
