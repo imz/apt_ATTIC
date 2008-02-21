@@ -38,7 +38,7 @@ class pkgRepository
    virtual bool ParseRelease(string File);
    virtual bool HasRelease() const { return GotRelease; }
 
-   virtual bool IsAuthenticated() const { return !FingerPrint.empty(); };
+   virtual bool IsAuthenticated() const { return !FingerPrint.empty(); }
    virtual bool FindChecksums(string URI,unsigned long &Size, string &MD5);
 
    pkgRepository(string URI,string Dist, const pkgSourceList::Vendor *Vendor,
