@@ -29,7 +29,7 @@ class pkgRepository
 
    string URI;
    string Dist;
-   vector<string> FingerPrint;
+   vector<string> FingerPrintList;
    string RootURI;
 
    bool Acquire;
@@ -38,7 +38,7 @@ class pkgRepository
    virtual bool ParseRelease(string File);
    virtual bool HasRelease() const { return GotRelease; }
 
-   virtual bool IsAuthenticated() const { return !FingerPrint.empty(); }
+   virtual bool IsAuthenticated() const { return !FingerPrintList.empty(); }
    virtual bool FindChecksums(string URI,unsigned long &Size, string &MD5);
 
    pkgRepository(string URI,string Dist, const pkgSourceList::Vendor *Vendor,
@@ -46,7 +46,7 @@ class pkgRepository
       : GotRelease(0), URI(URI), Dist(Dist), RootURI(RootURI),
 	Acquire(1)
    {
-      if (Vendor) FingerPrint = Vendor->FingerPrint;
+      if (Vendor) FingerPrintList = Vendor->FingerPrintList;
    }
 
 };

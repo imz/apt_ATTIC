@@ -215,10 +215,10 @@ bool pkgSourceList::ReadVendors()
 	    *p++ = *I;
       }
       *p = 0;
-      Vendor->FingerPrint.push_back(string(buffer));
+      Vendor->FingerPrintList.push_back(string(buffer));
       delete [] buffer;
 
-      if (Vendor->FingerPrint.size() == 0 ||
+      if (Vendor->FingerPrintList.empty() == true ||
 	  Vendor->Description.empty() == true)
       {
          _error->Error(_("Vendor block %s is invalid"), Vendor->VendorID.c_str());

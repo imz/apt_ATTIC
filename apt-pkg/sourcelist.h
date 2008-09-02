@@ -43,7 +43,7 @@ class pkgSourceList
    struct Vendor
    {
       string VendorID;
-      vector<string> FingerPrint;
+      vector<string> FingerPrintList;
       string Description;
 
       /* Lets revisit these..
