@@ -12,10 +12,6 @@
    ##################################################################### */
 									/*}}}*/
 // Include Files							/*{{{*/
-#ifdef __GNUG__
-#pragma implementation "apt-pkg/packagemanager.h"
-#endif
-
 #include <config.h>
 
 #include <apt-pkg/packagemanager.h>

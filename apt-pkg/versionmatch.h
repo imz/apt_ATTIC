@@ -30,10 +30,6 @@
 #ifndef PKGLIB_VERSIONMATCH_H
 #define PKGLIB_VERSIONMATCH_H
 
-#ifdef __GNUG__
-#pragma interface "apt-pkg/versionmatch.h"
-#endif
-
 #include <string>
 #include <list>
 #include <apt-pkg/pkgcache.h>

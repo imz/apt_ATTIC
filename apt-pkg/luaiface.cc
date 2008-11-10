@@ -7,10 +7,6 @@
 
    ##################################################################### */
 									/*}}}*/
-#ifdef __GNUG__
-#pragma implementation "apt-pkg/luaiface.h"
-#endif
-
 #include <config.h>
 
 #ifdef WITH_LUA

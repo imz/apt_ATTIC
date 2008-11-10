@@ -19,11 +19,6 @@
    ##################################################################### */
 									/*}}}*/
 // Include Files							/*{{{*/
-#ifdef __GNUG__
-#pragma implementation "apt-pkg/pkgcache.h"
-#pragma implementation "apt-pkg/cacheiterators.h"
-#endif
-
 #include <config.h>
 
 #define PKGCACHE_FINDPKG_ABI

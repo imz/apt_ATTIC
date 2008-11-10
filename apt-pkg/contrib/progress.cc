@@ -7,9 +7,6 @@
    ##################################################################### */
 									/*}}}*/
 // Include Files							/*{{{*/
-#ifdef __GNUG__
-#pragma implementation "apt-pkg/progress.h"
-#endif
 #include <config.h>
 
 #include <apt-pkg/progress.h>

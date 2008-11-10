@@ -16,10 +16,6 @@
 #ifndef PKGLIB_PKGRECORDS_H
 #define PKGLIB_PKGRECORDS_H
 
-#ifdef __GNUG__
-#pragma interface "apt-pkg/pkgrecords.h"
-#endif
-
 #include <apt-pkg/pkgcache.h>
 #include <apt-pkg/fileutl.h>
 
