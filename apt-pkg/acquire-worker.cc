@@ -11,9 +11,6 @@
    ##################################################################### */
 									/*}}}*/
 // Include Files							/*{{{*/
-#ifdef __GNUG__
-#pragma implementation "apt-pkg/acquire-worker.h"
-#endif
 #include <config.h>
 
 #include <apt-pkg/acquire-worker.h>

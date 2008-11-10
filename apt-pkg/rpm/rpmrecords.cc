@@ -7,10 +7,6 @@
  */
 									/*}}}*/
 // Include Files							/*{{{*/
-#ifdef __GNUG__
-#pragma implementation "apt-pkg/rpmrecords.h"
-#endif
-
 #include <config.h>
 
 #ifdef HAVE_RPM

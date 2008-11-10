@@ -15,10 +15,6 @@
 #ifndef PKGLIB_DEBINDEXFILE_H
 #define PKGLIB_DEBINDEXFILE_H
 
-#ifdef __GNUG__
-#pragma interface "apt-pkg/debindexfile.h"
-#endif
-
 #include <apt-pkg/indexfile.h>
 
 class debStatusIndex : public pkgIndexFile
