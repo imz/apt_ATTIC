@@ -9,10 +9,6 @@
    ##################################################################### */
 									/*}}}*/
 // Include Files							/*{{{*/
-#ifdef __GNUG__
-#pragma implementation "apt-pkg/pkgcachegen.h"
-#endif
-
 #define APT_COMPATIBILITY 986
 
 #include <config.h>

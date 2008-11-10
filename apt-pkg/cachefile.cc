@@ -11,10 +11,6 @@
    ##################################################################### */
 									/*}}}*/
 // Include Files							/*{{{*/
-#ifdef __GNUG__
-#pragma implementation "apt-pkg/cachefile.h"
-#endif
-
 #include <config.h>
 
 #include <algorithm>

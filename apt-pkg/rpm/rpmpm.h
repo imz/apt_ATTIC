@@ -20,10 +20,6 @@
 									/*}}}*/
 typedef Header rpmHeader;
 
-#ifdef __GNUG__
-#pragma interface "apt-pkg/rpmpm.h"
-#endif
-
 #include <apt-pkg/packagemanager.h>
 #include <vector>
 

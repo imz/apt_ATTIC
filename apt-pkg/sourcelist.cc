@@ -7,10 +7,6 @@
    ##################################################################### */
 									/*}}}*/
 // Include Files							/*{{{*/
-#ifdef __GNUG__
-#pragma implementation "apt-pkg/sourcelist.h"
-#endif
-
 #include <config.h>
 
 #include <apt-pkg/sourcelist.h>

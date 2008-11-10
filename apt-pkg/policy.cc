@@ -22,9 +22,6 @@
    ##################################################################### */
 									/*}}}*/
 // Include Files							/*{{{*/
-#ifdef __GNUG__
-#pragma implementation "apt-pkg/policy.h"
-#endif
 #include <config.h>
 
 #include <apt-pkg/policy.h>

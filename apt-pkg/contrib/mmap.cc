@@ -20,10 +20,6 @@
    ##################################################################### */
 									/*}}}*/
 // Include Files							/*{{{*/
-#ifdef __GNUG__
-#pragma implementation "apt-pkg/mmap.h"
-#endif
-
 #include <config.h>
 
 #define _BSD_SOURCE

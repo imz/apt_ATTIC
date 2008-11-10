@@ -13,9 +13,6 @@
    ##################################################################### */
 									/*}}}*/
 // Include Files							/*{{{*/
-#ifdef __GNUG__
-#pragma implementation "apt-pkg/algorithms.h"
-#endif
 #include <config.h>
 
 #include <apt-pkg/algorithms.h>

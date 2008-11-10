@@ -16,10 +16,6 @@
 #ifndef PKGLIB_CACHEFILE_H
 #define PKGLIB_CACHEFILE_H
 
-#ifdef __GNUG__
-#pragma interface "apt-pkg/cachefile.h"
-#endif
-
 #include <apt-pkg/depcache.h>
 #include <apt-pkg/cmndline.h>
 

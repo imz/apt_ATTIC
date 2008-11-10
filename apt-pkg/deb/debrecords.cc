@@ -7,9 +7,6 @@
    ##################################################################### */
 									/*}}}*/
 // Include Files							/*{{{*/
-#ifdef __GNUG__
-#pragma implementation "apt-pkg/debrecords.h"
-#endif
 #include <apt-pkg/debrecords.h>
 #include <apt-pkg/error.h>
 									/*}}}*/
