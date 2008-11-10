@@ -13,10 +13,6 @@
 #ifndef APTPKG_SHA1_H
 #define APTPKG_SHA1_H
 
-#ifdef __GNUG__
-#pragma interface "apt-pkg/sha1.h"
-#endif
-
 #include <string>
 #include <cstring>
 

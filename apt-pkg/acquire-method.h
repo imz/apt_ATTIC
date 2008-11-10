@@ -15,10 +15,6 @@
 #include <apt-pkg/configuration.h>
 #include <apt-pkg/strutl.h>
 
-#ifdef __GNUG__
-#pragma interface "apt-pkg/acquire-method.h"
-#endif
-
 class Hashes;
 class pkgAcqMethod
 {

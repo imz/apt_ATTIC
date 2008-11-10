@@ -14,10 +14,6 @@
    ##################################################################### */
 									/*}}}*/
 // Includes								/*{{{*/
-#ifdef __GNUG__
-#pragma implementation "apt-pkg/strutl.h"
-#endif
-
 #include "config.h"
 
 #include <apt-pkg/strutl.h>

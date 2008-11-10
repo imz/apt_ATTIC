@@ -14,9 +14,6 @@
    ##################################################################### */
 									/*}}}*/
 // Include files							/*{{{*/
-#ifdef __GNUG__
-#pragma implementation "apt-pkg/configuration.h"
-#endif
 #include <config.h>
 
 #include <apt-pkg/configuration.h>

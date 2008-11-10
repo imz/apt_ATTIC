@@ -10,9 +10,6 @@
    ##################################################################### */
 									/*}}}*/
 // Include files							/*{{{*/
-#ifdef __GNUG__
-#pragma implementation "apt-pkg/cmndline.h"
-#endif
 #include <config.h>
 
 #include <apt-pkg/cmndline.h>
