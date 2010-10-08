@@ -5,12 +5,17 @@
 #include <apt-pkg/pkgcache.h>
 
 #include <map>
-#include <unordered_map>
 #include <vector>
 #include <regex.h>
 #include <cstring>
 
-using namespace std;
+#include <unordered_map>
+
+using std::unordered_map;
+
+using std::map;
+using std::string;
+using std::vector;
 
 class RPMPackageData
 {

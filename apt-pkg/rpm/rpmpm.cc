@@ -38,6 +38,8 @@
 
 #include "rapttypes.h"
 
+using namespace std;
+
 namespace {
 
 uint32_t collect_autoinstalled_flag(pkgDepCache &Cache, pkgCache::PkgIterator Pkg)

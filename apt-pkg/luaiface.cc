@@ -38,6 +38,8 @@ extern "C" {
 #include <sys/types.h>
 #include <assert.h>
 
+using namespace std;
+
 #ifndef lua_pushglobaltable
 #define lua_pushglobaltable(L) lua_pushvalue(L, LUA_GLOBALSINDEX)
 #endif
