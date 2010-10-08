@@ -11,7 +11,8 @@
 #include <apt-pkg/depcache.h>
 #include <apt-pkg/packagemanager.h>
 
-using namespace std;
+using std::vector;
+using std::string;
 
 class pkgDepCache;
 class pkgProblemResolver;

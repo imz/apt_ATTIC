@@ -129,7 +129,7 @@ string RPMHdrHandler::EVRDB() const
 {
    string str;
    raptInt val;
-   ostringstream res;
+   std::ostringstream res;
    raptHeader h(HeaderP);
 
    if (h.getTag(RPMTAG_EPOCH, val))

@@ -22,7 +22,9 @@
 #include <regex.h>
 #include <optional>
 
-using namespace std;
+using std::unordered_set;
+using std::vector;
+using std::string;
 
 class RPMHandler;
 class RPMPackageData;
