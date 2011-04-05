@@ -77,7 +77,7 @@ static bool VerifyChecksums(string File,unsigned long Size,string MD5, string me
 	 FileFd F(File, FileFd::ReadOnly);
 
 	 md5sum.AddFD(F.Fd(), F.Size());
-	 if (md5sum.Result().Value() != MD5)
+	 if (md5sum.Result() != MD5)
 	 {
 	    if (_config->FindB("Acquire::Verbose", false) == true)
 	       cout << "MD5Sum of "<<File<<" did not match what's in the checksum list and was redownloaded."<<endl;
@@ -88,7 +88,7 @@ static bool VerifyChecksums(string File,unsigned long Size,string MD5, string me
 	 FileFd F(File, FileFd::ReadOnly);
 
 	 sha1sum.AddFD(F.Fd(), F.Size());
-	 if (sha1sum.Result().Value() != MD5)
+	 if (sha1sum.Result() != MD5)
 	 {
 	    if (_config->FindB("Acquire::Verbose", false) == true)
 	       cout << "SHA1Sum of "<<File<<" did not match what's in the checksum list and was redownloaded."<<endl;
