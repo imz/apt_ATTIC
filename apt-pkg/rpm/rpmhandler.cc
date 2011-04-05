@@ -357,7 +357,7 @@ string RPMSingleFileHandler::MD5Sum() const
    FileFd File(sFilePath, FileFd::ReadOnly);
    MD5.AddFD(File.Fd(), File.Size());
    File.Close();
-   return MD5.Result().Value();
+   return MD5.Result();
 }
 
 string RPMSingleFileHandler::SHA1Sum() const
@@ -366,7 +366,7 @@ string RPMSingleFileHandler::SHA1Sum() const
    FileFd File(sFilePath, FileFd::ReadOnly);
    SHA1.AddFD(File.Fd(), File.Size());
    File.Close();
-   return SHA1.Result().Value();
+   return SHA1.Result();
 }
 
 RPMDirHandler::RPMDirHandler(string DirName)
@@ -491,7 +491,7 @@ string RPMDirHandler::MD5Sum() const
    FileFd File(sFilePath, FileFd::ReadOnly);
    MD5.AddFD(File.Fd(), File.Size());
    File.Close();
-   return MD5.Result().Value();
+   return MD5.Result();
 }
 
 string RPMDirHandler::SHA1Sum() const
@@ -502,7 +502,7 @@ string RPMDirHandler::SHA1Sum() const
    FileFd File(sFilePath, FileFd::ReadOnly);
    SHA1.AddFD(File.Fd(), File.Size());
    File.Close();
-   return SHA1.Result().Value();
+   return SHA1.Result();
 }
 
 
