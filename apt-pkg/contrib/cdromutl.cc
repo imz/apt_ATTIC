@@ -237,7 +237,7 @@ bool IdentCdrom(const string &CD,string &Res,unsigned int Version)
    else
       sprintf(S,"-%u.debug",Version);
 
-   Res = Hash.Result().Value() + S;
+   Res = Hash.Result() + S;
    return true;
 }
 									/*}}}*/

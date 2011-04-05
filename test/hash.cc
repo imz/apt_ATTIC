@@ -12,8 +12,8 @@ template <class T> void Test(const char *In,const char *Out)
 {
    T Sum;
    Sum.Add(In);
-   cout << Sum.Result().Value() << endl;
-   if (stringcasecmp(Sum.Result().Value(),Out) != 0)
+   cout << Sum.Result() << endl;
+   if (stringcasecmp(Sum.Result(),Out) != 0)
       abort();
 }
 
@@ -37,8 +37,8 @@ template <class T> void TestMill(const char *Out)
       }
    }
 
-   cout << Sum.Result().Value() << endl;
-   if (stringcasecmp(Sum.Result().Value(),Out) != 0)
+   cout << Sum.Result() << endl;
+   if (stringcasecmp(Sum.Result(),Out) != 0)
       abort();
 }
 

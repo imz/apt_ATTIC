@@ -355,7 +355,7 @@ string RPMSingleFileHandler::MD5Sum() const
    FileFd File(sFilePath, FileFd::ReadOnly);
    MD5.AddFD(File.Fd(), File.Size());
    File.Close();
-   return MD5.Result().Value();
+   return MD5.Result();
 }
 
 RPMDirHandler::RPMDirHandler(const string &DirName)
@@ -480,7 +480,7 @@ string RPMDirHandler::MD5Sum() const
    FileFd File(sFilePath, FileFd::ReadOnly);
    MD5.AddFD(File.Fd(), File.Size());
    File.Close();
-   return MD5.Result().Value();
+   return MD5.Result();
 }
 
 
