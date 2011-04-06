@@ -2325,6 +2325,7 @@ bool DoBuildDep(CommandLine &CmdL)
                            break;
                  }
                  if (CV.end() == true)
+                 {
 		   if (hasAlternatives)
 		   {
 		      continue;
@@ -2337,6 +2338,7 @@ bool DoBuildDep(CommandLine &CmdL)
                                            Last->BuildDepType((*D).Type),Src.c_str(),
                                            (*D).Package.c_str());
 		   }
+                 }
             }
             else
             {
@@ -2833,7 +2835,7 @@ int main(int argc,const char *argv[])
       {
 	 CacheFile &Cache = *LuaCache.Cache;
 	 if (CheckOnly(Cache) == false &&
-	     (*Cache).InstCount() > 0 || (*Cache).DelCount() > 0)
+	     ((*Cache).InstCount() > 0 || (*Cache).DelCount() > 0))
 	    InstallPackages(Cache, false, Ask);
       }
    }
