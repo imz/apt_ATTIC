@@ -1888,6 +1888,7 @@ bool DoBuildDep(CommandLine &CmdL)
                            break;
                  }
                  if (CV.end() == true)
+                 {
 		   if (hasAlternatives)
 		   {
 		      continue;
@@ -1900,6 +1901,7 @@ bool DoBuildDep(CommandLine &CmdL)
                                            Last->BuildDepType((*D).Type),Src.c_str(),
                                            (*D).Package.c_str());
 		   }
+                 }
             }
             else
             {
