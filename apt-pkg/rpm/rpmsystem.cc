@@ -415,6 +415,7 @@ static void HashOptionFile(unsigned long &Hash, const char *Name)
    Hash += st.st_mtim.tv_sec;
    Hash += st.st_mtim.tv_nsec;
 }
+
 unsigned long rpmSystem::OptionsHash() const
 {
    unsigned long Hash = 0;
