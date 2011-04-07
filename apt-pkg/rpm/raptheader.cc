@@ -35,7 +35,7 @@ bool raptHeader::hasTag(raptTag tag) const
 // XXX: should have a way to pass back formatting error messages
 string raptHeader::format(const string &fmt) const
 {
-   string res;
+   string res = "";
    char *s = headerFormat(Hdr, fmt.c_str(), NULL);
    if (s) {
       res = string(s);

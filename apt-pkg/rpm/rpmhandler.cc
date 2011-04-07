@@ -34,7 +34,8 @@
 
 #include <rpm/rpmts.h>
 #include <rpm/rpmdb.h>
-#include <rpm/rpmlib.h>
+#include <rpm/rpmds.h>
+#include <rpm/rpmsq.h>
 
 string RPMHdrHandler::EVRDB() const
 {
