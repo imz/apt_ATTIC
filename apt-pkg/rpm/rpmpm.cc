@@ -33,8 +33,8 @@
 #include <functional>
 #include <utility>
 
-#include <rpm/rpmdb.h>
 #include <rpm/rpmlog.h>
+#include <rpm/rpmdb.h>
 
 #include "rapttypes.h"
 
