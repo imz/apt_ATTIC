@@ -30,6 +30,9 @@ class raptHash
    string Type() {return HashType;};
 
    raptHash(const string & HashName);
+   raptHash(const raptHash & Hash);
+   raptHash & operator= (const raptHash & Hash);
+   ~raptHash();
 };
 
 #endif
