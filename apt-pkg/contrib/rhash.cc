@@ -8,15 +8,23 @@
 #include <config.h>
 #include <system.h>
 
-raptHash::raptHash(const string & HashName)
+raptHash::raptHash(const string & HashName) : HashCtx(NULL), HashType(HashName)
 {
    pgpHashAlgo algo;
-   if (HashName == "SHA256-Hash")
+   if (HashType == "SHA512-Hash")
+      algo = PGPHASHALGO_SHA512;
+   else if (HashType == "SHA384-Hash")
+      algo = PGPHASHALGO_SHA384;
+   else if (HashType == "SHA256-Hash")
       algo = PGPHASHALGO_SHA256;
-   else if (HashName == "SHA1-Hash")
+   else if (HashType == "SHA1-Hash")
       algo = PGPHASHALGO_SHA1;
-   else
+   else if (HashType == "MD5-Hash")
       algo = PGPHASHALGO_MD5;
+   else
+      /* HashCtx remains NULL as an indicator that this object is invalid */
+      return;
+
    HashCtx = rpmDigestInit(algo, RPMDIGEST_NONE);
 }
 
