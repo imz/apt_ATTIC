@@ -28,6 +28,33 @@ raptHash::raptHash(const string & HashName) : HashCtx(NULL), HashType(HashName)
    HashCtx = rpmDigestInit(algo, RPMDIGEST_NONE);
 }
 
+raptHash::raptHash(const raptHash & Hash)
+{
+   HashCtx = rpmDigestDup(Hash.HashCtx);
+   Value = Hash.Value;
+   HashType = Hash.HashType;
+}
+
+raptHash::~raptHash()
+{
+   if (HashCtx)
+      rpmDigestFinal(HashCtx, NULL, NULL, 0);
+}
+
+raptHash & raptHash::operator= (const raptHash & Hash)
+{
+   if (this == &Hash)
+      return *this;
+
+   if (HashCtx)
+      rpmDigestFinal(HashCtx, NULL, NULL, 0);
+
+   HashCtx = rpmDigestDup(Hash.HashCtx);
+   Value = Hash.Value;
+   HashType = Hash.HashType;
+   return *this;
+}
+
 // raptHash::Result - Return checksum value                        /*{{{*/
 // ---------------------------------------------------------------------
 /* Add() may not be called after this */
