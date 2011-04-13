@@ -19,11 +19,6 @@ EXTRA_DIST = \
 		test/uri.cc \
 		test/versions.lst \
 		test/versiontest.cc \
-		python/apt.i \
-		python/apt.py \
-		python/apt_wrap.cxx \
-		python/Makefile \
-		python/swig-1.3.16-cxx.patch \
 		contrib/apt-rpm/apt-rpm \
 		contrib/apt-rpm/apt-rpm.1 \
 		contrib/apt-files/README \
