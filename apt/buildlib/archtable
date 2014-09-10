@@ -16,6 +16,7 @@ m68k	m68k
 arm.*	arm
 powerpc	powerpc
 ppc	powerpc
+powerpc64le	ppc64le
 mipsel  mipsel
 mipseb	mips
 mips	mips
