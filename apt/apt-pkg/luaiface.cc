@@ -141,12 +141,11 @@ bool Lua::RunScripts(const char *ConfListKey, bool CacheChunks)
 	 if (Value.empty() == true)
 	    continue;
 	 if (Value == "interactive") {
-	    lua_pushstring(L, "script_slot");
-	    lua_setglobal(L, ConfListKey);
+	    lua_pushstring(L, ConfListKey);
+	    lua_setglobal(L, "script_slot");
 
 	    RunInteractive(ConfListKey);
 
-	    lua_pushstring(L, "script_slot");
 	    lua_pushnil(L);
 	    lua_setglobal(L, "script_slot");
 
@@ -180,12 +179,11 @@ bool Lua::RunScripts(const char *ConfListKey, bool CacheChunks)
       }
    }
 
-   lua_pushstring(L, "script_slot");
-   lua_setglobal(L, ConfListKey);
+   lua_pushstring(L, ConfListKey);
+   lua_setglobal(L, "script_slot");
 
    InternalRunScript();
 
-   lua_pushstring(L, "script_slot");
    lua_pushnil(L);
    lua_setglobal(L, "script_slot");
 
