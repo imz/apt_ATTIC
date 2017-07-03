@@ -15,6 +15,7 @@
 
 #ifdef HAVE_RPM
 
+#define ALT_RPM_API
 #include <apt-pkg/rpmlistparser.h>
 #include <apt-pkg/rpmhandler.h>
 #include <apt-pkg/rpmpackagedata.h>
@@ -458,7 +459,10 @@ bool rpmListParser::ParseDepends(pkgCache::VerIterator Ver,
       
       if (namel[i][0] == 'r' && strncmp(namel[i], "rpmlib", 6) == 0)
       {
-#if RPM_VERSION >= 0x040404
+#if HAVE_RPMCHECKRPMLIBPROVIDES && RPM_VERSION >= 0x040d00 /* 4.13.0 (ALT specific) */
+	 int res = rpmCheckRpmlibProvides(namel[i], verl?verl[i]:NULL,
+					  flagl[i]);
+#elif RPM_VERSION >= 0x040404
         rpmds rpmlibProv = NULL;
         rpmds ds = rpmdsSingle(RPMTAG_PROVIDENAME,
                                namel[i], verl?verl[i]:NULL, flagl[i]);

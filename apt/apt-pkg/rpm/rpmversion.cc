@@ -22,6 +22,7 @@
 #include <apt-pkg/rpmversion.h>
 #include <apt-pkg/pkgcache.h>
 
+#define ALT_RPM_API
 #include <rpm/rpmlib.h>
 
 #include <stdlib.h>
@@ -206,13 +207,15 @@ bool rpmVersioningSystem::CheckDep(const char *PkgVer,
 	 if (strcmp(PkgVer, DepVer) == 0)
 	    return invert ? false : true;
 
-#if RPM_VERSION >= 0x040100
+#if HAVE_RPMRANGESOVERLAP && RPM_VERSION >= 0x040d00 /* 4.13.0 (ALT specific) */
+   rc = rpmRangesOverlap("", PkgVer, PkgFlags, "", DepVer, DepFlags, _rpmds_nopromote);
+#elif RPM_VERSION >= 0x040100
    rpmds pds = rpmdsSingle(RPMTAG_PROVIDENAME, "", PkgVer, PkgFlags);
    rpmds dds = rpmdsSingle(RPMTAG_REQUIRENAME, "", DepVer, DepFlags);
-#if RPM_VERSION >= 0x040201
+# if RPM_VERSION >= 0x040201
    rpmdsSetNoPromote(pds, _rpmds_nopromote);
    rpmdsSetNoPromote(dds, _rpmds_nopromote);
-#endif
+# endif
    rc = rpmdsCompare(pds, dds);
    rpmdsFree(pds);
    rpmdsFree(dds);

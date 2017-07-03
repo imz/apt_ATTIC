@@ -75,6 +75,12 @@ else
 
    dnl Check for RPM libraries and headers
 
+   AC_CHECK_LIB([rpm],[rpmCheckRpmlibProvides],[
+      AC_DEFINE([HAVE_RPMCHECKRPMLIBPROVIDES],[1],[Define to 1 if librpm rpmCheckRpmlibProvides is present])])
+
+   AC_CHECK_LIB([rpm],[rpmRangesOverlap],[
+      AC_DEFINE([HAVE_RPMRANGESOVERLAP],[1],[Define to 1 if librpm rpmRangesOverlap is present])])
+
    AC_CHECK_LIB(bz2,BZ2_bzopen, [],
 		[AC_MSG_ERROR([Can't find libbz2 library])])
    AC_CHECK_LIB(z,gzopen, [],
