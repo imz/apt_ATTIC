@@ -322,7 +322,6 @@ void Lua::ResetScript(const char *ChunkCacheKey)
 
 void Lua::SetGlobal(const char *Name)
 {
-   lua_pushstring(L, Name);
    lua_pushnil(L);
    lua_setglobal(L, Name);
    Globals.push_back(Name);
@@ -331,7 +330,6 @@ void Lua::SetGlobal(const char *Name)
 void Lua::SetGlobal(const char *Name, const char *Value)
 {
    if (Value != NULL) {
-      lua_pushstring(L, Name);
       lua_pushstring(L, Value);
       lua_setglobal(L, Name);
    }
@@ -341,7 +339,6 @@ void Lua::SetGlobal(const char *Name, const char *Value)
 void Lua::SetGlobal(const char *Name, pkgCache::Package *Value)
 {
    if (Value != NULL) {
-      lua_pushstring(L, Name);
       pushudata(pkgCache::Package*, Value);
       lua_setglobal(L, Name);
    }
@@ -350,7 +347,6 @@ void Lua::SetGlobal(const char *Name, pkgCache::Package *Value)
 
 void Lua::SetGlobal(const char *Name, const char **Value, int Total)
 {
-   lua_pushstring(L, Name);
    lua_newtable(L);
    if (Total == -1)
       Total = INT_MAX;
@@ -365,7 +361,6 @@ void Lua::SetGlobal(const char *Name, const char **Value, int Total)
 void Lua::SetGlobal(const char *Name, vector<const char *> &Value,
 		    int Total)
 {
-   lua_pushstring(L, Name);
    lua_newtable(L);
    if (Total == -1 || Total > Value.size())
       Total = Value.size();
@@ -380,7 +375,6 @@ void Lua::SetGlobal(const char *Name, vector<const char *> &Value,
 void Lua::SetGlobal(const char *Name, vector<string> &Value,
 		    int Total)
 {
-   lua_pushstring(L, Name);
    lua_newtable(L);
    if (Total == -1 || Total > Value.size())
       Total = Value.size();
@@ -395,7 +389,6 @@ void Lua::SetGlobal(const char *Name, vector<string> &Value,
 void Lua::SetGlobal(const char *Name, vector<pkgCache::Package*> &Value,
 		    int Total)
 {
-   lua_pushstring(L, Name);
    lua_newtable(L);
    if (Total == -1 || Total > Value.size())
       Total = Value.size();
@@ -409,7 +402,6 @@ void Lua::SetGlobal(const char *Name, vector<pkgCache::Package*> &Value,
 
 void Lua::SetGlobal(const char *Name, bool Value)
 {
-   lua_pushstring(L, Name);
    lua_pushboolean(L, Value);
    lua_setglobal(L, Name);
    Globals.push_back(Name);
@@ -417,7 +409,6 @@ void Lua::SetGlobal(const char *Name, bool Value)
 
 void Lua::SetGlobal(const char *Name, double Value)
 {
-   lua_pushstring(L, Name);
    lua_pushnumber(L, Value);
    lua_setglobal(L, Name);
    Globals.push_back(Name);
@@ -426,7 +417,6 @@ void Lua::SetGlobal(const char *Name, double Value)
 void Lua::SetGlobal(const char *Name, void *Value)
 {
    if (Value != NULL) {
-      lua_pushstring(L, Name);
       lua_pushlightuserdata(L, Value);
       lua_setglobal(L, Name);
    }
@@ -435,7 +425,6 @@ void Lua::SetGlobal(const char *Name, void *Value)
 
 void Lua::SetGlobal(const char *Name, lua_CFunction Value)
 {
-   lua_pushstring(L, Name);
    lua_pushcfunction(L, Value);
    lua_setglobal(L, Name);
    Globals.push_back(Name);
@@ -446,7 +435,6 @@ void Lua::ResetGlobals()
    if (Globals.empty() == false) {
       for (vector<string>::const_iterator I = Globals.begin();
 	   I != Globals.end(); I++) {
-	 lua_pushstring(L, I->c_str());
 	 lua_pushnil(L);
 	 lua_setglobal(L, I->c_str());
       }
