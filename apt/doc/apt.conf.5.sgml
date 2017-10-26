@@ -411,7 +411,24 @@ DPkg::Pre-Install-Pkgs {"/usr/sbin/dpkg-preconfigure --apt";};
    </VariableList>
    </para>
  </RefSect1>
+ 
+ <RefSect1><Title>Options related to Autoremove</>
+   <para>
+   Autoremove depends on packages having been marked as either 'auto' or
+   'manual' (i.e., either automatically installed by APT to resolve a
+   dependency or manually selected for installation).
+   There are a few options which configure the marking behaviour.
 
+   <VariableList>
+     <VarListEntry><Term>Dir::State::apt_mark_storage</Term>
+     <ListItem><Para>
+     This option defines name of file used to store value of flag <literal/auto/. This file is located at <filename>/var/lib/apt</> directory. Default value is <filename>apt_mark_storage</>.
+     </Para></ListItem>
+     </VarListEntry>
+   </VariableList>
+   </para>
+ </RefSect1>
+ 
  <RefSect1><Title>Debug Options</>
    <para>   
    Most of the options in the <literal/debug/ section are not interesting to 
