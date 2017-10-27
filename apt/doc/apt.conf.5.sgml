@@ -427,6 +427,38 @@ DPkg::Pre-Install-Pkgs {"/usr/sbin/dpkg-preconfigure --apt";};
      a user's request), it marks this package as manually installed.
      </Para></ListItem>
      </VarListEntry>
+
+     <VarListEntry><Term>APT::Get::Obsoletes::AptMarkInheritanceAuto</Term>
+     <ListItem><Para>
+     A string option which allows to define the rules of setting the
+     value of flag <literal/auto/ when a package is obsoleting and
+     replacing another package. Possible values are:
+     </para><para>
+     <literal/obsoleted/ - if the obsoleted package is marked 'auto',
+     the replacing package will be marked 'auto' too, otherwise marked 'manual';
+     </para><para>
+     <literal/replacing/ - the replacing package gets its mark as usual
+     (i.e., if the replacing package is to be marked 'auto', it gets
+     this mark without taking the mark of the replaced package into
+     account; similarly for 'manual');
+     </para><para>
+     <literal/at_least_one/ - if the obsoleted package or the
+     replacing package is marked 'auto', the replacing package will be
+     marked 'auto', otherwise marked 'manual';
+     </para><para>
+     <literal/all/ - if the obsoleted package and the replacing
+     package are both marked 'auto', the replacing package will be
+     marked 'auto', otherwise marked 'manual';
+     </para><para>
+     <literal/never/ - the replacing package is always marked 'manual';
+     </para><para>
+     <literal/always/ - the replacing package is always marked 'auto';
+     </para><para>
+     </para><para>
+     if some other value is used or if the value is missing, it acts
+     as if <literal/all/ was set.
+     </Para></ListItem>
+     </VarListEntry>
    </VariableList>
    </para>
  </RefSect1>
