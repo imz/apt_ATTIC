@@ -461,6 +461,21 @@ DPkg::Pre-Install-Pkgs {"/usr/sbin/dpkg-preconfigure --apt";};
      </VarListEntry>
    </VariableList>
    </para>
+
+   <para>
+   There is an option which helps to debug the autoremove algorithm
+
+   <VariableList>
+     <VarListEntry><Term>Debug::pkgAutoremove::resolveVirtuals</Term>
+     <ListItem><Para>
+     This is a boolean option with default value <literal/false/. If
+     it's set to <literal/true/, when autoremove is checking package
+     dependencies, it'll output the information about the process of
+     resolving virtual dependencies.
+     </Para></ListItem>
+     </VarListEntry>
+   </VariableList>
+   </para>
  </RefSect1>
  
  <RefSect1><Title>Debug Options</>
