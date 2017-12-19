@@ -61,14 +61,14 @@ Requires: libapt-devel = %version-%release, librpm-devel-static >= 4.0.4-alt28
 Summary: Utilities to create APT repositories (the indices)
 Summary(ru_RU.UTF-8): Утилиты для построения APT-репозиториев (индексов)
 Group: Development/Other
-Requires: %name = %version-%release, mktemp >= 1:1.3.1, getopt
+Requires: %name = %EVR, mktemp >= 1:1.3.1, getopt
 Requires: gnupg, sed
 
 %package rsync
 Summary: rsync method support for APT
 Summary(ru_RU.UTF-8): Поддержка метода rsync для APT
 Group: Development/Other
-Requires: %name = %version-%release, rsync >= 2.5.5-alt3
+Requires: %name = %EVR, rsync >= 2.5.5-alt3
 
 # {{{ descriptions 
 %define risk_usage_en This package is still under development.
@@ -276,6 +276,13 @@ unset RPM_PYTHON
 # Probably %%doc with README.rsync?
 
 %changelog
+* Tue Dec 19 2017 Aleksei Nikiforov <darktemplar@altlinux.org> 0.5.15lorg2-alt59
+- Fixed crash on fail to read package file.
+- [not for p8] Implemented following actions and commands (closes: #34036):
+  "apt-get autoremove", "apt-mark showmanual [package1 ...]", "apt-mark showauto [package1 ...]",
+  "apt-mark manual package1 [package2 ...]", "apt-mark auto package1 [package2 ...]",
+  "apt-mark showstate [package1 ...]".
+
 * Fri Dec 15 2017 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt58
 - cherry-picked from Debian 0.7.22 (git://anonscm.debian.org/git/apt/apt.git)
   some fixes for http download method (ALT: 18925)
