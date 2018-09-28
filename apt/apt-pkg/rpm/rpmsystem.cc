@@ -18,6 +18,7 @@
 #include <config.h>
 
 #ifdef HAVE_RPM
+#include <stdint.h>
 
 #include <apt-pkg/rpmsystem.h>
 #include <apt-pkg/rpmversion.h>
@@ -395,7 +396,7 @@ bool rpmSystem::processIndexFile(rpmIndexFile *Index,OpProgress &Progress)
 	 char *name;
 	 char *version;
 	 char *release;
-	 int_32 *epoch;
+	 int32_t *epoch;
 	 int res;
 	 char buf[256];
 	 

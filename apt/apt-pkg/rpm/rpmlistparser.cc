@@ -197,7 +197,7 @@ string rpmListParser::Version()
 #endif
 
    char *ver, *rel;
-   int_32 *ser;
+   int32_t *ser;
    bool has_epoch = false;
    int type, count;
    string str;
@@ -253,7 +253,7 @@ int rpmListParser::BuildTime()
 bool rpmListParser::NewVersion(pkgCache::VerIterator Ver)
 {
    int count, type;
-   int_32 *num;
+   int32_t *num;
 
 #if WITH_VERSION_CACHING
    // Cache it for future usage.
@@ -414,7 +414,7 @@ bool rpmListParser::ParseStatus(pkgCache::PkgIterator Pkg,
 
 
 bool rpmListParser::ParseDepends(pkgCache::VerIterator Ver,
-				 char **namel, char **verl, int_32 *flagl,
+				 char **namel, char **verl, int32_t *flagl,
 				 int count, unsigned int Type)
 {
    int i = 0;
@@ -774,7 +774,7 @@ bool rpmListParser::LoadReleaseInfo(pkgCache::PkgFileIterator FileI,
 
 unsigned long rpmListParser::Size() 
 {
-   uint_32 *size;
+   uint32_t *size;
    int type, count;
    if (headerGetEntry(header, RPMTAG_SIZE, &type, (void **)&size, &count)!=1)
        return 1;
