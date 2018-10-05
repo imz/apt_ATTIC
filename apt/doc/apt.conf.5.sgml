@@ -411,7 +411,26 @@ DPkg::Pre-Install-Pkgs {"/usr/sbin/dpkg-preconfigure --apt";};
    </VariableList>
    </para>
  </RefSect1>
+ 
+ <RefSect1><Title>Options related to Autoremove</>
+   <para>
+   Autoremove depends on packages having been marked as either 'auto' or
+   'manual' (i.e., either automatically installed by APT to resolve a
+   dependency or manually selected for installation).
+   There are a few options which configure the marking behaviour.
 
+   <VariableList>
+     <VarListEntry><Term>APT::Get::ReInstall::MarkManual</Term>
+     <ListItem><Para>
+     This is a boolean option with default value <literal/true/. If
+     it's set to <literal/true/ then, when APT reinstalls a package (by
+     a user's request), it marks this package as manually installed.
+     </Para></ListItem>
+     </VarListEntry>
+   </VariableList>
+   </para>
+ </RefSect1>
+ 
  <RefSect1><Title>Debug Options</>
    <para>   
    Most of the options in the <literal/debug/ section are not interesting to 
