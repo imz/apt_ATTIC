@@ -816,7 +816,7 @@ bool TryToInstall(pkgCache::PkgIterator Pkg,pkgDepCache &Cache,
    }
    
    // Install it
-   Cache.MarkInstall(Pkg,false);
+   Cache.MarkInstall(Pkg,pkgDepCache::AutoMarkFlag::Manual,false);
    if (State.Install() == false)
    {
       if (_config->FindB("APT::Get::ReInstall",false) == true)
@@ -835,17 +835,19 @@ bool TryToInstall(pkgCache::PkgIterator Pkg,pkgDepCache &Cache,
 	 if (AllowFail == true)
 	    ioprintf(c1out,_("%s is already the newest version.\n"),
 		     Pkg.Name());
+	    // FIXME: should we set it in this case?
+	    // under if: Cache.MarkAuto(Pkg, pkgDepCache::AutoMarkFlag::Manual);
+	    // Currently, even if it's set, unless package is reinstalled, new mark is not saved
       }      
    }   
    else
    {
       ExpectedInst++;
-      Cache.MarkAuto(Pkg, false);
    }
    
    // Install it with autoinstalling enabled.
    if (State.InstBroken() == true && BrokenFix == false)
-      Cache.MarkInstall(Pkg,true);
+      Cache.MarkInstall(Pkg,pkgDepCache::AutoMarkFlag::DontChange,true);
    return true;
 }
 									/*}}}*/
@@ -1782,7 +1784,7 @@ bool DoDSelectUpgrade(CommandLine &CmdL)
       /* Install the package only if it is a new install, the autoupgrader
          will deal with the rest */
       if (I->SelectedState == pkgCache::State::Install)
-	 Cache->MarkInstall(I,false);
+	 Cache->MarkInstall(I,pkgDepCache::AutoMarkFlag::DontChange,false);
    }
 
    /* Now install their deps too, if we do this above then order of
@@ -1792,7 +1794,7 @@ bool DoDSelectUpgrade(CommandLine &CmdL)
       /* Install the package only if it is a new install, the autoupgrader
          will deal with the rest */
       if (I->SelectedState == pkgCache::State::Install)
-	 Cache->MarkInstall(I,true);
+	 Cache->MarkInstall(I,pkgDepCache::AutoMarkFlag::DontChange,true);
    }
    
    // Apply erasures now, they override everything else.
