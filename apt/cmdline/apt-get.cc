@@ -394,7 +394,7 @@ void ShowBroken(ostream &out,CacheFile &Cache,bool Now)
 // ShowNew - Show packages to newly install				/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-void ShowNew(std::ostream &out, std::ostream &l_c3out, CacheFile &Cache, size_t l_ScreenWidth)
+void ShowNew(std::ostream &out, std::ostream &l_c3out, CacheFile &Cache, pkgDepCache::State *State, size_t l_ScreenWidth)
 {
    /* Print out a list of packages that are going to be installed extra
       to what the user asked */
@@ -403,8 +403,9 @@ void ShowNew(std::ostream &out, std::ostream &l_c3out, CacheFile &Cache, size_t 
    for (unsigned J = 0; J < Cache->Head().PackageCount; J++)
    {
       pkgCache::PkgIterator I(Cache,Cache.List[J]);
-      if (Cache[I].NewInstall() == true) {
-         List += string(I.Name()) + " ";
+      if (Cache[I].NewInstall() == true &&
+	  (State == NULL || (*State)[I].NewInstall() == false)) {
+	 List += string(I.Name()) + " ";
          VersionsList += string(Cache[I].CandVersion) + "\n";
       }
    }
@@ -416,7 +417,7 @@ void ShowNew(std::ostream &out, std::ostream &l_c3out, CacheFile &Cache, size_t 
 // ShowDel - Show packages to delete					/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-void ShowDel(std::ostream &out, std::ostream &l_c3out, CacheFile &Cache, size_t l_ScreenWidth)
+void ShowDel(std::ostream &out, std::ostream &l_c3out, CacheFile &Cache, pkgDepCache::State *State, size_t l_ScreenWidth)
 {
    /* Print out a list of packages that are going to be removed extra
       to what the user asked */
@@ -425,7 +426,8 @@ void ShowDel(std::ostream &out, std::ostream &l_c3out, CacheFile &Cache, size_t 
    for (unsigned J = 0; J < Cache->Head().PackageCount; J++)
    {
       pkgCache::PkgIterator I(Cache,Cache.List[J]);
-      if (Cache[I].Delete() == true)
+      if (Cache[I].Delete() == true &&
+	  (State == NULL || (*State)[I].Delete() == false))
       {
 	 // CNC:2002-07-25
 	 bool Obsoleted = false;
@@ -471,7 +473,7 @@ void ShowDel(std::ostream &out, std::ostream &l_c3out, CacheFile &Cache, size_t 
 // ShowKept - Show kept packages					/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-void ShowKept(std::ostream &out, std::ostream &l_c3out, CacheFile &Cache, size_t l_ScreenWidth)
+void ShowKept(std::ostream &out, std::ostream &l_c3out, CacheFile &Cache, pkgDepCache::State *State, size_t l_ScreenWidth)
 {
    string List;
    string VersionsList;
@@ -479,10 +481,17 @@ void ShowKept(std::ostream &out, std::ostream &l_c3out, CacheFile &Cache, size_t
    {	 
       pkgCache::PkgIterator I(Cache,Cache.List[J]);
       
-      // Not interesting
-      if (Cache[I].Upgrade() == true || Cache[I].Upgradable() == false ||
-	  I->CurrentVer == 0 || Cache[I].Delete() == true)
-	 continue;
+      if (State == NULL) {
+	 // Not interesting
+	 if (Cache[I].Upgrade() == true || Cache[I].Upgradable() == false ||
+	     I->CurrentVer == 0 || Cache[I].Delete() == true)
+	    continue;
+      } else {
+	 // Not interesting
+	 if (!((Cache[I].Install() == false && (*State)[I].Install() == true) ||
+	       (Cache[I].Delete() == false && (*State)[I].Delete() == true)))
+	    continue;
+      }
       
       List += string(I.Name()) + " ";
       VersionsList += string(Cache[I].CurVersion) + " => " + Cache[I].CandVersion + "\n";
@@ -494,7 +503,7 @@ void ShowKept(std::ostream &out, std::ostream &l_c3out, CacheFile &Cache, size_t
 // ShowUpgraded - Show upgraded packages				/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-void ShowUpgraded(std::ostream &out, std::ostream &l_c3out, CacheFile &Cache, size_t l_ScreenWidth)
+void ShowUpgraded(std::ostream &out, std::ostream &l_c3out, CacheFile &Cache, pkgDepCache::State *State, size_t l_ScreenWidth)
 {
    string List;
    string VersionsList;
@@ -502,9 +511,16 @@ void ShowUpgraded(std::ostream &out, std::ostream &l_c3out, CacheFile &Cache, si
    {
       pkgCache::PkgIterator I(Cache,Cache.List[J]);
       
-      // Not interesting
-      if (Cache[I].Upgrade() == false || Cache[I].NewInstall() == true)
-	 continue;
+      if (State == NULL) {
+	 // Not interesting
+	 if (Cache[I].Upgrade() == false || Cache[I].NewInstall() == true)
+	    continue;
+      } else {
+	 // Not interesting
+	 if (Cache[I].NewInstall() == true ||
+	     !(Cache[I].Upgrade() == true && (*State)[I].Upgrade() == false))
+	    continue;
+      }
       
       List += string(I.Name()) + " ";
       VersionsList += string(Cache[I].CurVersion) + " => " + Cache[I].CandVersion + "\n";
@@ -516,7 +532,7 @@ void ShowUpgraded(std::ostream &out, std::ostream &l_c3out, CacheFile &Cache, si
 // ShowDowngraded - Show downgraded packages				/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-bool ShowDowngraded(std::ostream &out, std::ostream &l_c3out, CacheFile &Cache, size_t l_ScreenWidth)
+bool ShowDowngraded(std::ostream &out, std::ostream &l_c3out, CacheFile &Cache, pkgDepCache::State *State, size_t l_ScreenWidth)
 {
    string List;
    string VersionsList;
@@ -524,9 +540,16 @@ bool ShowDowngraded(std::ostream &out, std::ostream &l_c3out, CacheFile &Cache, 
    {
       pkgCache::PkgIterator I(Cache,Cache.List[J]);
       
-      // Not interesting
-      if (Cache[I].Downgrade() == false || Cache[I].NewInstall() == true)
-	 continue;
+      if (State == NULL) {
+	 // Not interesting
+	 if (Cache[I].Downgrade() == false || Cache[I].NewInstall() == true)
+	    continue;
+      } else {
+	 // Not interesting
+	 if (Cache[I].NewInstall() == true ||
+	     !(Cache[I].Downgrade() == true && (*State)[I].Downgrade() == false))
+	    continue;
+      }
       
       List += string(I.Name()) + " ";
       VersionsList += string(Cache[I].CurVersion) + " => " + Cache[I].CandVersion + "\n";
@@ -538,7 +561,7 @@ bool ShowDowngraded(std::ostream &out, std::ostream &l_c3out, CacheFile &Cache, 
 // ShowHold - Show held but changed packages				/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-bool ShowHold(std::ostream &out, std::ostream &l_c3out, CacheFile &Cache, size_t l_ScreenWidth)
+bool ShowHold(std::ostream &out, std::ostream &l_c3out, CacheFile &Cache, pkgDepCache::State *State, size_t l_ScreenWidth)
 {
    string List;
    string VersionsList;
@@ -546,9 +569,11 @@ bool ShowHold(std::ostream &out, std::ostream &l_c3out, CacheFile &Cache, size_t
    {
       pkgCache::PkgIterator I(Cache,Cache.List[J]);
       if (Cache[I].InstallVer != (pkgCache::Version *)I.CurrentVer() &&
-          I->SelectedState == pkgCache::State::Hold) {
-         List += string(I.Name()) + " ";
-		 VersionsList += string(Cache[I].CurVersion) + " => " + Cache[I].CandVersion + "\n";
+	  I->SelectedState == pkgCache::State::Hold &&
+	  (State == NULL ||
+	   Cache[I].InstallVer != (*State)[I].InstallVer)) {
+	 List += string(I.Name()) + " ";
+	 VersionsList += string(Cache[I].CurVersion) + " => " + Cache[I].CandVersion + "\n";
       }
    }
 
@@ -561,7 +586,7 @@ bool ShowHold(std::ostream &out, std::ostream &l_c3out, CacheFile &Cache, size_t
 /* This prints out a warning message that is not to be ignored. It shows
    all essential packages and their dependents that are to be removed. 
    It is insanely risky to remove the dependents of an essential package! */
-bool ShowEssential(std::ostream &out, std::ostream &l_c3out, CacheFile &Cache, size_t l_ScreenWidth)
+bool ShowEssential(std::ostream &out, std::ostream &l_c3out, CacheFile &Cache, pkgDepCache::State *State, size_t l_ScreenWidth)
 {
    string List;
    string VersionsList;
@@ -577,7 +602,8 @@ bool ShowEssential(std::ostream &out, std::ostream &l_c3out, CacheFile &Cache, s
 	 continue;
       
       // The essential package is being removed
-      if (Cache[I].Delete() == true)
+      if (Cache[I].Delete() == true &&
+	  (State == NULL || (*State)[I].Delete() == false))
       {
 	 if (Added[I->ID] == false)
 	 {
@@ -616,7 +642,8 @@ bool ShowEssential(std::ostream &out, std::ostream &l_c3out, CacheFile &Cache, s
 	    continue;
 	 
 	 pkgCache::PkgIterator P = D.SmartTargetPkg();
-	 if (Cache[P].Delete() == true)
+	 if (Cache[P].Delete() == true &&
+	     (State == NULL || (*State)[P].Delete() == false))
 	 {
 	    if (Added[P->ID] == true)
 	       continue;
@@ -658,7 +685,7 @@ bool ShowEssential(std::ostream &out, std::ostream &l_c3out, CacheFile &Cache, s
 // Stats - Show some statistics						/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-void Stats(std::ostream &out, std::ostream &l_c3out, pkgDepCache &Dep)
+void Stats(std::ostream &out, std::ostream &l_c3out, pkgDepCache &Dep, pkgDepCache::State *State)
 {
    unsigned long Upgrade = 0;
    unsigned long Downgrade = 0;
@@ -667,20 +694,31 @@ void Stats(std::ostream &out, std::ostream &l_c3out, pkgDepCache &Dep)
    // CNC:2002-07-29
    unsigned long Replace = 0;
    unsigned long Remove = 0;
+   unsigned long Keep = 0;
    for (pkgCache::PkgIterator I = Dep.PkgBegin(); I.end() == false; I++)
    {
-      if (Dep[I].NewInstall() == true)
+      if (Dep[I].NewInstall() == true &&
+	  (State == NULL || (*State)[I].NewInstall() == false))
 	 Install++;
       else
       {
-	 if (Dep[I].Upgrade() == true)
+	 if (Dep[I].Upgrade() == true &&
+	     (State == NULL || (*State)[I].Upgrade() == false))
 	    Upgrade++;
 	 else
-	    if (Dep[I].Downgrade() == true)
+	    if (Dep[I].Downgrade() == true &&
+		(State == NULL || (*State)[I].Downgrade() == false))
 	       Downgrade++;
+	    else
+	       if (State != NULL &&
+		   (((*State)[I].NewInstall() == true && Dep[I].NewInstall() == false) ||
+		    ((*State)[I].Upgrade() == true && Dep[I].Upgrade() == false) ||
+		    ((*State)[I].Downgrade() == true && Dep[I].Downgrade() == false)))
+		  Keep++;
       }
       // CNC:2002-07-29
-      if (Dep[I].Delete() == true)
+      if (Dep[I].Delete() == true &&
+	  (State == NULL || (*State)[I].Delete() == false))
       {
 	 bool Obsoleted = false;
 	 string by;
@@ -701,7 +739,8 @@ void Stats(std::ostream &out, std::ostream &l_c3out, pkgDepCache &Dep)
 	 else
 	    Remove++;
       }
-      else if ((Dep[I].iFlags & pkgDepCache::ReInstall) == pkgDepCache::ReInstall)
+      else if ((Dep[I].iFlags & pkgDepCache::ReInstall) == pkgDepCache::ReInstall &&
+	       (State == NULL || !((*State)[I].iFlags & pkgDepCache::ReInstall)))
 	 ReInstall++;
    }   
    l_c3out<<"apt-get:status:upgrade:"<<Upgrade<<std::endl;
@@ -723,8 +762,12 @@ void Stats(std::ostream &out, std::ostream &l_c3out, pkgDepCache &Dep)
       ioprintf(out,_("%lu replaced, "),Replace);
 
    // CNC:2002-07-29
-   ioprintf(out,_("%lu removed and %lu not upgraded.\n"),
-	    Remove,Dep.KeepCount());
+   if (State == NULL)
+      ioprintf(out,_("%lu removed and %lu not upgraded.\n"),
+	       Remove,Dep.KeepCount());
+   else
+      ioprintf(out,_("%lu removed and %lu kept.\n"),Remove,Keep);
+
    
    if (Dep.BadCount() != 0)
       ioprintf(out,_("%lu not fully installed or removed.\n"),
@@ -741,14 +784,14 @@ bool CheckOnly(CacheFile &Cache)
       return false;
    if (Cache->InstCount() != 0 || Cache->DelCount() != 0) {
       if (_config->FindB("APT::Get::Show-Upgraded",true) == true)
-	 ShowUpgraded(c1out,c3out,Cache,ScreenWidth);
-      ShowDel(c1out,c3out,Cache,ScreenWidth);
-      ShowNew(c1out,c3out,Cache,ScreenWidth);
+	 ShowUpgraded(c1out,c3out,Cache,nullptr,ScreenWidth);
+      ShowDel(c1out,c3out,Cache,nullptr,ScreenWidth);
+      ShowNew(c1out,c3out,Cache,nullptr,ScreenWidth);
       //ShowKept(c1out,Cache);
-      ShowHold(c1out,c3out,Cache,ScreenWidth);
-      ShowDowngraded(c1out,c3out,Cache,ScreenWidth);
-      ShowEssential(c1out,c3out,Cache,ScreenWidth);
-      Stats(c1out,c3out,Cache);
+      ShowHold(c1out,c3out,Cache,nullptr,ScreenWidth);
+      ShowDowngraded(c1out,c3out,Cache,nullptr,ScreenWidth);
+      ShowEssential(c1out,c3out,Cache,nullptr,ScreenWidth);
+      Stats(c1out,c3out,Cache,nullptr);
       _error->Error(_("There are changes to be made"));
    }
 
@@ -900,17 +943,17 @@ bool InstallPackages(CacheFile &Cache,bool ShwKept,bool Ask = true,
    // Show all the various warning indicators
    // CNC:2002-03-06 - Change Show-Upgraded default to true, and move upwards.
    if (_config->FindB("APT::Get::Show-Upgraded",true) == true)
-      ShowUpgraded(c1out,c3out,Cache,ScreenWidth);
-   ShowDel(c1out,c3out,Cache,ScreenWidth);
-   ShowNew(c1out,c3out,Cache,ScreenWidth);
+      ShowUpgraded(c1out,c3out,Cache,nullptr,ScreenWidth);
+   ShowDel(c1out,c3out,Cache,nullptr,ScreenWidth);
+   ShowNew(c1out,c3out,Cache,nullptr,ScreenWidth);
    if (ShwKept == true)
-      ShowKept(c1out,c3out,Cache,ScreenWidth);
-   Fail |= !ShowHold(c1out,c3out,Cache,ScreenWidth);
-   Fail |= !ShowDowngraded(c1out,c3out,Cache,ScreenWidth);
+      ShowKept(c1out,c3out,Cache,nullptr,ScreenWidth);
+   Fail |= !ShowHold(c1out,c3out,Cache,nullptr,ScreenWidth);
+   Fail |= !ShowDowngraded(c1out,c3out,Cache,nullptr,ScreenWidth);
    if (_config->FindB("APT::Get::Download-Only",false) == false)
-        Essential = !ShowEssential(c1out,c3out,Cache,ScreenWidth);
+        Essential = !ShowEssential(c1out,c3out,Cache,nullptr,ScreenWidth);
    Fail |= Essential;
-   Stats(c1out,c3out,Cache);
+   Stats(c1out,c3out,Cache,nullptr);
    
    // Sanity check
    if (Cache->BrokenCount() != 0)
