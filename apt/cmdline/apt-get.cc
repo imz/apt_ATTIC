@@ -1934,7 +1934,7 @@ bool DoUpdate(CommandLine &CmdL)
 #else
    // Prepare the cache.   
    CacheFile Cache(c1out);
-   if (Cache.Open() == false)
+   if (Cache.Open(true) == false)
       return false;
 
 #ifdef WITH_LUA
@@ -2585,7 +2585,7 @@ bool DoAutoClean(CommandLine &CmdL)
    }
    
    CacheFile Cache(c1out);
-   if (Cache.Open() == false)
+   if (Cache.Open(true) == false)
       return false;
    
    LogCleaner Cleaner;
@@ -2601,7 +2601,7 @@ bool DoAutoClean(CommandLine &CmdL)
 bool DoCheck(CommandLine &CmdL)
 {
    CacheFile Cache(c1out);
-   Cache.Open();
+   Cache.Open(true);
    Cache.CheckDeps();
    
    return true;

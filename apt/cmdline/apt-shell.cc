@@ -144,7 +144,7 @@ class AutoReOpenCache
 	 if (_error->PendingError())
 		 _error->PushState();
 	 *Cache = new CacheFile(c1out);
-	 (*Cache)->Open();
+	 (*Cache)->Open((*Cache)->CanCommit());
 	 _error->PopState();
 	 if ((*Cache)->CheckDeps(true) == false) {
 	    c1out << _("There are broken packages. ")
@@ -2438,7 +2438,7 @@ bool DoAutoClean(CommandLine &CmdL)
    
    CacheFile &Cache = *GCache;
 #if 0
-   if (Cache.Open() == false)
+   if (Cache.Open(Cache.CanCommit()) == false)
       return false;
 #endif
    
@@ -4510,7 +4510,7 @@ int aptpipe_init(void)
 
 	// Prepare the cache
 	GCache = new CacheFile(c1out);
-	GCache->Open();
+	GCache->Open(GCache->CanCommit());
 
 	if (_error->empty() == false) {
 		bool Errors = _error->PendingError();
@@ -4665,7 +4665,7 @@ int main(int argc,const char *argv[])
 
    // Prepare the cache
    GCache = new CacheFile(c1out);
-   GCache->Open();
+   GCache->Open(GCache->CanCommit());
 
    // CNC:2004-02-18
    if (_error->empty() == false)
