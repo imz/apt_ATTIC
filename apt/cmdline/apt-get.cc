@@ -93,8 +93,8 @@ public:
    /* This routine generates the caches and then opens the dependency cache
       and verifies that the system is OK. */
    bool CheckDeps(bool AllowBroken = false);
-   bool BuildCaches(bool WithLock = true);
-   bool Open(bool WithLock = true);
+   bool BuildCaches(bool WithLock);
+   bool Open(bool WithLock);
    bool OpenForInstall();
 
 private:

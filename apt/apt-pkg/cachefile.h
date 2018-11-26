@@ -46,8 +46,8 @@ class pkgCacheFile
    inline pkgDepCache::StateCache &operator [](pkgCache::PkgIterator const &I) {return (*DCache)[I];};
    inline unsigned char &operator [](pkgCache::DepIterator const &I) {return (*DCache)[I];};
 
-   bool BuildCaches(OpProgress &Progress,bool WithLock = true);
-   bool Open(OpProgress &Progress,bool WithLock = true);
+   bool BuildCaches(OpProgress &Progress,bool WithLock);
+   bool Open(OpProgress &Progress,bool WithLock);
    void Close();
    
    pkgCacheFile();

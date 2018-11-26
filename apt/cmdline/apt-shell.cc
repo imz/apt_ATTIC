@@ -98,8 +98,8 @@ public:
    /* This routine generates the caches and then opens the dependency cache
       and verifies that the system is OK. */
    bool CheckDeps(bool AllowBroken = false);
-   bool BuildCaches();
-   bool Open();
+   bool BuildCaches(bool WithLock);
+   bool Open(bool WithLock);
 
    bool CanCommit() const;
 
@@ -964,18 +964,18 @@ bool CacheFile::CheckDeps(bool AllowBroken)
 }
 									/*}}}*/
 
-bool CacheFile::BuildCaches()
+bool CacheFile::BuildCaches(bool WithLock)
 {
    OpTextProgress Prog(*_config);
-   if (pkgCacheFile::BuildCaches(Prog,m_is_root) == false)
-      return false;
+   if (pkgCacheFile::BuildCaches(Prog,WithLock) == false)
+  return false;
    return true;
 }
 
-bool CacheFile::Open()
+bool CacheFile::Open(bool WithLock)
 {
    OpTextProgress Prog(*_config);
-   if (pkgCacheFile::Open(Prog,m_is_root) == false)
+   if (pkgCacheFile::Open(Prog,WithLock) == false)
       return false;
    Sort();
    return true;
