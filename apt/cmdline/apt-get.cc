@@ -97,8 +97,11 @@ public:
    bool Open(bool WithLock);
    bool OpenForInstall();
 
+   bool CanCommit() const;
+
 private:
    std::ostream &m_c1out;
+   bool m_is_root;
 
    static pkgCache *SortCache;
 
@@ -802,7 +805,8 @@ bool CheckOnly(CacheFile &Cache)
 pkgCache *CacheFile::SortCache = 0;
 
 CacheFile::CacheFile(std::ostream &c1out)
-   : m_c1out(c1out)
+   : m_c1out(c1out),
+   m_is_root((geteuid() == 0))
 {
    List = 0;
 }
@@ -914,6 +918,11 @@ bool CacheFile::OpenForInstall()
   return Open(false);
    else
   return Open(true);
+}
+
+bool CacheFile::CanCommit() const
+{
+   return m_is_root;
 }
 
 // CNC:2002-07-06
