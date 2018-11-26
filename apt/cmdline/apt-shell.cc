@@ -100,6 +100,7 @@ public:
    bool CheckDeps(bool AllowBroken = false);
    bool BuildCaches(bool WithLock);
    bool Open(bool WithLock);
+   bool OpenForInstall();
 
    bool CanCommit() const;
 
@@ -979,6 +980,16 @@ bool CacheFile::Open(bool WithLock)
       return false;
    Sort();
    return true;
+}
+
+bool CacheFile::OpenForInstall()
+{
+   // CNC:2004-03-07 - dont take lock if in download mode
+   if (_config->FindB("APT::Get::Print-URIs") == true ||
+   _config->FindB("APT::Get::Download-only") == true)
+  return Open(false);
+   else
+  return Open(true);
 }
 
 bool CacheFile::CanCommit() const
