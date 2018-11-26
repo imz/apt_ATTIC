@@ -84,40 +84,31 @@ unsigned int ScreenWidth = 80;
 // class CacheFile - Cover class for some dependency cache functions	/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-class CacheFile : public pkgCacheFile
+class CacheFile: public pkgCacheFile
 {
-   static pkgCache *SortCache;
-   static int NameComp(const void *a,const void *b);
-   bool IsRoot;
-   
-   public:
+public:
    pkgCache::Package **List;
-   
+
+   CacheFile();
+
    void Sort();
+
+   // CacheFile::CheckDeps - Open the cache file
+   // ---------------------------------------------------------------------
+   /* This routine generates the caches and then opens the dependency cache
+      and verifies that the system is OK. */
    bool CheckDeps(bool AllowBroken = false);
-   bool BuildCaches()
-   {
-      OpTextProgress Prog(*_config);
-      if (pkgCacheFile::BuildCaches(Prog,IsRoot) == false)
-	 return false;
-      return true;
-   }
-   bool Open() 
-   {
-      OpTextProgress Prog(*_config);
-      if (pkgCacheFile::Open(Prog,IsRoot) == false)
-	 return false;
-      Sort();
-      return true;
-   };
-   bool CanCommit()
-   {
-      return IsRoot;
-   }
-   CacheFile() : List(0)
-   {
-      IsRoot = (geteuid() == 0);
-   };
+   bool BuildCaches();
+   bool Open();
+
+   bool CanCommit() const;
+
+private:
+   static pkgCache *SortCache;
+
+   // CacheFile::NameComp - QSort compare by name
+   static int NameComp(const void *a, const void *b);
+   bool IsRoot;
 };
 									/*}}}*/
 
@@ -870,6 +861,12 @@ bool ConfirmChanges(CacheFile &Cache, AutoRestore &StateGuard)
 // ---------------------------------------------------------------------
 /* */
 pkgCache *CacheFile::SortCache = 0;
+
+CacheFile::CacheFile() : List(0)
+{
+   IsRoot = (geteuid() == 0);
+}
+
 int CacheFile::NameComp(const void *a,const void *b)
 {
    if (*(pkgCache::Package **)a == 0 || *(pkgCache::Package **)b == 0)
@@ -906,9 +903,12 @@ bool CacheFile::CheckDeps(bool AllowBroken)
    if (_error->PendingError() == true)
       return false;
 
+// CNC:2003-03-19 - Might be changed by some extension.
+#if 0
    // Check that the system is OK
-   //if (DCache->DelCount() != 0 || DCache->InstCount() != 0)
-   //   return _error->Error("Internal Error, non-zero counts");
+   if (DCache->DelCount() != 0 || DCache->InstCount() != 0)
+      return _error->Error("Internal Error, non-zero counts");
+#endif
    
    // Apply corrections for half-installed packages
    if (pkgApplyStatus(*DCache) == false)
@@ -945,6 +945,28 @@ bool CacheFile::CheckDeps(bool AllowBroken)
    return true;
 }
 									/*}}}*/
+
+bool CacheFile::BuildCaches()
+{
+   OpTextProgress Prog(*_config);
+   if (pkgCacheFile::BuildCaches(Prog,IsRoot) == false)
+      return false;
+   return true;
+}
+
+bool CacheFile::Open()
+{
+   OpTextProgress Prog(*_config);
+   if (pkgCacheFile::Open(Prog,IsRoot) == false)
+      return false;
+   Sort();
+   return true;
+}
+
+bool CacheFile::CanCommit() const
+{
+   return IsRoot;
+}
 
 // CNC:2002-07-06
 bool DoClean(CommandLine &CmdL);
