@@ -116,7 +116,7 @@ class CacheFile : public pkgCacheFile
    }
    CacheFile() : List(0)
    {
-      IsRoot = (getuid() == 0);
+      IsRoot = (geteuid() == 0);
    };
 };
 									/*}}}*/
