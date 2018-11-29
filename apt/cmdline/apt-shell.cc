@@ -104,11 +104,12 @@ public:
    bool CanCommit() const;
 
 private:
+   bool m_is_root;
+
    static pkgCache *SortCache;
 
    // CacheFile::NameComp - QSort compare by name
    static int NameComp(const void *a, const void *b);
-   bool IsRoot;
 };
 									/*}}}*/
 
@@ -864,7 +865,7 @@ pkgCache *CacheFile::SortCache = 0;
 
 CacheFile::CacheFile() : List(0)
 {
-   IsRoot = (geteuid() == 0);
+   m_is_root = (geteuid() == 0);
 }
 
 int CacheFile::NameComp(const void *a,const void *b)
@@ -949,7 +950,7 @@ bool CacheFile::CheckDeps(bool AllowBroken)
 bool CacheFile::BuildCaches()
 {
    OpTextProgress Prog(*_config);
-   if (pkgCacheFile::BuildCaches(Prog,IsRoot) == false)
+   if (pkgCacheFile::BuildCaches(Prog,m_is_root) == false)
       return false;
    return true;
 }
@@ -957,7 +958,7 @@ bool CacheFile::BuildCaches()
 bool CacheFile::Open()
 {
    OpTextProgress Prog(*_config);
-   if (pkgCacheFile::Open(Prog,IsRoot) == false)
+   if (pkgCacheFile::Open(Prog,m_is_root) == false)
       return false;
    Sort();
    return true;
@@ -965,7 +966,7 @@ bool CacheFile::Open()
 
 bool CacheFile::CanCommit() const
 {
-   return IsRoot;
+   return m_is_root;
 }
 
 // CNC:2002-07-06
