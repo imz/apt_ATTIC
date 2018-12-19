@@ -38,6 +38,9 @@
 #include <apt-pkg/depcache.h>
 
 #include <iostream>
+#include <set>
+#include <string>
+#include <utility>
 
 using std::ostream;
 
@@ -135,6 +138,8 @@ bool pkgFixBroken(pkgDepCache &Cache);
 bool pkgAllUpgrade(pkgDepCache &Cache);
 bool pkgMinimizeUpgrade(pkgDepCache &Cache);
 bool pkgAutoremove(pkgDepCache &Cache);
+
+bool pkgAutoremoveGetKeptAndUnneededPackages(pkgDepCache &Cache, std::set<std::string> *o_kept_packages, std::set<std::string> *o_unneeded_packages);
 
 void pkgPrioSortList(pkgCache &Cache,pkgCache::Version **List);
 		     

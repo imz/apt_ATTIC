@@ -660,24 +660,16 @@ static bool find_all_required_dependencies(
    return true;
 }
 
-bool pkgAutoremove(pkgDepCache &Cache)
+static bool find_all_kept_packages(pkgDepCache &Cache, std::set<const char*> &kept_packages)
 {
-   if (Cache.BrokenCount() != 0)
-   {
-      return false;
-   }
-
    bool debug_virtuals = _config->FindB("Debug::pkgAutoremove::resolveVirtuals", false);
-
-   pkgProblemResolver Fix(&Cache);
-
-   // if package is still needed, put it into this set
-   std::set<const char*> kept_packages;
 
    // save unresolved virtual dependencies here to try resolving it
    std::map<const char*, std::set<pkgCache::PkgIterator> > unresolved_virtual_dependencies;
 
    std::map<const char*, std::set<pkgCache::PrvIterator> > virtual_provides_map;
+
+   kept_packages.clear();
 
    // First gather all virtual provides
    for (pkgCache::PkgIterator pkg_iter = Cache.PkgBegin(); not pkg_iter.end(); ++pkg_iter)
@@ -857,6 +849,26 @@ bool pkgAutoremove(pkgDepCache &Cache)
       unresolved_virtual_dependencies = new_unresolved_virtual_dependencies;
    }
 
+   return true;
+}
+
+bool pkgAutoremove(pkgDepCache &Cache)
+{
+   if (Cache.BrokenCount() != 0)
+   {
+      return false;
+   }
+
+   pkgProblemResolver Fix(&Cache);
+
+   // if package is still needed, put it into this set
+   std::set<const char*> kept_packages;
+
+   if (!find_all_kept_packages(Cache, kept_packages))
+   {
+      return false;
+   }
+
    // Finally, go through all packages once more and mark them
    for (pkgCache::PkgIterator pkg_iter = Cache.PkgBegin(); not pkg_iter.end(); ++pkg_iter)
    {
@@ -877,6 +889,52 @@ bool pkgAutoremove(pkgDepCache &Cache)
    }
 
    return Fix.Resolve(false);
+}
+
+bool pkgAutoremoveGetKeptAndUnneededPackages(pkgDepCache &Cache, std::set<std::string> *o_kept_packages, std::set<std::string> *o_unneeded_packages)
+{
+   // if package is still needed, put it into this set
+   std::set<const char*> kept_packages;
+
+   if (!find_all_kept_packages(Cache, kept_packages))
+   {
+      return false;
+   }
+
+   if (o_kept_packages)
+   {
+      o_kept_packages->clear();
+   }
+
+   if (o_unneeded_packages)
+   {
+      o_unneeded_packages->clear();
+   }
+
+   // Finally, go through all packages once more and split them into two sets
+   for (pkgCache::PkgIterator pkg_iter = Cache.PkgBegin(); not pkg_iter.end(); ++pkg_iter)
+   {
+      // Skip packages not installed
+      if (pkg_iter->CurrentState == pkgCache::State::Installed)
+      {
+         if (kept_packages.find(pkg_iter.Name()) != kept_packages.end())
+         {
+            if (o_kept_packages)
+            {
+               o_kept_packages->insert(pkg_iter.Name());
+            }
+         }
+         else
+         {
+            if (o_unneeded_packages)
+            {
+               o_unneeded_packages->insert(pkg_iter.Name());
+            }
+         }
+      }
+   }
+
+   return true;
 }
 
 // ProblemResolver::pkgProblemResolver - Constructor			/*{{{*/
