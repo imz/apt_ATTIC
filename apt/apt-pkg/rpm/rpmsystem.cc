@@ -108,15 +108,22 @@ bool rpmSystem::Lock()
 /* Close the rpmdb, effectively dropping it's lock */
 bool rpmSystem::UnLock(bool NoErrors)
 {
-   if (LockCount == 0 && NoErrors == true)
-      return false;
-   if (LockCount < 1)
+   if ((!NoErrors) && (LockCount < 1) && (RpmDB == nullptr))
+   {
       return _error->Error("Not locked");
-   if (--LockCount == 0)
+   }
+
+   if (LockCount > 0)
+   {
+      --LockCount;
+   }
+
+   if ((LockCount == 0) && (RpmDB != nullptr))
    {
       delete RpmDB;
-      RpmDB = NULL;
+      RpmDB = nullptr;
    }
+
    return true;
 }
 									/*}}}*/
