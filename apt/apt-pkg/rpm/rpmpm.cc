@@ -1154,7 +1154,7 @@ bool pkgRPMLibPM::UpdateMarks()
       if ((I->CurrentState == pkgCache::State::Installed)
          && ((Cache[I].Flags & important_flags) != (I->Flags & important_flags)))
       {
-         changed_packages.push_back(apt_item(I.Name(), collect_autoinstalled_flag(Cache, I)));
+         changed_packages.push_back(apt_item(rpm_name_conversion(I), collect_autoinstalled_flag(Cache, I)));
       }
    }
 
@@ -1204,6 +1204,8 @@ bool pkgRPMLibPM::UpdateMarks()
 
    for (auto iter = changed_packages.begin(); iter != changed_packages.end(); ++iter)
    {
+      size_t changed_count = 0;
+
       rpmdbMatchIterator MI;
       
 #if RPM_VERSION >= 0x040100
@@ -1220,6 +1222,8 @@ bool pkgRPMLibPM::UpdateMarks()
 
       while ((hdr = rpmdbNextIterator(MI)) != NULL)
       {
+         ++changed_count;
+
          rpmtd td = rpmtdNew();
 
          scope_exit free_td(std::bind(rpmtdFree, td));
@@ -1252,6 +1256,13 @@ bool pkgRPMLibPM::UpdateMarks()
       }
 
       rpmdbSetIteratorModified(MI, 1);
+
+      if (changed_count != 1)
+      {
+         _error->Error(_("Failed to change package flags for file %s: %zu packages were found in rpmdb with such name when it was expected that exactly 1 package would be found"),
+            iter->file.c_str(), changed_count);
+         return false;
+      }
    }
 
    return true;
