@@ -84,6 +84,38 @@ private:
    std::function<void()> m_function;
 };
 
+std::string rpm_name_conversion(const pkgCache::PkgIterator &Pkg)
+{
+   string Name = Pkg.Name();
+   string::size_type loc;
+   bool NeedLabel = false;
+
+   // Unmunge our package names so rpm can find them...
+   if ((loc = Name.find('#')) != string::npos) {
+      Name = Name.substr(0, loc);
+      NeedLabel = true;
+   }
+   if ((loc = Name.rfind(".32bit")) != string::npos &&
+      loc == Name.length() - strlen(".32bit"))
+      Name = Name.substr(0,loc);
+   if (NeedLabel) {
+      const char *VerStr = Pkg.CurrentVer().VerStr();
+      const char *Epoch = strchr(VerStr, ':');
+      if (Epoch)
+         VerStr = Epoch + 1;
+      Name += "-";
+      Name += VerStr;
+   }
+
+#if RPM_VERSION >= 0x040202
+   // This is needed for removal to work on multilib packages, but old
+   // rpm versions don't support name.arch in RPMDBI_LABEL, oh well...
+   Name = Name + "." + Pkg.CurrentVer().Arch();
+#endif
+
+   return Name;
+}
+
 } // unnamed namespace
 
 // RPMPM::pkgRPMPM - Constructor					/*{{{*/
@@ -299,34 +331,12 @@ bool pkgRPMPM::Go()
    {
       string Name = I->Pkg.Name();
       string::size_type loc;
-      bool NeedLabel;
 
       switch (I->Op)
       {
       case Item::Purge:
       case Item::Remove:
-	 // Unmunge our package names so rpm can find them...
-	 NeedLabel = false;
-	 if ((loc = Name.find('#')) != string::npos) {
-	    Name = Name.substr(0,loc);
-	    NeedLabel = true;
-	 }
-	 if ((loc = Name.rfind(".32bit")) != string::npos &&
-	       loc == Name.length() - strlen(".32bit"))
-	    Name = Name.substr(0,loc);
-	 if (NeedLabel) {
-	    const char *VerStr = I->Pkg.CurrentVer().VerStr();
-	    const char *Epoch = strchr(VerStr, ':');
-	    if (Epoch)
-	       VerStr = Epoch + 1;
-	    Name += "-";
-	    Name += VerStr;
-	 }
-#if RPM_VERSION >= 0x040202
-	 // This is needed for removal to work on multilib packages, but old
-	 // rpm versions don't support name.arch in RPMDBI_LABEL, oh well...
-	 Name = Name + "." + I->Pkg.CurrentVer().Arch();
-#endif
+	 Name = rpm_name_conversion(I->Pkg);
 	 uninstall.push_back(strdup(Name.c_str()));
 	 unalloc.push_back(strdup(Name.c_str()));
 	 pkgs_uninstall.push_back(I->Pkg);
