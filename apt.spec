@@ -1,6 +1,6 @@
 Name: apt
 Version: 0.5.15lorg2
-Release: alt53
+Release: alt53.M80C.1
 
 Summary: Debian's Advanced Packaging Tool with RPM support
 Summary(ru_RU.UTF-8): Debian APT - Усовершенствованное средство управления пакетами с поддержкой RPM
@@ -276,6 +276,9 @@ unset RPM_PYTHON
 # Probably %%doc with README.rsync?
 
 %changelog
+* Fri Feb 01 2019 Anton V. Boyarshinov <boyarsh@altlinux.org> 0.5.15lorg2-alt53.M80C.1
+- apt-get moo removed
+
 * Fri Nov 27 2015 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt53
 - doc/: Add a note about APT_CONFIG in the -c description
   (Closes: Debian #578267) (thx David Kalnischkies).
