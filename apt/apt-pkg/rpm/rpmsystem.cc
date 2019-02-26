@@ -621,8 +621,8 @@ static void HashOptionFile(unsigned long &Hash, const char *Name)
 unsigned long rpmSystem::OptionsHash() const
 {
    unsigned long Hash = 0;
-#ifdef PKG_NEVRA
-   HashString(Hash, PKG_NEVRA);
+#ifdef APTRPM_ID
+   HashString(Hash, APTRPM_ID);
 #endif
    HashOption(Hash, "RPM::Architecture");
    HashOptionTree(Hash, "RPM::Allow-Duplicated");
