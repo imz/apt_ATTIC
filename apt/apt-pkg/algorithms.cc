@@ -687,8 +687,10 @@ static bool find_all_kept_packages(pkgDepCache &Cache, std::set<const char*> &ke
    // Check every installed package
    for (pkgCache::PkgIterator pkg_iter = Cache.PkgBegin(); not pkg_iter.end(); ++pkg_iter)
    {
-      // Skip packages not installed, and automatically installed ones too
-      if ((pkg_iter->CurrentState == pkgCache::State::Installed) && (Cache.getMarkAuto(pkg_iter) == pkgDepCache::AutoMarkFlag::Manual))
+      // Skip packages not installed, and automatically installed ones too, and packages with pending removal
+      if ((pkg_iter->CurrentState == pkgCache::State::Installed)
+         && (Cache[pkg_iter].Mode != pkgDepCache::ModeList::ModeDelete)
+         && (Cache.getMarkAuto(pkg_iter) == pkgDepCache::AutoMarkFlag::Manual))
       {
          if (!find_all_required_dependencies(Cache, pkg_iter, kept_packages, unresolved_virtual_dependencies, virtual_provides_map))
          {
