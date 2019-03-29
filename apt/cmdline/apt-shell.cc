@@ -1224,6 +1224,8 @@ bool DoInstall(CommandLine &CmdL)
    if (Cache.CheckDeps(CmdL.FileSize() != 1) == false)
       return false;
 
+   bool doAutoRemove = _config->FindB("APT::Get::AutomaticRemove", false);
+
    // Enter the special broken fixing mode if the user specified arguments
    bool BrokenFix = false;
    if (Cache->BrokenCount() != 0)
@@ -1456,6 +1458,25 @@ bool DoInstall(CommandLine &CmdL)
 	 if (TryToInstall(Pkg,Cache,Fix,Mode,BrokenFix,ExpectedInst) == false)
 	    return false;
 	 StateGuard->Ignore(Pkg);
+      }
+   }
+
+   if (doAutoRemove)
+   {
+      std::set<std::string> removed_packages;
+      if (not pkgAutoremoveGetKeptAndUnneededPackages(*Cache, nullptr, &removed_packages))
+      {
+         return _error->Error(_("Requested autoremove failed."));
+      }
+
+      for (pkgCache::PkgIterator pkg = Cache->PkgBegin(); ! pkg.end(); ++pkg)
+      {
+         if (removed_packages.count(pkg.Name()) != 0)
+         {
+            Fix.Clear(pkg);
+            Fix.Protect(pkg);
+            Fix.Remove(pkg);
+         }
       }
    }
 
@@ -3738,6 +3759,8 @@ CommandLine::Args *CommandArgs(const char *Name)
       {0,"force-yes","APT::Get::Force-Yes",0},
       {0,"ignore-hold","APT::Ignore-Hold",0},      
       {0,"purge","APT::Get::Purge",0},
+      {0, "autoremove", "APT::Get::AutomaticRemove", 0},
+      {0, "auto-remove", "APT::Get::AutomaticRemove", 0},
       {0,"remove","APT::Get::Remove",0},
       {0,"arch-only","APT::Get::Arch-Only",0},
       {'c',"config-file",0,CommandLine::ConfigFile},

@@ -404,6 +404,15 @@
      </Para></ListItem>
      </VarListEntry>
 
+     <VarListEntry><term><option/--autoremove/</>
+                   <term><option/--auto-remove/</>
+     <ListItem><Para>
+     Remove packages that were automatically installed to satisfy dependencies
+     for other packages and are now no longer needed.
+     Configuration Item: <literal/APT::Get::AutomaticRemove/.
+     </para></ListItem>
+     </VarListEntry>
+
      <VarListEntry><term><option/-t/</>
                    <term><option/--target-release/</>
                    <term><option/--default-release/</>

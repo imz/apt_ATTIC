@@ -1323,6 +1323,8 @@ bool DoInstall(CommandLine &CmdL)
    unsigned int Packages = 0;
    pkgProblemResolver Fix(Cache);
    
+   bool doAutoRemove = _config->FindB("APT::Get::AutomaticRemove", false);
+
    bool DefRemove = false;
    if (strcasecmp(CmdL.FileList[0],"remove") == 0)
       DefRemove = true;
@@ -1549,6 +1551,25 @@ bool DoInstall(CommandLine &CmdL)
 	 if (TryToInstall(Pkg,Cache,Fix,Remove,BrokenFix,ExpectedInst) == false)
 	    return false;
       }      
+   }
+
+   if (doAutoRemove)
+   {
+      std::set<std::string> removed_packages;
+      if (not pkgAutoremoveGetKeptAndUnneededPackages(*Cache, nullptr, &removed_packages))
+      {
+         return _error->Error(_("Requested autoremove failed."));
+      }
+
+      for (pkgCache::PkgIterator pkg = Cache->PkgBegin(); ! pkg.end(); ++pkg)
+      {
+         if (removed_packages.count(pkg.Name()) != 0)
+         {
+            Fix.Clear(pkg);
+            Fix.Protect(pkg);
+            Fix.Remove(pkg);
+         }
+      }
    }
 
 // CNC:2003-03-19
@@ -2732,6 +2753,8 @@ int main(int argc,const char *argv[])
       {0,"list-cleanup","APT::Get::List-Cleanup",0},
       {0,"reinstall","APT::Get::ReInstall",0},
       {0,"trivial-only","APT::Get::Trivial-Only",0},
+      {0, "autoremove", "APT::Get::AutomaticRemove", 0},
+      {0, "auto-remove", "APT::Get::AutomaticRemove", 0},
       {0,"remove","APT::Get::Remove",0},
       {0,"only-source","APT::Get::Only-Source",0},
       {0,"arch-only","APT::Get::Arch-Only",0},
