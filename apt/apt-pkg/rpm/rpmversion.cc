@@ -41,53 +41,6 @@ rpmVersioningSystem::rpmVersioningSystem()
    Label = "Standard .rpm";
 }
 									/*}}}*/
-// rpmVS::ParseVersion - Parse a version into it's components           /*{{{*/
-// ---------------------------------------------------------------------
-/* Code ripped from rpmlib */
-void rpmVersioningSystem::ParseVersion(const char *V, const char *VEnd,
-				       char **Epoch, 
-				       char **Version,
-				       char **Release)
-{
-   string tmp = string(V, VEnd);
-   char *evr = strdup(tmp.c_str());
-   const char *epoch = NULL;
-   const char *version = NULL;
-   const char *release = NULL;
-   char *s;
-
-   assert(evr != NULL);
-   
-   s = strrchr(evr, '-');
-   if (s) {
-      *s++ = '\0';
-      release = s;
-   }
-   s = evr;
-   while (isdigit(*s)) s++;
-   if (*s == ':')
-   {
-      epoch = evr;
-      *s++ = '\0';
-      version = s;
-      if (*epoch == '\0') epoch = "0";
-   }
-   else
-   {
-#if RPM_VERSION >= 0x040100
-      epoch = "0";
-#endif
-      version = evr;
-   }
-
-#define Xstrdup(a) (a) ? strdup(a) : NULL
-   *Epoch = Xstrdup(epoch);
-   *Version = Xstrdup(version);
-   *Release = Xstrdup(release);
-#undef Xstrdup
-   free(evr);
-}
-									/*}}}*/
 // rpmVS::CmpVersion - Comparison for versions				/*{{{*/
 // ---------------------------------------------------------------------
 /* This fragments the version into E:V-R triples and compares each 
@@ -95,11 +48,13 @@ void rpmVersioningSystem::ParseVersion(const char *V, const char *VEnd,
 int rpmVersioningSystem::DoCmpVersion(const char *A,const char *AEnd,
 				      const char *B,const char *BEnd)
 {
-   char *AE, *AV, *AR;
-   char *BE, *BV, *BR;
+   char * const tmpA = strndupa(A, (size_t)(AEnd-A));
+   char * const tmpB = strndupa(B, (size_t)(BEnd-B));
+   const char *AE, *AV, *AR;
+   const char *BE, *BV, *BR;
    int rc = 0;
-   ParseVersion(A, AEnd, &AE, &AV, &AR);
-   ParseVersion(B, BEnd, &BE, &BV, &BR);
+   parseEVR(tmpA, &AE, &AV, &AR);
+   parseEVR(tmpB, &BE, &BV, &BR);
    if (AE && !BE)
        rc = 1;
    else if (!AE && BE)
@@ -126,8 +81,6 @@ int rpmVersioningSystem::DoCmpVersion(const char *A,const char *AEnd,
 	      rc = rpmvercmp(AR, BR);
       }
    }
-   free(AE);free(AV);free(AR);;
-   free(BE);free(BV);free(BR);;
    return rc;
 }
 									/*}}}*/

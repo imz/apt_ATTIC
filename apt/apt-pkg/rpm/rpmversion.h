@@ -20,9 +20,6 @@
     
 class rpmVersioningSystem : public pkgVersioningSystem
 {     
-   void ParseVersion(const char *V, const char *VEnd, 
-		     char **Epoch, char **Version, char **Release);
-   
    public:
    
    // Compare versions..
