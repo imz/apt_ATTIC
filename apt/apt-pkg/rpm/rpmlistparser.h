@@ -89,7 +89,6 @@ class rpmListParser : public pkgCacheGenerator::ListParser
    
    rpmListParser(RPMHandler *Handler);
    ~rpmListParser();
-   virtual int BuildTime();
 };
 
 #endif

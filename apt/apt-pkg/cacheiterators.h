@@ -147,7 +147,6 @@ class pkgCache::VerIterator
       if (Ver == 0)
 	 Ver = Owner.VerP;
    };
-   inline const int BTime() const {return Ver->BTime;};
 };
 
 // Dependency iterator
