@@ -41,6 +41,25 @@ rpmVersioningSystem::rpmVersioningSystem()
    Label = "Standard .rpm";
 }
 									/*}}}*/
+
+/* Having the const modifier on the values of the output parameters may seem
+   unjustified, but this has the nice property that they cannot be freed;
+   e.g., free(*vp) in subsequent code would be invalid.
+   (And that's good because it's just a pointer into a larger allocated chunk.)
+*/
+static void parseEVRT(char * const evrt,
+                      const char ** const ep,
+                      const char ** const vp,
+                      const char ** const rp,
+                      const char ** const tp)
+{
+   char *buildtime = strrchr(evrt, '@');
+   if (buildtime)
+      *(buildtime++) = '\0';
+   if (tp) *tp = buildtime;
+   parseEVR(evrt, ep, vp, rp);
+}
+
 // rpmVS::CmpVersion - Comparison for versions				/*{{{*/
 // ---------------------------------------------------------------------
 /* This fragments the version into E:V-R triples and compares each 
@@ -50,11 +69,11 @@ int rpmVersioningSystem::DoCmpVersion(const char *A,const char *AEnd,
 {
    char * const tmpA = strndupa(A, (size_t)(AEnd-A));
    char * const tmpB = strndupa(B, (size_t)(BEnd-B));
-   const char *AE, *AV, *AR;
-   const char *BE, *BV, *BR;
+   const char *AE, *AV, *AR, *AT;
+   const char *BE, *BV, *BR, *BT;
    int rc = 0;
-   parseEVR(tmpA, &AE, &AV, &AR);
-   parseEVR(tmpB, &BE, &BV, &BR);
+   parseEVRT(tmpA, &AE, &AV, &AR, &AT);
+   parseEVRT(tmpB, &BE, &BV, &BR, &BT);
    if (AE && !BE)
        rc = 1;
    else if (!AE && BE)
