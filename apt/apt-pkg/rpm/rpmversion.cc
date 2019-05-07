@@ -122,6 +122,14 @@ int rpmVersioningSystem::DoCmpVersion(const char *A,const char *AEnd,
 	      rc = -1;
 	  else if (AR && BR)
 	      rc = rpmvercmp(AR, BR);
+          if (rc == 0) {
+             if (AT && !BT)
+                rc = 1;
+             else if (!AT && BT)
+                rc = -1;
+             else if (AT && BT)
+                rc = intcmp(AT, BT);
+          }
       }
    }
    return rc;
