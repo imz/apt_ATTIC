@@ -78,6 +78,20 @@ static void parseEVRT(char * const evrt,
    if (tp) *tp = buildtime;
 }
 
+static int intcmp(const char * const A, const char * const B)
+{
+   int Ai, Bi;
+   Ai = atoi(A);
+   Bi = atoi(B);
+   if (Ai < Bi)
+      return -1;
+   else if (Ai > Bi)
+      return 1;
+   else
+      return 0;
+}
+
+
 // rpmVS::CmpVersion - Comparison for versions				/*{{{*/
 // ---------------------------------------------------------------------
 /* This fragments the version into E:V-R triples and compares each 
@@ -97,15 +111,7 @@ int rpmVersioningSystem::DoCmpVersion(const char *A,const char *AEnd,
    else if (!AE && BE)
        rc = -1;
    else if (AE && BE)
-   {
-      int AEi, BEi;
-      AEi = atoi(AE);
-      BEi = atoi(BE);
-      if (AEi < BEi)
-	  rc = -1;
-      else if (AEi > BEi)
-	  rc = 1;
-   }
+      rc = intcmp(AE, BE);
    if (rc == 0)
    {
       rc = rpmvercmp(AV, BV);
