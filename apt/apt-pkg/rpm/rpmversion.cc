@@ -53,9 +53,20 @@ static void parseEVRT(char * const evrt,
                       const char ** const rp,
                       const char ** const tp)
 {
-   char *buildtime = strrchr(evrt, '@');
-   if (buildtime)
-      *(buildtime++) = '\0';
+   const char *buildtime = NULL;
+   {
+      char *s = &evrt[strlen(evrt)];
+      while (s != evrt) {
+         --s;
+         if (*s == '@') {
+            buildtime = &s[1];
+            *s = 0;
+            break;
+         }
+         if (!isdigit(*s))
+            break;
+      }
+   }
    if (tp) *tp = buildtime;
    parseEVR(evrt, ep, vp, rp);
 }
