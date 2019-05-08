@@ -219,15 +219,10 @@ string rpmListParser::Version()
       snprintf(buf, sizeof(buf), "%i", ser[0]);
       str += buf;
       str += ":";
-      str += ver;
-      str += "-";
-      str += rel;
    }
-   else {
-      str += ver;
-      str += "-";
-      str += rel;
-   }
+   str += ver;
+   str += "-";
+   str += rel;
    return str;
 }
                                                                         /*}}}*/
