@@ -353,6 +353,10 @@ void rpmRecordParser::GetRec(const char *&Start,const char *&Stop)
    BufCat(buf);
    headerGetEntry(HeaderP, RPMTAG_RELEASE, &type, (void **)&str, &count);
    BufCat(str);
+   if (headerGetEntry(HeaderP, RPMTAG_BUILDTIME, &type, (void **)&numv, &count)==1) {
+       snprintf(buf, sizeof(buf), "@%" PRIu32, numv[0]);
+       BufCat(buf);
+   }
 
 //   headerGetEntry(HeaderP, RPMTAG_DISTRIBUTION, &type, (void **)&str, &count);
 //   fprintf(f, "Distribution: %s\n", str);

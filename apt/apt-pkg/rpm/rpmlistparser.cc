@@ -205,6 +205,8 @@ string rpmListParser::Version()
    char *ver, *rel;
    uint32_t *ser;
    bool has_epoch = false;
+   uint32_t *btime;
+   bool has_btime = false;
    rpm_tagtype_t type;
    rpm_count_t count;
    stringstream ss;
@@ -216,10 +218,17 @@ string rpmListParser::Version()
    headerGetEntry(header, RPMTAG_VERSION, &type, (void **)&ver, &count);
    headerGetEntry(header, RPMTAG_RELEASE, &type, (void **)&rel, &count);
 
+   if (headerGetEntry(header, RPMTAG_BUILDTIME, &type, (void **)&btime, &count) == 1
+       && count > 0)
+      has_btime = true;
+
    if (has_epoch) {
       ss << ser[0] << ":";
    }
    ss << ver << "-" << rel;
+   if (has_btime) {
+      ss << "@" << btime[0];
+   }
    return ss.str();
 }
                                                                         /*}}}*/
