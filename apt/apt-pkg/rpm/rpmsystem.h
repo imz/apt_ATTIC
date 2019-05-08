@@ -33,9 +33,6 @@ class rpmSystem : public pkgSystem
 #ifdef OLD_FILEDEPS
    map<string,int> FileDeps; // file dependencies
 #endif
-#ifdef OLD_BESTARCH
-   map<string,string> MultiArchPkgs; // packages with multi-archs
-#endif
 
    bool processIndexFile(rpmIndexFile *Handler,OpProgress &Progress);
    
@@ -43,11 +40,6 @@ class rpmSystem : public pkgSystem
 
 #ifdef OLD_FILEDEPS
    bool IsFileDep(string File);
-#endif
-#ifdef OLD_BESTARCH
-   string BestArchForPackage(string Pkg);
-   virtual bool PreProcess(pkgIndexFile **Start,pkgIndexFile **End,
-			   OpProgress &Progress);
 #endif
    RPMDBHandler *GetDBHandler();
    
