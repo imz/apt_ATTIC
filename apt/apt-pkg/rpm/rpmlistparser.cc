@@ -184,6 +184,9 @@ string rpmListParser::Architecture()
    return string(res?arch:"");
 }
                                                                         /*}}}*/
+
+#include <sstream>
+
 // ListParser::Version - Return the version string			/*{{{*/
 // ---------------------------------------------------------------------
 /* This is to return the string describing the version in RPM form,
@@ -200,8 +203,7 @@ string rpmListParser::Version()
    int32_t *ser;
    bool has_epoch = false;
    int type, count;
-   string str;
-   str.reserve(10);
+   stringstream ss;
 
    if (headerGetEntry(header, RPMTAG_EPOCH, &type, (void **)&ser, &count) == 1
        && count > 0) 
@@ -210,16 +212,11 @@ string rpmListParser::Version()
    headerGetEntry(header, RPMTAG_VERSION, &type, (void **)&ver, &count);
    headerGetEntry(header, RPMTAG_RELEASE, &type, (void **)&rel, &count);
 
-   if (has_epoch == true) {
-      char buf[32];
-      snprintf(buf, sizeof(buf), "%i", ser[0]);
-      str += buf;
-      str += ":";
+   if (has_epoch) {
+      ss << ser[0] << ":";
    }
-   str += ver;
-   str += "-";
-   str += rel;
-   return str;
+   ss << ver << "-" << rel;
+   return ss.str();
 }
                                                                         /*}}}*/
 // ListParser::NewVersion - Fill in the version structure		/*{{{*/
