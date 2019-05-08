@@ -695,21 +695,9 @@ bool rpmListParser::Step()
       if (RpmData->IgnorePackage(RealName) == true)
 	 continue;
  
-#if OLD_BESTARCH
-      bool archOk = false;
-      string tmp = rpmSys.BestArchForPackage(RealName);
-      if (tmp.empty() == true && // has packages for a single arch only
-	  rpmMachineScore(RPM_MACHTABLE_INSTARCH, arch.c_str()) > 0)
-	 archOk = true;
-      else if (arch == tmp)
-	 archOk = true;
-      if (Handler->IsDatabase() == true || archOk == true)
-	 return true;
-#else
       if (Handler->IsDatabase() == true ||
 	  RpmData->ArchScore(Architecture().c_str()) > 0)
 	 return true;
-#endif
    }
    header = NULL;
    return false;
