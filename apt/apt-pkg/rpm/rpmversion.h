@@ -17,7 +17,7 @@
 
 #include <apt-pkg/version.h>
 #include <apt-pkg/strutl.h>    
-    
+
 class rpmVersioningSystem : public pkgVersioningSystem
 {     
    public:

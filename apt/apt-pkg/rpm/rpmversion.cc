@@ -41,6 +41,19 @@ rpmVersioningSystem::rpmVersioningSystem()
    Label = "Standard .rpm";
 }
 									/*}}}*/
+static std::ptrdiff_t index_of_EVR_postfix(const char * const evrt)
+{
+   const char *s = &evrt[strlen(evrt)];
+   while (s != evrt) {
+      --s;
+      if (*s == '@') {
+         return s - evrt;
+      }
+      if (!isdigit(*s))
+         break;
+   }
+   return -1;
+}
 
 /* Having the const modifier on the values of the output parameters may seem
    unjustified, but this has the nice property that they cannot be freed;
@@ -53,22 +66,16 @@ static void parseEVRT(char * const evrt,
                       const char ** const rp,
                       const char ** const tp)
 {
-   const char *buildtime = NULL;
+   char *buildtime = NULL;
    {
-      char *s = &evrt[strlen(evrt)];
-      while (s != evrt) {
-         --s;
-         if (*s == '@') {
-            buildtime = &s[1];
-            *s = 0;
-            break;
-         }
-         if (!isdigit(*s))
-            break;
+      const std::ptrdiff_t i = index_of_EVR_postfix(evrt);
+      if (i >= 0) {
+         evrt[i] = '\0';
+         buildtime = &evrt[i+1];
       }
    }
-   if (tp) *tp = buildtime;
    parseEVR(evrt, ep, vp, rp);
+   if (tp) *tp = buildtime;
 }
 
 // rpmVS::CmpVersion - Comparison for versions				/*{{{*/
