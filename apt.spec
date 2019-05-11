@@ -192,6 +192,9 @@ sed -i 's,/usr/share/common-licenses/GPL,/usr/share/license/GPL,' COPYING
 # Unhide potential cc/c++ errors.
 sed -i 's, > /dev/null 2>&1,,' buildlib/tools.m4
 
+# Add trivial arch translation.
+printf '%_target_cpu\t%_target_cpu' >> buildlib/archtable
+
 %autoreconf
 %add_optflags -DPKG_NEVRA=\\\"%name-%{?epoch:%epoch:}%version-%release.%_target_cpu\\\"
 %configure --includedir=%_includedir/apt-pkg %{subst_enable static}
@@ -276,6 +279,11 @@ unset RPM_PYTHON
 # Probably %%doc with README.rsync?
 
 %changelog
+* Sat May 11 2019 Gleb F-Malinovskiy <glebfm@altlinux.org> 0.5.15lorg2-alt63
+- archtable:
+  + added ppc64le;
+  + added trivial arch translation (%%_target_cpu -> %%_target_cpu).
+
 * Tue Dec 19 2017 Aleksei Nikiforov <darktemplar@altlinux.org> 0.5.15lorg2-alt59
 - Fixed crash on fail to read package file.
 - [not for p8] Implemented following actions and commands (closes: #34036):
