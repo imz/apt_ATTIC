@@ -166,8 +166,7 @@ bool rpmVersioningSystem::CheckDep(const char *PkgVer,
    int PkgFlags = RPMSENSE_EQUAL;
    int DepFlags = 0;
    bool invert = false;
-   int rc;
-   
+
    switch (Op & 0x0F)
    {
     case pkgCache::Dep::LessEq:
@@ -203,14 +202,17 @@ bool rpmVersioningSystem::CheckDep(const char *PkgVer,
       break;
    }
 
-   // optimize: equal version strings => equal versions
-   if ((DepFlags & RPMSENSE_SENSEMASK) == RPMSENSE_EQUAL)
-      if (PkgVer && DepVer)
-	 if (strcmp(PkgVer, DepVer) == 0)
-	    return invert ? false : true;
+   if (PkgVer) {
+      // optimize: equal version strings => equal versions
+      if (DepVer && (DepFlags & RPMSENSE_SENSEMASK) == RPMSENSE_EQUAL) {
+         const bool rc = strcmp(PkgVer, DepVer) == 0;
+         if (rc)
+            return invert ? false : true;
+      }
+   }
 
 #if HAVE_RPMRANGESOVERLAP && RPM_VERSION >= 0x040d00 /* 4.13.0 (ALT specific) */
-   rc = rpmRangesOverlap("", PkgVer, PkgFlags, "", DepVer, DepFlags, _rpmds_nopromote);
+   const int rc = rpmRangesOverlap("", PkgVer, PkgFlags, "", DepVer, DepFlags, _rpmds_nopromote);
 #elif RPM_VERSION >= 0x040100
    rpmds pds = rpmdsSingle(RPMTAG_PROVIDENAME, "", PkgVer, PkgFlags);
    rpmds dds = rpmdsSingle(RPMTAG_REQUIRENAME, "", DepVer, DepFlags);
@@ -218,11 +220,11 @@ bool rpmVersioningSystem::CheckDep(const char *PkgVer,
    rpmdsSetNoPromote(pds, _rpmds_nopromote);
    rpmdsSetNoPromote(dds, _rpmds_nopromote);
 # endif
-   rc = rpmdsCompare(pds, dds);
+   const int rc = rpmdsCompare(pds, dds);
    rpmdsFree(pds);
    rpmdsFree(dds);
 #else 
-   rc = rpmRangesOverlap("", PkgVer, PkgFlags, "", DepVer, DepFlags);
+   const int rc = rpmRangesOverlap("", PkgVer, PkgFlags, "", DepVer, DepFlags);
 #endif
     
    return (!invert && rc) || (invert && !rc);
