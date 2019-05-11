@@ -17,7 +17,9 @@
 
 #include <apt-pkg/version.h>
 #include <apt-pkg/strutl.h>    
-    
+
+std::ptrdiff_t index_of_EVR_postfix(const char * evrt);
+
 class rpmVersioningSystem : public pkgVersioningSystem
 {     
    public:
