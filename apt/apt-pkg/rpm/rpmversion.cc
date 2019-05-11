@@ -204,12 +204,20 @@ bool rpmVersioningSystem::CheckDep(const char *PkgVer,
    }
 
    if (PkgVer) {
+      const std::ptrdiff_t PkgVer_len = index_of_EVR_postfix(PkgVer);
+
       // optimize: equal version strings => equal versions
       if (DepVer && (DepFlags & RPMSENSE_SENSEMASK) == RPMSENSE_EQUAL) {
-         const bool rc = strcmp(PkgVer, DepVer) == 0;
+         const bool rc = (PkgVer_len >= 0) ?
+            strncmp(PkgVer, DepVer, (std::size_t)PkgVer_len) == 0
+            && DepVer[PkgVer_len] == '\0'
+            : strcmp(PkgVer, DepVer) == 0;
          if (rc)
             return invert ? false : true;
       }
+
+      if (PkgVer_len >= 0)
+         PkgVer = strndupa(PkgVer, (std::size_t)PkgVer_len);
    }
 
 #if RPM_VERSION >= 0x040100
