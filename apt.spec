@@ -279,7 +279,16 @@ unset RPM_PYTHON
 # Probably %%doc with README.rsync?
 
 %changelog
-* Tue May 14 2019 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt53.M80P.1
+* Mon May 13 2019 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt53.M80P.1
+- Add buildtime to VerStrs (used by APT to identify package versions).
+  This data is used in several manners:
+  * by CheckDep() (only when matching a dependency with a real package);
+  * rpm_name_conversion() (only when making up an id for a duplicated package);
+  * and by *CmpVersion().
+  The latter needs buildtime to determine the correct upgrade direction and
+  can be called through the API with some externally supplied versions.
+  In order to honor buildtime without changing the API and its clients, we pass
+  buildtime inside the existing argument. (Also fixes ALT#36528)
 - Cherry-picked individual changes from:
 [0.5.15lorg2-alt63]
 - archtable:
