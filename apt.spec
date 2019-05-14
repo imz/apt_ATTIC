@@ -279,19 +279,15 @@ unset RPM_PYTHON
 # Probably %%doc with README.rsync?
 
 %changelog
-* Sat May 11 2019 Gleb F-Malinovskiy <glebfm@altlinux.org> 0.5.15lorg2-alt63
+* Tue May 14 2019 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt53.M80P.1
+- Cherry-picked individual changes from:
+[0.5.15lorg2-alt63]
 - archtable:
   + added ppc64le;
   + added trivial arch translation (%%_target_cpu -> %%_target_cpu).
-
-* Tue Dec 19 2017 Aleksei Nikiforov <darktemplar@altlinux.org> 0.5.15lorg2-alt59
+[0.5.15lorg2-alt59]
 - Fixed crash on fail to read package file.
-- [not for p8] Implemented following actions and commands (closes: #34036):
-  "apt-get autoremove", "apt-mark showmanual [package1 ...]", "apt-mark showauto [package1 ...]",
-  "apt-mark manual package1 [package2 ...]", "apt-mark auto package1 [package2 ...]",
-  "apt-mark showstate [package1 ...]".
-
-* Fri Dec 15 2017 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt58
+[0.5.15lorg2-alt58]
 - cherry-picked from Debian 0.7.22 (git://anonscm.debian.org/git/apt/apt.git)
   some fixes for http download method (ALT: 18925)
   * Fix pipeline handling on http.cc
@@ -302,13 +298,8 @@ unset RPM_PYTHON
   * in http method: ignore SIGPIPE, we deal with EPIPE elsewhere
   (closes: https://bugs.launchpad.net/ubuntu/+source/apt/+bug/385144)
   (thx Michael Vogt).
-
-* Mon Nov 21 2016 Gleb F-Malinovskiy <glebfm@altlinux.org> 0.5.15lorg2-alt54
-- [not for p8] Fixed build with rpm-4.13 (legion@).
-- [not for p8] Disabled fancypercents by default.
+[0.5.15lorg2-alt54]
 - Backported fix for logic about package sizes.
-- [not for p8] Fixed support of librpm promoteepoch option.
-- [not for p8] Bumped soversion.
 
 * Fri Nov 27 2015 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt53
 - doc/: Add a note about APT_CONFIG in the -c description
