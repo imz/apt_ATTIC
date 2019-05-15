@@ -21,6 +21,7 @@
 #include <apt-pkg/configuration.h>
 #include <apt-pkg/luaiface.h>
 #include <apt-pkg/depcache.h>
+#include <apt-pkg/scopeexit.h>
 
 #include <apti18n.h>
 
@@ -51,38 +52,6 @@
 #endif
 
 namespace {
-
-class scope_exit
-{
-public:
-   explicit scope_exit(const std::function<void()> &l_function)
-      : m_function(l_function)
-   {
-   }
-
-   explicit scope_exit(const std::function<void()> &&l_function)
-      : m_function(std::move(l_function))
-   {
-   }
-
-   ~scope_exit()
-   {
-      try
-      {
-         if (m_function)
-         {
-            m_function();
-         }
-      }
-      catch (...)
-      {
-         // ignore
-      }
-   }
-
-private:
-   std::function<void()> m_function;
-};
 
 std::string rpm_name_conversion(const pkgCache::PkgIterator &Pkg)
 {
