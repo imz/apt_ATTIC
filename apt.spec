@@ -30,6 +30,10 @@ Requires: /etc/apt/pkgpriorities, apt-conf
 Requires: gzip, bzip2, xz
 Requires: gnupg, alt-gpgkeys
 
+# Older versions of update-kernel misunderstood the @-postfix with buildtime,
+# which is now added by APT to verstrs and the names of allow-duplicated pkgs.
+Conflicts: update-kernel < 0.9.13-alt1
+
 # for autopoint.
 BuildPreReq: cvs
 
