@@ -1,6 +1,6 @@
 Name: apt
 Version: 0.5.15lorg2
-Release: alt67
+Release: alt68
 
 Summary: Debian's Advanced Packaging Tool with RPM support
 Summary(ru_RU.UTF-8): Debian APT - Усовершенствованное средство управления пакетами с поддержкой RPM
@@ -317,6 +317,9 @@ unset RPM_PYTHON
 %_libdir/%name/methods/https
 
 %changelog
+* Wed Jun 05 2019 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt68
+- Add disttag to VerStrs (used by APT to identify package versions).
+
 * Wed Jun 05 2019 Aleksei Nikiforov <darktemplar@altlinux.org> 0.5.15lorg2-alt67
 - Print error and disable 'upgrade' by default.
   Using 'dist-upgrade' instead of 'upgrade' is advised.
