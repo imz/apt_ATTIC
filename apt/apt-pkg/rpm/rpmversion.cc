@@ -80,9 +80,8 @@ static void parseEVRT(char * const evrt,
 
 static int intcmp(const char * const A, const char * const B)
 {
-   int Ai, Bi;
-   Ai = atoi(A);
-   Bi = atoi(B);
+   const unsigned long long Ai = strtoull(A, NULL, 10);
+   const unsigned long long Bi = strtoull(B, NULL, 10);
    if (Ai < Bi)
       return -1;
    else if (Ai > Bi)
