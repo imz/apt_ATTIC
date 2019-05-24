@@ -203,7 +203,7 @@ string rpmListParser::Version()
 #endif
 
    char *ver, *rel;
-   int32_t *ser;
+   uint32_t *ser;
    bool has_epoch = false;
    rpm_tagtype_t type;
    rpm_count_t count;
