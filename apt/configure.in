@@ -248,6 +248,7 @@ AM_GNU_GETTEXT([external])
 dnl ah_NUM_PROCS
 rc_GLIBC_VER
 rc_LIBSTDCPP_VER
+rc_CXX11ABI
 dnl ah_GCC3DEP
 
 dnl Fix up intl/Makefile to point to the right config.h
