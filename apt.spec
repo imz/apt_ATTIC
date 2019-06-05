@@ -31,9 +31,11 @@ Requires: RPMQ(BUILDTIME)
 Requires: gzip, bzip2, xz
 Requires: gnupg, alt-gpgkeys
 
-# Older versions of update-kernel misunderstood the @-postfix with buildtime,
-# which is now added by APT to verstrs and the names of allow-duplicated pkgs.
-Conflicts: update-kernel < 0.9.13-alt1
+# Older versions of update-kernel misunderstood the @-postfix (with buildtime
+# and disttag), which is now added by APT to verstrs and the names of
+# allow-duplicated pkgs. (Epoch was also treated differently before, but that
+# was not important until we added disttags, which are also separated by :.)
+Conflicts: update-kernel < 0.9.14-alt1
 # Older versions of apt-scripts-nvidia relied on a certain format of the APT ids
 # of allow-duplicated packages, which changed (due to appending buildtime).
 Conflicts: apt-scripts-nvidia < 0.5.0-alt1
