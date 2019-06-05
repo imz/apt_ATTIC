@@ -11,7 +11,10 @@
       apt-get [opt] command [things]
    Where command is:
       update - Resyncronize the package files from their sources
-      upgrade - Smart-Download the newest versions of all packages
+      upgrade - Smart-Download the newest versions of all packages;
+                since it may leave system in a broken state, upgrade is disabled
+                by default unless --enable-upgrade option is used.
+                Using dist-upgrade instead of upgrade is advised.
       dselect-upgrade - Follows dselect's changes to the Status: field
                        and installes new and removes old packages
       dist-upgrade - Powerfull upgrader designed to handle the issues with
@@ -1177,6 +1180,13 @@ bool DoUpgrade(CommandLine &CmdL)
    if (CheckHelp(CmdL, 0) == true)
       return true;
    
+   if (!_config->FindB("APT::Get::EnableUpgrade", false)) {
+      return _error->Error(_("'upgrade' is disabled because it can leave system in a broken state.\n"
+                             "It is advised to use 'dist-upgrade' instead.\n"
+                             "If you still want to use 'upgrade' despite of this warning,\n"
+                             "use '--enable-upgrade' option or enable 'APT::Get::EnableUpgrade' configuration setting"));
+   }
+
    CacheFile &Cache = *GCache;
    if (GCache->CanCommit() == false) {
       _error->Error(_("You have no permissions for that"));
@@ -3764,6 +3774,7 @@ CommandLine::Args *CommandArgs(const char *Name)
       {0,"arch-only","APT::Get::Arch-Only",0},
       {'c',"config-file",0,CommandLine::ConfigFile},
       {'o',"option",0,CommandLine::ArbItem},
+      {0, "enable-upgrade", "APT::Get::EnableUpgrade", 0},
       {0,0,0,0}};
 
    static CommandLine::Args CommitArgs[] = {

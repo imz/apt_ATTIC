@@ -471,6 +471,15 @@
      Configuration Item: <literal/APT::Get::Arch-Only/ 
      </Para></ListItem>
      </VarListEntry>
+
+     <VarListEntry><term><option/--enable-upgrade/</>
+     <ListItem><Para>
+     Enables 'upgrade' action with old behaviour: upgrading only installed packages.
+     'upgrade' should be used with caution since it can leave system in a broken state.
+     It is advised to use 'dist-upgrade' action instead of 'upgrade' action.
+     Configuration Item: <literal/APT::Get::EnableUpgrade/.
+     </Para></ListItem>
+     </VarListEntry>
      
      &apt-commonoptions;
      
