@@ -18,7 +18,7 @@
 
 class GPGMethod : public pkgAcqMethod
 {
-   virtual bool Fetch(FetchItem *Itm);
+   virtual bool Fetch(FetchItem *Itm) override;
    
  public:
    
