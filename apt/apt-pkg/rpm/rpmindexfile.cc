@@ -766,7 +766,7 @@ class rpmIFTypePkg : public pkgIndexFile::Type
 {
    public:
    
-   virtual pkgRecords::Parser *CreatePkgParser(pkgCache::PkgFileIterator File) const
+   virtual pkgRecords::Parser *CreatePkgParser(pkgCache::PkgFileIterator File) const override
    {
       return new rpmRecordParser(File.FileName(),*File.Cache());
    };
@@ -776,7 +776,7 @@ class rpmIFTypeDatabase : public pkgIndexFile::Type
 {
    public:
    
-   virtual pkgRecords::Parser *CreatePkgParser(pkgCache::PkgFileIterator File) const
+   virtual pkgRecords::Parser *CreatePkgParser(pkgCache::PkgFileIterator File) const override
    {
       return new rpmRecordParser(File.FileName(),*File.Cache());
    };
