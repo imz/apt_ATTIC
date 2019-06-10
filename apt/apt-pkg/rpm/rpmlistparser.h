@@ -46,12 +46,12 @@ class rpmListParser : public pkgCacheGenerator::ListParser
    bool Duplicated;
    
    unsigned long UniqFindTagWrite(int Tag);
-   bool ParseStatus(pkgCache::PkgIterator Pkg,pkgCache::VerIterator Ver);
-   bool ParseDepends(pkgCache::VerIterator Ver,
+   bool ParseStatus(pkgCache::PkgIterator &Pkg,pkgCache::VerIterator &Ver);
+   bool ParseDepends(pkgCache::VerIterator &Ver,
 		     char **namel, char **verl, int32_t *flagl,
 		     int count, unsigned int Type);
-   bool ParseDepends(pkgCache::VerIterator Ver, unsigned int Type);
-   bool ParseProvides(pkgCache::VerIterator Ver);
+   bool ParseDepends(pkgCache::VerIterator &Ver, unsigned int Type);
+   bool ParseProvides(pkgCache::VerIterator &Ver);
    
 #ifdef OLD_FILEDEPS
    bool ProcessFileProvides(pkgCache::VerIterator Ver);
@@ -63,10 +63,10 @@ class rpmListParser : public pkgCacheGenerator::ListParser
    virtual string Package() override;
    virtual string Version() override;
    virtual string Architecture() override;
-   virtual bool NewVersion(pkgCache::VerIterator Ver) override;
+   virtual bool NewVersion(pkgCache::VerIterator &Ver) override;
    virtual unsigned short VersionHash() override;
-   virtual bool UsePackage(pkgCache::PkgIterator Pkg,
-			   pkgCache::VerIterator Ver) override;
+   virtual bool UsePackage(pkgCache::PkgIterator &Pkg,
+			   pkgCache::VerIterator &Ver) override;
    virtual unsigned long Offset() override
 	{return Handler->Offset();};
    virtual unsigned long Size() override;
@@ -79,10 +79,10 @@ class rpmListParser : public pkgCacheGenerator::ListParser
    	{return Handler->IsDatabase();};
 
    virtual bool CollectFileProvides(pkgCache &Cache,
-				    pkgCache::VerIterator Ver) override; 
+				    pkgCache::VerIterator &Ver) override;
    virtual bool Step() override;
    
-   bool LoadReleaseInfo(pkgCache::PkgFileIterator FileI,FileFd &File);
+   bool LoadReleaseInfo(pkgCache::PkgFileIterator &FileI,FileFd &File);
 
    void VirtualizePackage(const string &Name);
    
