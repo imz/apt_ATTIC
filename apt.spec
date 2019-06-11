@@ -1,6 +1,6 @@
 Name: apt
 Version: 0.5.15lorg2
-Release: alt69
+Release: alt70
 
 Summary: Debian's Advanced Packaging Tool with RPM support
 Summary(ru_RU.UTF-8): Debian APT - Усовершенствованное средство управления пакетами с поддержкой RPM
@@ -330,6 +330,10 @@ unset RPM_PYTHON
 %_libdir/%name/methods/https
 
 %changelog
+* Mon Jul 22 2019 Aleksei Nikiforov <darktemplar@altlinux.org> 0.5.15lorg2-alt70
+- Ported dynamic memory allocation from Debian.
+- Bumped soname due to ABI changes.
+
 * Wed Jul 17 2019 Andrew Savchenko <bircoph@altlinux.org> 0.5.15lorg2-alt69
 - Add E2K arch support.
 
