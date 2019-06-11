@@ -42,7 +42,7 @@ bool IndexCopy::CopyPackages(const string &CDROM,const string &Name,vector<strin
    bool Debug = _config->FindB("Debug::aptcdrom",false);
    
    // Prepare the progress indicator
-   unsigned long TotalSize = 0;
+   unsigned long long TotalSize = 0;
    for (vector<string>::iterator I = List.begin(); I != List.end(); I++)
    {
       struct stat Buf;
@@ -53,7 +53,7 @@ bool IndexCopy::CopyPackages(const string &CDROM,const string &Name,vector<strin
       TotalSize += Buf.st_size;
    }	
 
-   unsigned long CurrentSize = 0;
+   unsigned long long CurrentSize = 0;
    unsigned int NotFound = 0;
    unsigned int WrongSize = 0;
    unsigned int Packages = 0;
@@ -145,7 +145,7 @@ bool IndexCopy::CopyPackages(const string &CDROM,const string &Name,vector<strin
       {
 	 Progress.Progress(Parser.Offset());
 	 string File;
-	 unsigned long Size;
+	 unsigned long long Size;
 	 if (GetFile(File,Size) == false)
 	 {
 	    fclose(TargetFl);
@@ -454,7 +454,7 @@ bool IndexCopy::GrabFirst(const string &Path,string &To,unsigned int Depth)
 // PackageCopy::GetFile - Get the file information from the section	/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-bool PackageCopy::GetFile(string &File,unsigned long &Size)
+bool PackageCopy::GetFile(string &File,unsigned long long &Size)
 {
    File = Section->FindS("Filename");
    Size = Section->FindI("Size");
@@ -480,7 +480,7 @@ bool PackageCopy::RewriteEntry(FILE *Target,const string &File)
 // SourceCopy::GetFile - Get the file information from the section	/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-bool SourceCopy::GetFile(string &File,unsigned long &Size)
+bool SourceCopy::GetFile(string &File,unsigned long long &Size)
 {
    string Files = Section->FindS("Files");
    if (Files.empty() == true)

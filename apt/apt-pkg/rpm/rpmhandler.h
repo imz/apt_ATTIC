@@ -48,7 +48,7 @@ class RPMHandler
 
    virtual string FileName() {return "";};
    virtual string Directory() {return "";};
-   virtual unsigned long FileSize() {return 1;};
+   virtual unsigned long long FileSize() {return 1;};
    virtual string MD5Sum() {return "";};
    virtual bool ProvideFileName() {return false;};
 
@@ -72,7 +72,7 @@ class RPMFileHandler : public RPMHandler
 
    virtual string FileName() override;
    virtual string Directory() override;
-   virtual unsigned long FileSize() override;
+   virtual unsigned long long FileSize() override;
    virtual string MD5Sum() override;
 
    RPMFileHandler(FileFd *File);
@@ -94,7 +94,7 @@ class RPMSingleFileHandler : public RPMFileHandler
 
    virtual string FileName() override {return sFilePath;};
    virtual string Directory() override {return "";};
-   virtual unsigned long FileSize() override;
+   virtual unsigned long long FileSize() override;
    virtual string MD5Sum() override;
    virtual bool ProvideFileName() override {return true;};
 
@@ -158,7 +158,7 @@ class RPMDirHandler : public RPMHandler
    virtual inline bool IsDatabase() override {return false;};
 
    virtual string FileName() override {return (Dir == NULL)?"":sFileName;};
-   virtual unsigned long FileSize() override;
+   virtual unsigned long long FileSize() override;
    virtual string MD5Sum() override;
 
    RPMDirHandler(const string &DirName);

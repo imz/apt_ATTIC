@@ -245,7 +245,7 @@ MD5Summation::MD5Summation()
 // MD5Summation::Add - 'Add' a data set to the hash			/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-bool MD5Summation::Add(const unsigned char *data,unsigned long len)
+bool MD5Summation::Add(const unsigned char *data,unsigned long long len)
 {
    if (Done == true)
       return false;
@@ -293,7 +293,7 @@ bool MD5Summation::Add(const unsigned char *data,unsigned long len)
 // MD5Summation::AddFD - Add the contents of a FD to the hash		/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-bool MD5Summation::AddFD(int Fd,unsigned long Size)
+bool MD5Summation::AddFD(int Fd,unsigned long long Size)
 {
    unsigned char Buf[64*64];
    int Res = 0;

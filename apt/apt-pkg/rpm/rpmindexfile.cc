@@ -172,7 +172,7 @@ bool rpmListIndex::Exists() const
 // rpmListIndex::Size - Return the size of the index			/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-unsigned long rpmListIndex::Size() const
+unsigned long long rpmListIndex::Size() const
 {
    struct stat S;
    if (stat(IndexPath().c_str(),&S) != 0)
@@ -479,11 +479,11 @@ string rpmPkgDirIndex::ReleasePath() const
 // PkgDirIndex::Size - Return the size of the index			/*{{{*/
 // ---------------------------------------------------------------------
 /* This is really only used for progress reporting. */
-unsigned long rpmPkgDirIndex::Size() const
+unsigned long long rpmPkgDirIndex::Size() const
 {
    // XXX: Must optimize this somehow.
    RPMHandler *Handler = CreateHandler();
-   unsigned long Res = Handler->Size();
+   unsigned long long Res = Handler->Size();
    delete Handler;
    return Res;
 }
@@ -500,11 +500,11 @@ string rpmSrcDirIndex::IndexPath() const
 // SrcDirIndex::Size - Return the size of the index			/*{{{*/
 // ---------------------------------------------------------------------
 /* This is really only used for progress reporting. */
-unsigned long rpmSrcDirIndex::Size() const
+unsigned long long rpmSrcDirIndex::Size() const
 {
    // XXX: Must optimize this somehow.
    RPMHandler *Handler = CreateHandler();
-   unsigned long Res = Handler->Size();
+   unsigned long long Res = Handler->Size();
    delete Handler;
    return Res;
 }
@@ -538,7 +538,7 @@ rpmDatabaseIndex::rpmDatabaseIndex()
 // DatabaseIndex::Size - Return the size of the index			/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-unsigned long rpmDatabaseIndex::Size() const
+unsigned long long rpmDatabaseIndex::Size() const
 {
    return rpmSys.GetDBHandler()->Size();
 }

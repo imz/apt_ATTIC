@@ -45,7 +45,7 @@ class MMap
    protected:
 
    unsigned long Flags;
-   unsigned long iSize;
+   unsigned long long iSize;
    void *Base;
 
    bool Map(FileFd &Fd);
@@ -59,7 +59,7 @@ class MMap
    // Simple accessors
    inline operator void *() {return Base;};
    inline void *Data() {return Base;};
-   inline unsigned long Size() {return iSize;};
+   inline unsigned long long Size() {return iSize;};
 
    // File manipulators
    bool Sync();

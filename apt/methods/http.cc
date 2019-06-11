@@ -571,7 +571,7 @@ bool ServerState::HeaderLine(const string &Line)
       if (StartPos != 0)
 	 return true;
       
-      if (sscanf(Val.c_str(),"%lu",&Size) != 1)
+      if (sscanf(Val.c_str(),"%llu",&Size) != 1)
 	 return _error->Error(_("The http server sent an invalid Content-Length header"));
       return true;
    }
@@ -586,9 +586,9 @@ bool ServerState::HeaderLine(const string &Line)
    {
       HaveContent = true;
       
-      if (sscanf(Val.c_str(),"bytes %lu-%*u/%lu",&StartPos,&Size) != 2)
+      if (sscanf(Val.c_str(),"bytes %llu-%*u/%llu",&StartPos,&Size) != 2)
 	 return _error->Error(_("The http server sent an invalid Content-Range header"));
-      if ((unsigned)StartPos > Size)
+      if ((unsigned long long)StartPos > Size)
 	 return _error->Error(_("This http server has broken range support"));
       return true;
    }

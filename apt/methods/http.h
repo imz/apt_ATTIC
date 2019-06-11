@@ -86,8 +86,8 @@ struct ServerState
    char Code[MAXLEN];
    
    // These are some statistics from the last parsed header lines
-   unsigned long Size;
-   signed long StartPos;
+   unsigned long long Size;
+   signed long long StartPos;
    time_t Date;
    bool HaveContent;
    enum {Chunked,Stream,Closes} Encoding;

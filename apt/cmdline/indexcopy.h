@@ -31,7 +31,7 @@ class IndexCopy
    bool ReconstructChop(unsigned long &Chop,const string &Dir,const string &File);
    void ConvertToSourceList(const string &CD,string &Path);
    bool GrabFirst(const string &Path,string &To,unsigned int Depth);
-   virtual bool GetFile(string &Filename,unsigned long &Size) = 0;
+   virtual bool GetFile(string &Filename,unsigned long long &Size) = 0;
    virtual bool RewriteEntry(FILE *Target,const string &File) = 0;
    virtual const char *GetFileName() = 0;
    virtual const char *Type() = 0;
@@ -45,7 +45,7 @@ class PackageCopy : public IndexCopy
 {
    protected:
    
-   virtual bool GetFile(string &Filename,unsigned long &Size) override;
+   virtual bool GetFile(string &Filename,unsigned long long &Size) override;
    virtual bool RewriteEntry(FILE *Target,const string &File) override;
    virtual const char *GetFileName() override {return "Packages";};
    virtual const char *Type() override {return "Package";};
@@ -57,7 +57,7 @@ class SourceCopy : public IndexCopy
 {
    protected:
    
-   virtual bool GetFile(string &Filename,unsigned long &Size) override;
+   virtual bool GetFile(string &Filename,unsigned long long &Size) override;
    virtual bool RewriteEntry(FILE *Target,const string &File) override;
    virtual const char *GetFileName() override {return "Sources";};
    virtual const char *Type() override {return "Source";};

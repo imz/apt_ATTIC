@@ -41,7 +41,7 @@ class rpmSrcRecordParser : public pkgSrcRecords::Parser
 public:
    virtual bool Restart() override;
    virtual bool Step() override;
-   virtual bool Jump(unsigned long Off) override;
+   virtual bool Jump(unsigned long long Off) override;
 
    virtual string FileName() const override;
 
@@ -51,7 +51,7 @@ public:
    virtual string Section() const override;
    virtual string Changelog() const override;
    virtual const char **Binaries() override;
-   virtual unsigned long Offset() override;
+   virtual unsigned long long Offset() override;
    virtual string AsStr() override;
    virtual bool Files(vector<pkgSrcRecords::File> &F) override;
    virtual bool BuildDepends(vector<BuildDepRec> &BuildDeps, bool ArchOnly) override;
