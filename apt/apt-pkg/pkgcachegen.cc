@@ -879,6 +879,19 @@ static bool BuildCache(pkgCacheGenerator &Gen,
    return true;
 }
 									/*}}}*/
+
+static DynamicMMap* CreateDynamicMMap(FileFd * const CacheF, unsigned long Flags)
+{
+   const unsigned long long MapStart = _config->FindI("APT::Cache-Start", 24*1024*1024);
+   const unsigned long long MapGrow =  _config->FindI("APT::Cache-Grow", 1*1024*1024);
+   const unsigned long long MapLimit = _config->FindI("APT::Cache-Limit", 0);
+   Flags |= MMap::Moveable;
+   if (CacheF != NULL)
+      return new DynamicMMap(*CacheF, Flags, MapStart, MapGrow, MapLimit);
+   else
+      return new DynamicMMap(Flags, MapStart, MapGrow, MapLimit);
+}
+
 // CNC:2003-03-03
 // CollectFileProvides - Merge the file provides into the cache		/*{{{*/
 // ---------------------------------------------------------------------
@@ -914,8 +927,6 @@ static bool CollectFileProvides(pkgCacheGenerator &Gen,
 bool pkgMakeStatusCache(pkgSourceList &List,OpProgress &Progress,
 			MMap **OutMap,bool AllowMem)
 {
-   unsigned long MapSize = _config->FindI("APT::Cache-Limit",6*(16+sizeof(long))*1024*1024);
-   
    vector<pkgIndexFile *> Files(List.begin(),List.end());
    size_t EndOfSource = Files.size();
    if (_system->AddStatusFiles(Files) == false)
@@ -964,12 +975,12 @@ bool pkgMakeStatusCache(pkgSourceList &List,OpProgress &Progress,
       if (_error->PendingError() == true)
 	 return false;
       fchmod(CacheF->Fd(),0644);
-      Map = new DynamicMMap(*CacheF,MMap::Public | MMap::Moveable,MapSize);
+      Map = CreateDynamicMMap(CacheF, MMap::Public);
    }
    else
    {
       // Just build it in memory..
-      Map = new DynamicMMap(MMap::Public | MMap::Moveable,MapSize);
+      Map = CreateDynamicMMap(nullptr, 0);
    }
    
    // Lets try the source cache.
@@ -1127,14 +1138,12 @@ bool pkgMakeStatusCache(pkgSourceList &List,OpProgress &Progress,
 /* */
 bool pkgMakeOnlyStatusCache(OpProgress &Progress,DynamicMMap **OutMap)
 {
-   unsigned long MapSize = _config->FindI("APT::Cache-Limit",6*(16+sizeof(long))*1024*1024);
    vector<pkgIndexFile *> Files;
    size_t EndOfSource = Files.size();
    if (_system->AddStatusFiles(Files) == false)
       return false;
    
-   SPtr<DynamicMMap> Map;   
-   Map = new DynamicMMap(MMap::Public | MMap::Moveable,MapSize);
+   SPtr<DynamicMMap> Map = CreateDynamicMMap(NULL, 0);
    unsigned long long CurrentSize = 0;
    unsigned long long TotalSize = 0;
    
