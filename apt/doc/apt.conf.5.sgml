@@ -524,6 +524,9 @@ DPkg::Pre-Install-Pkgs {"/usr/sbin/dpkg-preconfigure --apt";};
    operations as non-root and <literal/Debug::pkgDPkgPM/ will print out the 
    command line for each dpkg invokation. <literal/Debug::IdentCdrom/ will 
    disable the inclusion of statfs data in CDROM IDs.
+   </para><para>
+   To debug issues related to dynamic memory allocation, an option
+   <literal/Debug::DynamicMMap::Grow/ may be used.
    </para>
  </RefSect1>
  

@@ -27,6 +27,7 @@
 #include <config.h>
 
 #define _BSD_SOURCE
+#include <apt-pkg/configuration.h>
 #include <apt-pkg/mmap.h>
 #include <apt-pkg/error.h>
 
@@ -329,6 +330,8 @@ bool DynamicMMap::Grow(unsigned long long size)
    if (GrowFactor <= 0)
       return _error->Error(_("Unable to increase size of the MMap as automatic growing is disabled by user."));
 
+   static const bool debug_grow = _config->FindB("Debug::DynamicMMap::Grow", false);
+
    unsigned long long grow_size = 0;
 
    do
@@ -361,6 +364,9 @@ bool DynamicMMap::Grow(unsigned long long size)
 #endif
          tmp_base = mremap(Base, WorkSpace, newSize, 0);
 
+      if (debug_grow)
+         _error->Warning(_("DynamicMMap::Grow: mremap from %llu to %llu, result: %s"), WorkSpace, newSize, (tmp_base == MAP_FAILED) ? _("Fail") : _("Success"));
+
       if (tmp_base == MAP_FAILED)
          return false;
 
@@ -370,6 +376,10 @@ bool DynamicMMap::Grow(unsigned long long size)
          return false;
 
       void *tmp_base = realloc(Base, newSize);
+
+      if (debug_grow)
+         _error->Warning(_("DynamicMMap::Grow: realloc from %llu to %llu, result: %s"), WorkSpace, newSize, (tmp_base == nullptr) ? _("Fail") : _("Success"));
+
       if (tmp_base == NULL)
          return false;
 
