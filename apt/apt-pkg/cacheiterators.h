@@ -34,6 +34,8 @@
 #pragma interface "apt-pkg/cacheiterators.h"
 #endif 
 
+#include <apt-pkg/rebase_pointer.h>
+
 // Package Iterator
 class pkgCache::PkgIterator
 {
@@ -83,6 +85,13 @@ class pkgCache::PkgIterator
    inline unsigned long long Index() const {return Pkg - Owner->PkgP;};
    OkState State() const;
    
+   void ReMap(void *oldMap, void *newMap)
+   {
+      if (Owner == nullptr || Pkg == nullptr)
+         return;
+      Pkg = RebasePointer(Pkg, oldMap, newMap);
+   }
+
    // Constructors
    inline PkgIterator(pkgCache &Owner,Package *Trg) : Pkg(Trg), Owner(&Owner),
           HashIndex(0) 
@@ -137,6 +146,13 @@ class pkgCache::VerIterator
    
    bool Automatic() const;
    VerFileIterator NewestFile() const;
+
+   void ReMap(void *oldMap, void *newMap)
+   {
+      if (Owner == nullptr || Ver == nullptr)
+         return;
+      Ver = RebasePointer(Ver, oldMap, newMap);
+   }
 
    inline VerIterator() : Ver(0), Owner(0) {};   
    inline VerIterator(pkgCache &Owner,Version *Trg = 0) : Ver(Trg), 
@@ -204,6 +220,13 @@ class pkgCache::DepIterator
    inline const char *CompType() {return Owner->CompType(Dep->CompareOp);};
    inline const char *DepType() {return Owner->DepType(Dep->Type);};
    
+   void ReMap(void *oldMap, void *newMap)
+   {
+      if (Owner == nullptr || Dep == nullptr)
+         return;
+      Dep = RebasePointer(Dep, oldMap, newMap);
+   }
+
    inline DepIterator(pkgCache &Owner,Dependency *Trg,Version * = 0) :
           Dep(Trg), Type(DepVer), Owner(&Owner) 
    {
@@ -255,6 +278,13 @@ class pkgCache::PrvIterator
    inline VerIterator OwnerVer() const {return VerIterator(*Owner,Owner->VerP + Prv->Version);};
    inline PkgIterator OwnerPkg() const {return PkgIterator(*Owner,Owner->PkgP + Owner->VerP[Prv->Version].ParentPkg);};
    inline unsigned long long Index() const {return Prv - Owner->ProvideP;};
+
+   void ReMap(void *oldMap, void *newMap)
+   {
+      if (Owner == nullptr || Prv == nullptr)
+         return;
+      Prv = RebasePointer(Prv, oldMap, newMap);
+   }
 
    inline PrvIterator() : Prv(0), Type(PrvVer), Owner(0)  {};
 
@@ -312,6 +342,13 @@ class pkgCache::PkgFileIterator
    bool IsOk();
    string RelStr();
    
+   void ReMap(void *oldMap, void *newMap)
+   {
+      if (Owner == nullptr || File == nullptr)
+         return;
+      File = RebasePointer(File, oldMap, newMap);
+   }
+
    // Constructors
    inline PkgFileIterator() : Owner(0), File(0) {};
    inline PkgFileIterator(pkgCache &Owner) : Owner(&Owner), File(Owner.PkgFileP) {};
@@ -346,6 +383,13 @@ class pkgCache::VerFileIterator
    inline PkgFileIterator File() const {return PkgFileIterator(*Owner,FileP->File + Owner->PkgFileP);};
    inline unsigned long long Index() const {return FileP - Owner->VerFileP;};
       
+   void ReMap(void *oldMap, void *newMap)
+   {
+      if (Owner == nullptr || FileP == nullptr)
+         return;
+      FileP = RebasePointer(FileP, oldMap, newMap);
+   }
+
    inline VerFileIterator() : Owner(0), FileP(0) {};
    inline VerFileIterator(pkgCache &Owner,VerFile *Trg) : Owner(&Owner), FileP(Trg) {};
 };

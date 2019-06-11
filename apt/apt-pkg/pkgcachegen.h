@@ -25,6 +25,9 @@
 #include <apt-pkg/pkgcache.h>
 
 #include <optional>
+#include <set>
+#include <functional>
+#include <utility>
 
 class pkgSourceList;
 class OpProgress;
@@ -46,6 +49,60 @@ class pkgCacheGenerator
    class ListParser;
    friend class ListParser;
    
+   template<typename Iter>
+   class Dynamic
+   {
+      Iter *I;
+
+   public:
+      static std::set<Iter*> toReMap;
+
+      Dynamic(Iter &It)
+         : I(&It)
+      {
+         toReMap.insert(I);
+      }
+
+      ~Dynamic()
+      {
+         toReMap.erase(I);
+      }
+   };
+
+   class DynamicFunction
+   {
+   public:
+      typedef std::function<void(void *, void *)> function;
+
+      static std::set<DynamicFunction*> toReMap;
+
+      explicit DynamicFunction(const function &l_function)
+         : m_function(l_function)
+      {
+         toReMap.insert(this);
+      }
+
+      explicit DynamicFunction(function &&l_function)
+         : m_function(std::move(l_function))
+      {
+         toReMap.insert(this);
+      }
+
+      ~DynamicFunction()
+      {
+         toReMap.erase(this);
+      }
+
+      void call(void *oldMap, void *newMap)
+      {
+         if (m_function)
+            m_function(oldMap, newMap);
+      }
+
+   private:
+      function m_function;
+   };
+
    protected:
    
    DynamicMMap &Map;
@@ -83,6 +140,8 @@ class pkgCacheGenerator
    // CNC:2003-03-18
    inline void ResetFileDeps() {FoundFileDeps = false;};
       
+   void ReMap(void *oldMap, void *newMap);
+
    pkgCacheGenerator(DynamicMMap *Map,OpProgress *Progress);
    ~pkgCacheGenerator();
 };

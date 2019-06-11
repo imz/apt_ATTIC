@@ -26,6 +26,7 @@
 #include <apt-pkg/strutl.h>
 #include <apt-pkg/sptr.h>
 #include <apt-pkg/pkgsystem.h>
+#include <apt-pkg/rebase_pointer.h>
 
 #include <apti18n.h>
 
@@ -38,6 +39,13 @@
 #include <system.h>
 									/*}}}*/
 typedef vector<pkgIndexFile *>::iterator FileIterator;
+template <> std::set<pkgCache::PkgIterator *> pkgCacheGenerator::Dynamic<pkgCache::PkgIterator>::toReMap = std::set<pkgCache::PkgIterator *>();
+template <> std::set<pkgCache::VerIterator *> pkgCacheGenerator::Dynamic<pkgCache::VerIterator>::toReMap = std::set<pkgCache::VerIterator *>();
+template <> std::set<pkgCache::DepIterator *> pkgCacheGenerator::Dynamic<pkgCache::DepIterator>::toReMap = std::set<pkgCache::DepIterator *>();
+template <> std::set<pkgCache::PrvIterator *> pkgCacheGenerator::Dynamic<pkgCache::PrvIterator>::toReMap = std::set<pkgCache::PrvIterator *>();
+template <> std::set<pkgCache::PkgFileIterator *> pkgCacheGenerator::Dynamic<pkgCache::PkgFileIterator>::toReMap = std::set<pkgCache::PkgFileIterator *>();
+template <> std::set<pkgCache::VerFileIterator *> pkgCacheGenerator::Dynamic<pkgCache::VerFileIterator>::toReMap = std::set<pkgCache::VerFileIterator *>();
+std::set<pkgCacheGenerator::DynamicFunction*> pkgCacheGenerator::DynamicFunction::toReMap = std::set<pkgCacheGenerator::DynamicFunction*>();
 
 // CacheGenerator::pkgCacheGenerator - Constructor			/*{{{*/
 // ---------------------------------------------------------------------
@@ -101,19 +109,66 @@ pkgCacheGenerator::~pkgCacheGenerator()
    Map.Sync(0,sizeof(pkgCache::Header));
 }
 									/*}}}*/
+void pkgCacheGenerator::ReMap(void *oldMap, void *newMap)
+{
+   if (oldMap == newMap)
+      return;
+
+   Cache.ReMap(false);
+
+   CurrentFile = RebasePointer(CurrentFile, oldMap, newMap);
+
+   for (size_t i = 0; i < _count(UniqHash); ++i)
+      if (UniqHash[i] != 0)
+         UniqHash[i] = RebasePointer(UniqHash[i], oldMap, newMap);
+
+   for (auto i = Dynamic<pkgCache::PkgIterator>::toReMap.begin();
+        i != Dynamic<pkgCache::PkgIterator>::toReMap.end(); ++i)
+      (*i)->ReMap(oldMap, newMap);
+   for (auto i = Dynamic<pkgCache::VerIterator>::toReMap.begin();
+        i != Dynamic<pkgCache::VerIterator>::toReMap.end(); ++i)
+      (*i)->ReMap(oldMap, newMap);
+   for (auto i = Dynamic<pkgCache::DepIterator>::toReMap.begin();
+        i != Dynamic<pkgCache::DepIterator>::toReMap.end(); ++i)
+      (*i)->ReMap(oldMap, newMap);
+   for (auto i = Dynamic<pkgCache::PrvIterator>::toReMap.begin();
+        i != Dynamic<pkgCache::PrvIterator>::toReMap.end(); ++i)
+      (*i)->ReMap(oldMap, newMap);
+   for (auto i = Dynamic<pkgCache::PkgFileIterator>::toReMap.begin();
+        i != Dynamic<pkgCache::PkgFileIterator>::toReMap.end(); ++i)
+      (*i)->ReMap(oldMap, newMap);
+   for (auto i = Dynamic<pkgCache::VerFileIterator>::toReMap.begin();
+        i != Dynamic<pkgCache::VerFileIterator>::toReMap.end(); ++i)
+      (*i)->ReMap(oldMap, newMap);
+   for (auto i = DynamicFunction::toReMap.begin();
+        i != DynamicFunction::toReMap.end(); ++i)
+      (*i)->call(oldMap, newMap);
+}
 // CacheGenerator::WriteStringInMap					/*{{{*/
 std::optional<unsigned long> pkgCacheGenerator::WriteStringInMap(const char *String,
 					unsigned long Len) {
-   return Map.WriteString(String, Len);
+   void *oldMap = Map.Data();
+   const auto index = Map.WriteString(String, Len);
+   if (index)
+      ReMap(oldMap, Map.Data());
+   return index;
 }
 									/*}}}*/
 // CacheGenerator::WriteStringInMap					/*{{{*/
 std::optional<unsigned long> pkgCacheGenerator::WriteStringInMap(const char *String) {
-   return Map.WriteString(String);
+   void *oldMap = Map.Data();
+   const auto index = Map.WriteString(String);
+   if (index)
+      ReMap(oldMap, Map.Data());
+   return index;
 }
 									/*}}}*/
 std::optional<unsigned long> pkgCacheGenerator::AllocateInMap(unsigned long size) {/*{{{*/
-   return Map.Allocate(size);
+   void *oldMap = Map.Data();
+   const auto index = Map.Allocate(size);
+   if (index)
+      ReMap(oldMap, Map.Data());
+   return index;
 }
 									/*}}}*/
 // CacheGenerator::MergeList - Merge the package list			/*{{{*/
@@ -140,6 +195,7 @@ bool pkgCacheGenerator::MergeList(ListParser &List,
 	 return false;
       
       pkgCache::PkgIterator Pkg;
+      Dynamic<pkgCache::PkgIterator> DynPkg(Pkg);
       if (NewPackage(Pkg,PackageName) == false)
 	 return _error->Error(_("Error occured while processing %s (NewPackage)"),PackageName.c_str());
       Counter++;
@@ -160,6 +216,7 @@ bool pkgCacheGenerator::MergeList(ListParser &List,
       if (Version.empty() == true)
       {
 	 pkgCache::VerIterator Ver(Cache);
+	 Dynamic<pkgCache::VerIterator> DynVer(Ver);
 	 if (List.UsePackage(Pkg,Ver) == false)
 	    return _error->Error(_("Error occured while processing %s (UsePackage1)"),
 				 PackageName.c_str());
@@ -170,7 +227,9 @@ bool pkgCacheGenerator::MergeList(ListParser &List,
       string Arch = List.Architecture();
 
       pkgCache::VerIterator Ver = Pkg.VersionList();
+      Dynamic<pkgCache::VerIterator> DynVer(Ver);
       map_ptrloc *Last = &Pkg->VersionList;
+      void *oldMap = Map.Data();
       int Res = 1;
       for (; Ver.end() == false; Last = &Ver->NextVer, Ver++)
       {
@@ -210,6 +269,12 @@ bool pkgCacheGenerator::MergeList(ListParser &List,
 	 continue;
       }      
 
+      if (oldMap != Map.Data())
+      {
+         Last = RebasePointer(Last, oldMap, Map.Data());
+         oldMap = Map.Data();
+      }
+
       // Skip to the end of the same version set.
       if (Res == 0)
       {
@@ -231,6 +296,8 @@ bool pkgCacheGenerator::MergeList(ListParser &List,
          return _error->Error(_("Error occurred while processing %s (NewVersion%d)"),
                               PackageName.c_str(), 0);
 
+      if (oldMap != Map.Data())
+         Last = RebasePointer(Last, oldMap, Map.Data());
       *Last = *verindex;
 
       Ver->ParentPkg = Pkg.Index();
@@ -292,6 +359,7 @@ bool pkgCacheGenerator::MergeFileProvides(ListParser &List)
 	 continue;
       
       pkgCache::PkgIterator Pkg = Cache.FindPkg(PackageName);
+      Dynamic<pkgCache::PkgIterator> DynPkg(Pkg);
       if (Pkg.end() == true)
 #if 0
 	 // CNC:2003-03-03 - Ignore missing packages. This will happen when
@@ -316,6 +384,7 @@ bool pkgCacheGenerator::MergeFileProvides(ListParser &List)
 
       unsigned long Hash = List.VersionHash();
       pkgCache::VerIterator Ver = Pkg.VersionList();
+      Dynamic<pkgCache::VerIterator> DynVer(Ver);
       for (; Ver.end() == false; Ver++)
       {
 	 // CNC:2002-07-25
@@ -484,6 +553,7 @@ bool pkgCacheGenerator::ListParser::NewDepends(pkgCache::VerIterator &Ver,
 					       unsigned int Op,
 					       unsigned int Type)
 {
+   void *oldMap = Owner->Map.Data();
    pkgCache &Cache = Owner->Cache;
    
    // Get a structure
@@ -493,6 +563,7 @@ bool pkgCacheGenerator::ListParser::NewDepends(pkgCache::VerIterator &Ver,
    
    // Fill it in
    pkgCache::DepIterator Dep(Cache,Cache.DepP + *Dependency);
+   Dynamic<pkgCache::DepIterator> DynDep(Dep);
    Dep->ParentVer = Ver.Index();
    Dep->Type = Type;
    Dep->CompareOp = Op;
@@ -500,6 +571,7 @@ bool pkgCacheGenerator::ListParser::NewDepends(pkgCache::VerIterator &Ver,
    
    // Locate the target package
    pkgCache::PkgIterator Pkg;
+   Dynamic<pkgCache::PkgIterator> DynPkg(Pkg);
    if (Owner->NewPackage(Pkg,PackageName) == false)
       return false;
    
@@ -511,7 +583,7 @@ bool pkgCacheGenerator::ListParser::NewDepends(pkgCache::VerIterator &Ver,
 	    Dep->Version = I->Version;*/
       if (Dep->Version == 0)
       {
-         const auto index = WriteString(Version);
+         const auto index = Owner->WriteStringInMap(Version);
          if (!index)
             return false;
 
@@ -532,7 +604,8 @@ bool pkgCacheGenerator::ListParser::NewDepends(pkgCache::VerIterator &Ver,
       for (pkgCache::DepIterator D = Ver.DependsList(); D.end() == false; D++)
 	 OldDepLast = &D->NextDepends;
       OldDepVer = Ver;
-   }
+   } else if (oldMap != Owner->Map.Data())
+      OldDepLast = RebasePointer(OldDepLast, oldMap, Owner->Map.Data());
 
    // Is it a file dependency?
    if (PackageName[0] == '/')
@@ -585,6 +658,7 @@ bool pkgCacheGenerator::ListParser::NewProvides(pkgCache::VerIterator &Ver,
    
    // Fill it in
    pkgCache::PrvIterator Prv(Cache,Cache.ProvideP + *Provides,Cache.PkgP);
+   Dynamic<pkgCache::PrvIterator> DynPrv(Prv);
    Prv->Version = Ver.Index();
    Prv->NextPkgProv = Ver->ProvidesList;
    Ver->ProvidesList = Prv.Index();
@@ -598,6 +672,7 @@ bool pkgCacheGenerator::ListParser::NewProvides(pkgCache::VerIterator &Ver,
    
    // Locate the target package
    pkgCache::PkgIterator Pkg;
+   Dynamic<pkgCache::PkgIterator> DynPkg(Pkg);
    if (Owner->NewPackage(Pkg,PackageName) == false)
       return false;
    
@@ -676,10 +751,17 @@ std::optional<unsigned long> pkgCacheGenerator::WriteUniqString(const char *S,
    }
    
    // Get a structure
+   void *oldMap = Map.Data();
    const auto Item = AllocateInMap(sizeof(pkgCache::StringItem));
    const auto idxString = WriteStringInMap(S, Size);
    if ((!Item) || (!idxString))
       return std::nullopt;
+
+   if (oldMap != Map.Data())
+   {
+      Last = RebasePointer(Last, oldMap, Map.Data());
+      I = RebasePointer(I, oldMap, Map.Data());
+   }
 
    // Fill in the structure
    pkgCache::StringItem *ItemP = Cache.StringItemP + *Item;
@@ -905,12 +987,12 @@ bool pkgMakeStatusCache(pkgSourceList &List,OpProgress &Progress,
       if (_error->PendingError() == true)
 	 return false;
       fchmod(CacheF->Fd(),0644);
-      Map = new DynamicMMap(*CacheF,MMap::Public,MapSize);
+      Map = new DynamicMMap(*CacheF,MMap::Public | MMap::Moveable,MapSize);
    }
    else
    {
       // Just build it in memory..
-      Map = new DynamicMMap(MMap::Public,MapSize);
+      Map = new DynamicMMap(MMap::Public | MMap::Moveable,MapSize);
    }
    
    // Lets try the source cache.
@@ -1078,7 +1160,7 @@ bool pkgMakeOnlyStatusCache(OpProgress &Progress,DynamicMMap **OutMap)
       return false;
    
    SPtr<DynamicMMap> Map;   
-   Map = new DynamicMMap(MMap::Public,MapSize);
+   Map = new DynamicMMap(MMap::Public | MMap::Moveable,MapSize);
    unsigned long long CurrentSize = 0;
    unsigned long long TotalSize = 0;
    

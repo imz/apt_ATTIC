@@ -29,6 +29,7 @@
 #define _BSD_SOURCE
 #include <apt-pkg/mmap.h>
 #include <apt-pkg/error.h>
+#include <apt-pkg/rebase_pointer.h>
 
 #include <apti18n.h>
 
@@ -154,11 +155,17 @@ bool MMap::Sync(unsigned long Start,unsigned long Stop)
 // DynamicMMap::DynamicMMap - Constructor				/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-DynamicMMap::DynamicMMap(FileFd &F,unsigned long Flags,unsigned long WorkSpace) :
-             MMap(F,Flags | NoImmMap), Fd(&F), WorkSpace(WorkSpace)
+DynamicMMap::DynamicMMap(FileFd &F,unsigned long Flags,unsigned long WorkSpace,
+                         unsigned long Grow, unsigned long l_Limit) :
+             MMap(F,Flags | NoImmMap), Fd(&F), WorkSpace(WorkSpace),
+             GrowFactor(Grow), Limit(l_Limit)
 {
    if (_error->PendingError() == true)
       return;
+
+   // disable Moveable if we don't grow
+   if (Grow == 0)
+      this->Flags &= ~Moveable;
 
    unsigned long long EndOfFile = Fd->Size();
    if (EndOfFile < WorkSpace)
@@ -176,14 +183,19 @@ DynamicMMap::DynamicMMap(FileFd &F,unsigned long Flags,unsigned long WorkSpace) 
 // DynamicMMap::DynamicMMap - Constructor for a non-file backed map	/*{{{*/
 // ---------------------------------------------------------------------
 /* This is just a fancy malloc really.. */
-DynamicMMap::DynamicMMap(unsigned long Flags,unsigned long WorkSpace) :
-             MMap(Flags | NoImmMap | UnMapped), Fd(0), WorkSpace(WorkSpace)
+DynamicMMap::DynamicMMap(unsigned long Flags,unsigned long WorkSpace,
+                         unsigned long Grow, unsigned long l_Limit) :
+             MMap(Flags | NoImmMap | UnMapped), Fd(nullptr), WorkSpace(WorkSpace),
+             GrowFactor(Grow), Limit(l_Limit)
 {
    if (_error->PendingError() == true)
       return;
 
-   Base = new unsigned char[WorkSpace];
-   memset(Base,0,WorkSpace);
+   // disable Moveable if we don't grow
+   if (Grow == 0)
+      this->Flags &= ~Moveable;
+
+   Base = calloc(WorkSpace, 1);
    iSize = 0;
 }
 									/*}}}*/
@@ -194,7 +206,7 @@ DynamicMMap::~DynamicMMap()
 {
    if (Fd == 0)
    {
-      delete [] (unsigned char *)Base;
+      free(Base);
       return;
    }
 
@@ -216,8 +228,15 @@ std::optional<unsigned long> DynamicMMap::RawAllocate(unsigned long Size,unsigne
    // Just in case error check
    if (Result + Size > WorkSpace)
    {
-      _error->Error("Dynamic MMap ran out of room");
-      return std::nullopt;
+      if (!Grow(Result + Size - WorkSpace))
+      {
+         _error->Error(_("Dynamic MMap ran out of room. Please increase the size "
+                         "of APT::Cache-Start or APT::Cache-Limit, or remove value of APT::Cache-Limit. "
+                         "Current values are: %lu, %lu. (man 5 apt.conf)"),
+                       (unsigned long) _config->FindI("APT::Cache-Start", 24*1024*1024),
+                       (unsigned long) _config->FindI("APT::Cache-Limit", 0));
+         return std::nullopt;
+      }
    }
 
    iSize = Result + Size;
@@ -264,12 +283,15 @@ std::optional<unsigned long> DynamicMMap::Allocate(unsigned long ItemSize)
    // Out of space, allocate some more
    if (I->Count == 0)
    {
-      I->Count = 20*1024/ItemSize;
+      const unsigned long size = 20*1024;
+      I->Count = size/ItemSize;
+      Pool* oldPools = Pools;
       auto idxResult = RawAllocate(I->Count*ItemSize,ItemSize);
-
-      // Has the allocation failed?
       if (!idxResult)
          return std::nullopt;
+
+      if (Pools != oldPools)
+         I = RebasePointer(I, oldPools, Pools);
 
       I->Start = *idxResult;
    }
@@ -304,5 +326,72 @@ std::optional<unsigned long> DynamicMMap::WriteString(const char *String,
    dest[Len] = 0;
 
    return Result;
+}
+									/*}}}*/
+// DynamicMMap::Grow - Grow the mmap					/*{{{*/
+// ---------------------------------------------------------------------
+/* This method is a wrapper around different methods to (try to) grow
+   a mmap (or our char[]-fallback). Encounterable environments:
+   1. mmap -> mremap with MREMAP_MAYMOVE
+   2. alloc -> realloc */
+bool DynamicMMap::Grow(unsigned long size)
+{
+   if (GrowFactor <= 0)
+      return _error->Error(_("Unable to increase size of the MMap as automatic growing is disabled by user."));
+
+   unsigned long grow_size = 0;
+
+   do
+   {
+      grow_size += GrowFactor;
+
+      if (Limit != 0 && WorkSpace + grow_size > Limit)
+         return _error->Error(_("Unable to increase the size of the MMap as the "
+                                "limit of %lu bytes is already reached."), Limit);
+   } while (grow_size < size);
+
+   unsigned long const newSize = WorkSpace + grow_size;
+
+   if (Fd != nullptr)
+   {
+      if (!Fd->Truncate(newSize))
+         return false; // _error is appended to by FileFd::Truncate() above
+   }
+
+   void * const old_base = Base;
+
+   if (Fd != nullptr)
+   {
+      void *tmp_base = MAP_FAILED;
+#ifdef MREMAP_MAYMOVE
+      if ((this->Flags & Moveable) == Moveable)
+         tmp_base = mremap(Base, WorkSpace, newSize, MREMAP_MAYMOVE);
+      else
+#endif
+         tmp_base = mremap(Base, WorkSpace, newSize, 0);
+
+      if (tmp_base == MAP_FAILED)
+         return false;
+
+      Base = tmp_base;
+   } else {
+      if ((this->Flags & Moveable) != Moveable)
+         return false;
+
+      void *tmp_base = realloc(Base, newSize);
+      if (tmp_base == NULL)
+         return false;
+
+      Base = tmp_base;
+
+      /* Set new memory to 0 */
+      memset((char*)Base + WorkSpace, 0, newSize - WorkSpace);
+   }
+
+   if (Base != old_base)
+      Pools = RebasePointer(Pools, old_base, Base);
+   WorkSpace = newSize;
+
+   return true;
 }
 									/*}}}*/

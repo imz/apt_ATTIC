@@ -25,6 +25,7 @@
 #include <apt-pkg/strutl.h>
 #include <apt-pkg/crc-16.h>
 #include <apt-pkg/tagfile.h>
+#include <apt-pkg/rebase_pointer.h>
 
 #include <apti18n.h>
 
@@ -48,23 +49,27 @@ rpmListParser::rpmListParser(RPMHandler *Handler)
    header = NULL;
    if (Handler->IsDatabase() == true)
    {
-#ifdef WITH_HASH_MAP
-      SeenPackages = new SeenPackagesType(517);
-#else
-      SeenPackages = new SeenPackagesType;
-#endif
+      SeenPackages.reset(new SeenPackagesType);
+      m_SeenPackagesRealloc.reset(new pkgCacheGenerator::DynamicFunction(
+         [this] (void *oldMap, void *newMap)
+      {
+         SeenPackagesType tmp;
+
+         for (auto iter: *SeenPackages)
+         {
+            tmp.insert(RebasePointer(iter, oldMap, newMap));
+         }
+
+         SeenPackages->swap(tmp);
+      }));
    }
-   else
-   {
-      SeenPackages = NULL;
-   }
+
    RpmData = RPMPackageData::Singleton();
 }
                                                                         /*}}}*/
 
 rpmListParser::~rpmListParser()
 {
-   delete SeenPackages;
 }
 
 // ListParser::UniqFindTagWrite - Find the tag and write a unq string	/*{{{*/
@@ -144,7 +149,7 @@ string rpmListParser::Package()
    // dependencies.
    if (RpmData->IsDupPackage(Name) == true)
       IsDup = true;
-   else if (SeenPackages != NULL) {
+   else if (SeenPackages) {
       if (SeenPackages->find(Name.c_str()) != SeenPackages->end())
       {
 	 if (_config->FindB("RPM::Allow-Duplicated-Warning", true) == true)
@@ -305,8 +310,8 @@ bool rpmListParser::NewVersion(pkgCache::VerIterator &Ver)
 bool rpmListParser::UsePackage(pkgCache::PkgIterator &Pkg,
 			       pkgCache::VerIterator &Ver)
 {
-   if (SeenPackages != NULL)
-      (*SeenPackages)[Pkg.Name()] = true;
+   if (SeenPackages)
+      SeenPackages->insert(Pkg.Name());
    if (Pkg->Section == 0)
    {
       const auto idxSection = UniqFindTagWrite(RPMTAG_GROUP);

@@ -94,6 +94,7 @@ libapt_pkg_la_SOURCES = \
 	pkgsystem.h \
 	policy.cc \
 	policy.h \
+	rebase_pointer.h \
 	repository.cc \
 	repository.h \
 	scopeexit.h \
