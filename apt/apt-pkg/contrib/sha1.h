@@ -55,9 +55,9 @@ class SHA1Summation
    
    public:
 
-   bool Add(const unsigned char *inbuf,unsigned long inlen);
+   bool Add(const unsigned char *inbuf,unsigned long long inlen);
    inline bool Add(const char *Data) {return Add((unsigned char *)Data,strlen(Data));};
-   bool AddFD(int Fd,unsigned long Size);
+   bool AddFD(int Fd,unsigned long long Size);
    inline bool Add(const unsigned char *Beg,const unsigned char *End) 
                   {return Add(Beg,End-Beg);};
    SHA1SumValue Result();

@@ -32,7 +32,7 @@ using std::string;
 // TagFile::pkgTagFile - Constructor					/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-pkgTagFile::pkgTagFile(FileFd *pFd,unsigned long Size) : Fd(*pFd), Size(Size)
+pkgTagFile::pkgTagFile(FileFd *pFd,unsigned long long Size) : Fd(*pFd), Size(Size)
 {
    if (Fd.IsOpen() == false)
    {
@@ -85,8 +85,8 @@ bool pkgTagFile::Step(pkgTagSection &Tag)
    then fills the rest from the file */
 bool pkgTagFile::Fill()
 {
-   unsigned long EndSize = End - Start;
-   unsigned long Actual = 0;
+   unsigned long long EndSize = End - Start;
+   unsigned long long Actual = 0;
    
    memmove(Buffer,Start,EndSize);
    Start = Buffer;
@@ -127,12 +127,12 @@ bool pkgTagFile::Fill()
 // ---------------------------------------------------------------------
 /* This jumps to a pre-recorded file location and reads the record
    that is there */
-bool pkgTagFile::Jump(pkgTagSection &Tag,unsigned long Offset)
+bool pkgTagFile::Jump(pkgTagSection &Tag,unsigned long long Offset)
 {
    // We are within a buffer space of the next hit..
    if (Offset >= iOffset && iOffset + (End - Start) > Offset)
    {
-      unsigned long Dist = Offset - iOffset;
+      unsigned long long Dist = Offset - iOffset;
       Start += Dist;
       iOffset += Dist;
       return Step(Tag);
@@ -174,7 +174,7 @@ inline static unsigned long AlphaHash(const char *Text, const char *End = 0)
    return Res & 0xFF;
 }
 
-bool pkgTagSection::Scan(const char *Start,unsigned long MaxLength)
+bool pkgTagSection::Scan(const char *Start,unsigned long long MaxLength)
 {
    const char *End = Start + MaxLength;
    Stop = Section = Start;

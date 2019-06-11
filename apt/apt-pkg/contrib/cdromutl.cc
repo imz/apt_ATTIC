@@ -207,7 +207,7 @@ bool IdentCdrom(const string &CD,string &Res,unsigned int Version)
 
       if (Version <= 1)
       {
-	 sprintf(S,"%lu",(unsigned long)Dir->d_ino);
+	 sprintf(S,"%llu",(unsigned long long)Dir->d_ino);
       }
       else
       {
@@ -232,8 +232,8 @@ bool IdentCdrom(const string &CD,string &Res,unsigned int Version)
 	 return _error->Errno("statfs",_("Failed to stat the cdrom"));
       
       // We use a kilobyte block size to advoid overflow
-      sprintf(S,"%lu %lu",(long)(Buf.f_blocks*(Buf.f_bsize/1024)),
-	      (long)(Buf.f_bfree*(Buf.f_bsize/1024)));
+      sprintf(S,"%llu %llu",(long long)(Buf.f_blocks*(Buf.f_bsize/1024)),
+	      (long long)(Buf.f_bfree*(Buf.f_bsize/1024)));
       Hash.Add(S);
       sprintf(S,"-%u",Version);
    }

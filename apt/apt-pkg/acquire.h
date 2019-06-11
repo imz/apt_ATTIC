@@ -70,7 +70,7 @@ class pkgAcquire
    Worker *Workers;
    MethodConfig *Configs;
    pkgAcquireStatus *Log;
-   unsigned long ToFetch;
+   unsigned long long ToFetch;
 
    // Configurable parameters for the schedular
    enum {QueueHost,QueueAccess} QueueMode;
@@ -179,7 +179,7 @@ class pkgAcquire::Queue
 
    // Find a Queued item
    QItem *FindItem(const string &URI,pkgAcquire::Worker *Owner);
-   bool ItemStart(QItem *Itm,unsigned long Size);
+   bool ItemStart(QItem *Itm,unsigned long long Size);
    bool ItemDone(QItem *Itm);
    
    bool Startup();
@@ -268,7 +268,7 @@ class pkgAcquireStatus
    bool MorePulses;
       
    // Called by items when they have finished a real download
-   virtual void Fetched(unsigned long Size,unsigned long ResumePoint);
+   virtual void Fetched(unsigned long long Size,unsigned long long ResumePoint);
    
    // Called to change media
    virtual bool MediaChange(const string &Media, const string &Drive) = 0;

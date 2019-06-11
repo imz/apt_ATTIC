@@ -15,6 +15,6 @@
 
 #define INIT_FCS  0xffff
 unsigned short AddCRC16(unsigned short fcs, void const *buf,
-			unsigned long len);
+			unsigned long long len);
 
 #endif

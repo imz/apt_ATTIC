@@ -20,7 +20,7 @@ class pkgRepository
    
 
    struct Checksum {
-      unsigned long Size;
+      unsigned long long Size;
       string MD5;
       string SHA1;
    };
@@ -42,7 +42,7 @@ class pkgRepository
    bool HasRelease() const { return GotRelease; }
 
    bool IsAuthenticated() const { return !FingerPrint.empty(); };
-   bool FindChecksums(const string &URI,unsigned long &Size, string &MD5);
+   bool FindChecksums(const string &URI,unsigned long long &Size, string &MD5);
    
    pkgRepository(const string &URI, const string &Dist, const pkgSourceList::Vendor *Vendor,
 		 const string &RootURI)

@@ -32,10 +32,10 @@ using std::string;
 class Configuration;
 class OpProgress
 {
-   unsigned long Current;
-   unsigned long Total;
-   unsigned long Size;
-   unsigned long SubTotal;
+   unsigned long long Current;
+   unsigned long long Total;
+   unsigned long long Size;
+   unsigned long long SubTotal;
    float LastPercent;
    
    // Change reduction code
@@ -56,11 +56,11 @@ class OpProgress
    
    public:
    
-   void Progress(unsigned long Current);
-   void SubProgress(unsigned long SubTotal);
-   void SubProgress(unsigned long SubTotal,const string &Op);
-   void OverallProgress(unsigned long Current,unsigned long Total,
-			unsigned long Size,const string &Op);
+   void Progress(unsigned long long Current);
+   void SubProgress(unsigned long long SubTotal);
+   void SubProgress(unsigned long long SubTotal,const string &Op);
+   void OverallProgress(unsigned long long Current,unsigned long long Total,
+			unsigned long long Size,const string &Op);
    virtual void Done() {};
    
    OpProgress();
@@ -74,7 +74,7 @@ class OpTextProgress : public OpProgress
    string OldOp;
    bool NoUpdate;
    bool NoDisplay;
-   unsigned long LastLen;
+   unsigned long long LastLen;
    virtual void Update() override;
    void Write(const char *S);
    

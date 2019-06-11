@@ -26,12 +26,12 @@ class Hashes
    MD5Summation MD5;
    SHA1Summation SHA1;
    
-   inline bool Add(const unsigned char *Data,unsigned long Size)
+   inline bool Add(const unsigned char *Data,unsigned long long Size)
    {
       return MD5.Add(Data,Size) && SHA1.Add(Data,Size);
    };
    inline bool Add(const char *Data) {return Add((unsigned char *)Data,strlen(Data));};
-   bool AddFD(int Fd,unsigned long Size);
+   bool AddFD(int Fd,unsigned long long Size);
    inline bool Add(const unsigned char *Beg,const unsigned char *End) 
                   {return Add(Beg,End-Beg);};
 };
