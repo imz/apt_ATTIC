@@ -43,9 +43,9 @@
 // ---------------------------------------------------------------------
 /* */
 MMap::MMap(FileFd &F,unsigned long Flags) : Flags(Flags), iSize(0),
-                     Base(0)
+                     Base(nullptr)
 {
-   if ((Flags & NoImmMap) != NoImmMap)
+   if ((this->Flags & NoImmMap) != NoImmMap)
       Map(F);
 }
 									/*}}}*/
@@ -53,7 +53,7 @@ MMap::MMap(FileFd &F,unsigned long Flags) : Flags(Flags), iSize(0),
 // ---------------------------------------------------------------------
 /* */
 MMap::MMap(unsigned long Flags) : Flags(Flags), iSize(0),
-                     Base(0)
+                     Base(nullptr)
 {
 }
 									/*}}}*/
@@ -75,9 +75,9 @@ bool MMap::Map(FileFd &Fd)
    // Set the permissions.
    int Prot = PROT_READ;
    int Map = MAP_SHARED;
-   if ((Flags & ReadOnly) != ReadOnly)
+   if ((this->Flags & ReadOnly) != ReadOnly)
       Prot |= PROT_WRITE;
-   if ((Flags & Public) != Public)
+   if ((this->Flags & Public) != Public)
       Map = MAP_PRIVATE;
    
    if (iSize == 0)
@@ -85,7 +85,7 @@ bool MMap::Map(FileFd &Fd)
    
    // Map it.
    Base = mmap(0,iSize,Prot,Map,Fd.Fd(),0);
-   if (Base == (void *)-1)
+   if (Base == MAP_FAILED)
       return _error->Errno("mmap",_("Couldn't make mmap of %llu bytes"),iSize);
 
    return true;
@@ -96,7 +96,7 @@ bool MMap::Map(FileFd &Fd)
 /* */
 bool MMap::Close(bool DoSync)
 {
-   if ((Flags & UnMapped) == UnMapped || Base == 0 || iSize == 0)
+   if ((this->Flags & UnMapped) == UnMapped || validData() == false || iSize == 0)
       return true;
    
    if (DoSync == true)
@@ -116,11 +116,11 @@ bool MMap::Close(bool DoSync)
    not return till all IO is complete */
 bool MMap::Sync()
 {   
-   if ((Flags & UnMapped) == UnMapped)
+   if ((this->Flags & UnMapped) == UnMapped)
       return true;
    
 #ifdef _POSIX_SYNCHRONIZED_IO   
-   if ((Flags & ReadOnly) != ReadOnly)
+   if ((this->Flags & ReadOnly) != ReadOnly)
       if (msync((char *)Base,iSize,MS_SYNC) != 0)
 	 return _error->Errno("msync","Unable to write mmap");
 #endif   
@@ -132,12 +132,12 @@ bool MMap::Sync()
 /* */
 bool MMap::Sync(unsigned long Start,unsigned long Stop)
 {
-   if ((Flags & UnMapped) == UnMapped)
+   if ((this->Flags & UnMapped) == UnMapped)
       return true;
    
 #ifdef _POSIX_SYNCHRONIZED_IO
    unsigned long PSize = sysconf(_SC_PAGESIZE);
-   if ((Flags & ReadOnly) != ReadOnly)
+   if ((this->Flags & ReadOnly) != ReadOnly)
       if (msync((char *)Base+(int)(Start/PSize)*PSize,Stop - Start,MS_SYNC) != 0)
 	 return _error->Errno("msync","Unable to write mmap");
 #endif   
@@ -148,12 +148,18 @@ bool MMap::Sync(unsigned long Start,unsigned long Stop)
 // DynamicMMap::DynamicMMap - Constructor				/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-DynamicMMap::DynamicMMap(FileFd &F,unsigned long Flags,unsigned long WorkSpace) : 
-             MMap(F,Flags | NoImmMap), Fd(&F), WorkSpace(WorkSpace)
+DynamicMMap::DynamicMMap(FileFd &F,unsigned long Flags,unsigned long long WorkSpace,
+                         unsigned long long Grow, unsigned long long l_Limit) :
+             MMap(F,Flags | NoImmMap), Fd(&F), WorkSpace(WorkSpace),
+             GrowFactor(Grow), Limit(l_Limit)
 {
    if (_error->PendingError() == true)
       return;
-   
+
+   // disable Moveable if we don't grow
+   if (Grow == 0)
+      this->Flags &= ~Moveable;
+
    unsigned long long EndOfFile = Fd->Size();
    if (EndOfFile > WorkSpace)
       WorkSpace = EndOfFile;
@@ -171,14 +177,19 @@ DynamicMMap::DynamicMMap(FileFd &F,unsigned long Flags,unsigned long WorkSpace) 
 // DynamicMMap::DynamicMMap - Constructor for a non-file backed map	/*{{{*/
 // ---------------------------------------------------------------------
 /* This is just a fancy malloc really.. */
-DynamicMMap::DynamicMMap(unsigned long Flags,unsigned long WorkSpace) :
-             MMap(Flags | NoImmMap | UnMapped), Fd(0), WorkSpace(WorkSpace)
+DynamicMMap::DynamicMMap(unsigned long Flags,unsigned long long WorkSpace,
+                         unsigned long long Grow, unsigned long long l_Limit) :
+             MMap(Flags | NoImmMap | UnMapped), Fd(0), WorkSpace(WorkSpace),
+             GrowFactor(Grow), Limit(l_Limit)
 {
    if (_error->PendingError() == true)
       return;
-   
-   Base = new unsigned char[WorkSpace];
-   memset(Base,0,WorkSpace);
+
+   // disable Moveable if we don't grow
+   if (Grow == 0)
+      this->Flags &= ~Moveable;
+
+   Base = calloc(WorkSpace, 1);
    iSize = 0;
 }
 									/*}}}*/
@@ -189,7 +200,7 @@ DynamicMMap::~DynamicMMap()
 {
    if (Fd == 0)
    {
-      delete [] (unsigned char *)Base;
+      free(Base);
       return;
    }
    
@@ -202,20 +213,24 @@ DynamicMMap::~DynamicMMap()
 // DynamicMMap::RawAllocate - Allocate a raw chunk of unaligned space	/*{{{*/
 // ---------------------------------------------------------------------
 /* This allocates a block of memory aligned to the given size */
-unsigned long DynamicMMap::RawAllocate(unsigned long Size,unsigned long Aln)
+unsigned long DynamicMMap::RawAllocate(unsigned long long Size,unsigned long Aln)
 {
    unsigned long long Result = iSize;
    if (Aln != 0)
       Result += Aln - (iSize%Aln);
-   
-   iSize = Result + Size;
-   
+
    // Just in case error check
    if (Result + Size > WorkSpace)
    {
-      _error->Error("Dynamic MMap ran out of room");
-      return 0;
+      if (!Grow(Result + Size - WorkSpace))
+      {
+         _error->Error(_("Dynamic MMap ran out of room. Please increase the size "
+                         "of APT::Cache-Start. Current value: %llu. (man 5 apt.conf)"), WorkSpace);
+         return 0;
+      }
    }
+
+   iSize = Result + Size;
 
    return Result;
 }
@@ -225,11 +240,17 @@ unsigned long DynamicMMap::RawAllocate(unsigned long Size,unsigned long Aln)
 /* This allocates an Item of size ItemSize so that it is aligned to its
    size in the file. */
 unsigned long DynamicMMap::Allocate(unsigned long ItemSize)
-{   
+{
+   if (ItemSize == 0)
+   {
+      _error->Error("Can't allocate an item of size zero");
+      return 0;
+   }
+
    // Look for a matching pool entry
    Pool *I;
    Pool *Empty = 0;
-   for (I = Pools; I != Pools + PoolCount; I++)
+   for (I = Pools; I != Pools + PoolCount; ++I)
    {
       if (I->ItemSize == 0)
 	 Empty = I;
@@ -252,15 +273,27 @@ unsigned long DynamicMMap::Allocate(unsigned long ItemSize)
       I->Count = 0;
    }
    
+   unsigned long Result = 0;
    // Out of space, allocate some more
    if (I->Count == 0)
    {
-      I->Count = 20*1024/ItemSize;
-      I->Start = RawAllocate(I->Count*ItemSize,ItemSize);
-   }   
+      const unsigned long size = 20*1024;
+      I->Count = size/ItemSize;
+      Pool* oldPools = Pools;
+      Result = RawAllocate(I->Count*ItemSize,ItemSize);
+      if (Pools != oldPools)
+         I += Pools - oldPools;
+
+      // Does the allocation failed ?
+      if (Result == 0)
+         return 0;
+
+      I->Start = Result;
+   }
+   else
+      Result = I->Start;
 
    I->Count--;
-   unsigned long Result = I->Start;
    I->Start += ItemSize;  
    return Result/ItemSize;
 }
@@ -271,19 +304,84 @@ unsigned long DynamicMMap::Allocate(unsigned long ItemSize)
 unsigned long DynamicMMap::WriteString(const char *String,
 				       unsigned long Len)
 {
-   unsigned long Result = iSize;
-   // Just in case error check
-   if (Result + Len > WorkSpace)
-   {
-      _error->Error("Dynamic MMap ran out of room");
-      return 0;
-   }   
-   
-   if (Len == (unsigned long)-1)
+   if (Len == std::numeric_limits<unsigned long>::max())
       Len = strlen(String);
-   iSize += Len + 1;
+
+   unsigned long Result = RawAllocate(Len+1,0);
+
+   if (Base == NULL || Result == 0)
+      return 0;
+
    memcpy((char *)Base + Result,String,Len);
    ((char *)Base)[Result + Len] = 0;
+
    return Result;
+}
+									/*}}}*/
+// DynamicMMap::Grow - Grow the mmap					/*{{{*/
+// ---------------------------------------------------------------------
+/* This method is a wrapper around different methods to (try to) grow
+   a mmap (or our char[]-fallback). Encounterable environments:
+   1. mmap -> mremap with MREMAP_MAYMOVE
+   2. alloc -> realloc */
+bool DynamicMMap::Grow(unsigned long long size)
+{
+   if (GrowFactor <= 0)
+      return _error->Error(_("Unable to increase size of the MMap as automatic growing is disabled by user."));
+
+   unsigned long long grow_size = 0;
+
+   do
+   {
+      grow_size += GrowFactor;
+
+      if (Limit != 0 && WorkSpace + grow_size > Limit)
+         return _error->Error(_("Unable to increase the size of the MMap as the "
+                                "limit of %llu bytes is already reached."), Limit);
+   } while (grow_size < size);
+
+   unsigned long long const newSize = WorkSpace + grow_size;
+
+   if (Fd != 0)
+   {
+      Fd->Seek(newSize - 1);
+      char C = 0;
+      Fd->Write(&C,sizeof(C));
+   }
+
+   unsigned long const poolOffset = Pools - ((Pool*) Base);
+
+   if (Fd != 0)
+   {
+      void *tmp_base = MAP_FAILED;
+#ifdef MREMAP_MAYMOVE
+      if ((this->Flags & Moveable) == Moveable)
+         tmp_base = mremap(Base, WorkSpace, newSize, MREMAP_MAYMOVE);
+      else
+#endif
+         tmp_base = mremap(Base, WorkSpace, newSize, 0);
+
+      if (tmp_base == MAP_FAILED)
+         return false;
+
+      Base = tmp_base;
+   } else {
+      if ((this->Flags & Moveable) != Moveable)
+         return false;
+
+      void *tmp_base = realloc(Base, newSize);
+      if (tmp_base == NULL)
+         return false;
+
+      Base = tmp_base;
+
+      /* Set new memory to 0 */
+      memset((char*)Base + WorkSpace, 0, newSize - WorkSpace);
+   }
+
+   Pools = (Pool*) Base + poolOffset;
+   WorkSpace = newSize;
+
+   return true;
 }
 									/*}}}*/

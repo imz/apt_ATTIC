@@ -375,6 +375,7 @@ bool rpmPkgListIndex::Merge(pkgCacheGenerator &Gen,OpProgress &Prog) const
 
    // Store the IMS information
    pkgCache::PkgFileIterator File = Gen.GetCurFile();
+   pkgCacheGenerator::Dynamic<pkgCache::PkgFileIterator> DynFile(File);
    struct stat St;
    if (stat(PackageFile.c_str(),&St) != 0) 
    {
