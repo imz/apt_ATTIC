@@ -259,7 +259,7 @@ bool rpmListParser::NewVersion(pkgCache::VerIterator &Ver)
    Ver->Arch = UniqFindTagWrite(RPMTAG_ARCH);
    
    // Archive Size
-   Ver->Size = (unsigned long long)Handler->FileSize();
+   Ver->Size = Handler->FileSize();
    
    // Unpacked Size (in kbytes)
    headerGetEntry(header, RPMTAG_SIZE, &type, (void**)&num, &count);
@@ -761,7 +761,7 @@ bool rpmListParser::LoadReleaseInfo(pkgCache::PkgFileIterator &FileI,
 }
                                                                         /*}}}*/
 
-unsigned long rpmListParser::Size() 
+unsigned long long rpmListParser::Size() 
 {
    uint32_t *size;
    rpm_tagtype_t type;

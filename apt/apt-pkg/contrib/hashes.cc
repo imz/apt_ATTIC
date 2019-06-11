@@ -25,7 +25,7 @@
 // Hashes::AddFD - Add the contents of the FD				/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-bool Hashes::AddFD(int Fd,unsigned long Size)
+bool Hashes::AddFD(int Fd,unsigned long long Size)
 {
    unsigned char Buf[64*64];
    int Res = 0;

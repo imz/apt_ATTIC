@@ -289,7 +289,7 @@ void RsyncMethod::RsyncConnExec::ParseOutput(pkgAcqMethod *Owner, FetchResult &F
    ptr = strstr(buf,SIZE);
    if (ptr) {
 	  ptr += strlen(SIZE);
-	  unsigned long size = atol(ptr);
+	  unsigned long long size = atoll(ptr);
 	  if (RsyncMethod::Debug)
 		 cerr << "RSYNC: " << SIZE << size << endl;
 	  FRes.Size = size;
@@ -442,7 +442,7 @@ void RsyncMethod::RsyncConnExecExt::ParseOutput(pkgAcqMethod *Owner, FetchResult
    ptr = strstr(buf,SIZE);
    if (ptr) {
 	  ptr += strlen(SIZE);
-	  unsigned long size = atol(ptr);
+	  unsigned long long size = atoll(ptr);
 	  if (RsyncMethod::Debug)
 		 cerr << "RSYNC: " << SIZE << size << endl;
 	  FRes.Size = size;

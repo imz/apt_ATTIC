@@ -95,7 +95,7 @@ bool GzipMethod::Fetch(FetchItem *Itm)
    while (1) 
    {
       unsigned char Buffer[4*1024];
-      unsigned long Count;
+      unsigned long long Count;
       
       Count = read(GzOut[0],Buffer,sizeof(Buffer));
       if (Count < 0 && errno == EINTR)

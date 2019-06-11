@@ -606,7 +606,7 @@ bool TryToInstall(pkgCache::PkgIterator Pkg,pkgDepCache &Cache,
    if (Cache[Pkg].CandidateVer == 0 && Pkg->ProvidesList != 0)
    {
       vector<pkgCache::Package *> GoodSolutions;
-      unsigned long Size = 0;
+      unsigned long long Size = 0;
       for (pkgCache::PrvIterator Prv = Pkg.ProvidesList();
 	   Prv.end() == false; Prv++)
 	 Size++;
@@ -970,7 +970,7 @@ pkgSrcRecords::Parser *FindSrc(const char *Name,pkgRecords &Recs,
    
    // The best hit
    pkgSrcRecords::Parser *Last = 0;
-   unsigned long Offset = 0;
+   unsigned long long Offset = 0;
    string Version;
    bool IsMatch = false;
    

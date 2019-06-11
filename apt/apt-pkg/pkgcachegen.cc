@@ -732,9 +732,9 @@ static bool CheckValidity(const string &CacheFile, FileIterator Start,
 // ---------------------------------------------------------------------
 /* Size is kind of an abstract notion that is only used for the progress
    meter */
-static unsigned long ComputeSize(FileIterator Start,FileIterator End)
+static unsigned long long ComputeSize(FileIterator Start,FileIterator End)
 {
-   unsigned long TotalSize = 0;
+   unsigned long long TotalSize = 0;
    for (; Start != End; Start++)
    {
       if ((*Start)->HasPackages() == false)
@@ -749,7 +749,7 @@ static unsigned long ComputeSize(FileIterator Start,FileIterator End)
 /* */
 static bool BuildCache(pkgCacheGenerator &Gen,
 		       OpProgress &Progress,
-		       unsigned long &CurrentSize,unsigned long TotalSize,
+		       unsigned long long &CurrentSize,unsigned long long TotalSize,
 		       FileIterator Start, FileIterator End)
 {
    FileIterator I;
@@ -768,7 +768,7 @@ static bool BuildCache(pkgCacheGenerator &Gen,
 	 continue;
       }
       
-      unsigned long Size = (*I)->Size();
+      unsigned long long Size = (*I)->Size();
       Progress.OverallProgress(CurrentSize,TotalSize,Size,_("Reading Package Lists"));
       CurrentSize += Size;
       
@@ -787,7 +787,7 @@ static bool BuildCache(pkgCacheGenerator &Gen,
 /* */
 static bool CollectFileProvides(pkgCacheGenerator &Gen,
 				OpProgress &Progress,
-				unsigned long &CurrentSize,unsigned long TotalSize,
+				unsigned long long &CurrentSize,unsigned long long TotalSize,
 			        FileIterator Start, FileIterator End)
 {
    for (FileIterator I = Start; I != End; I++)
@@ -795,7 +795,7 @@ static bool CollectFileProvides(pkgCacheGenerator &Gen,
       if ((*I)->HasPackages() == false || (*I)->Exists() == false)
 	 continue;
 
-      unsigned long Size = (*I)->Size();
+      unsigned long long Size = (*I)->Size();
       Progress.OverallProgress(CurrentSize,TotalSize,Size,_("Reading Package Lists"));
       CurrentSize += Size;
 
@@ -819,7 +819,7 @@ bool pkgMakeStatusCache(pkgSourceList &List,OpProgress &Progress,
    unsigned long MapSize = _config->FindI("APT::Cache-Limit",6*(16+sizeof(long))*1024*1024);
    
    vector<pkgIndexFile *> Files(List.begin(),List.end());
-   unsigned long EndOfSource = Files.size();
+   size_t EndOfSource = Files.size();
    if (_system->AddStatusFiles(Files) == false)
       return false;
    
@@ -875,8 +875,8 @@ bool pkgMakeStatusCache(pkgSourceList &List,OpProgress &Progress,
    }
    
    // Lets try the source cache.
-   unsigned long CurrentSize = 0;
-   unsigned long TotalSize = 0;
+   unsigned long long CurrentSize = 0;
+   unsigned long long TotalSize = 0;
    if (CheckValidity(SrcCacheFile,Files.begin(),
 		     Files.begin()+EndOfSource) == true)
    {
@@ -890,7 +890,7 @@ bool pkgMakeStatusCache(pkgSourceList &List,OpProgress &Progress,
 
       // CNC:2003-03-18
       // For the file provides collection phase.
-      unsigned long SrcSize = ComputeSize(Files.begin(),
+      unsigned long long SrcSize = ComputeSize(Files.begin(),
 					  Files.begin()+EndOfSource);
       TotalSize = TotalSize+(TotalSize+SrcSize);
       
@@ -924,7 +924,7 @@ bool pkgMakeStatusCache(pkgSourceList &List,OpProgress &Progress,
 
       // CNC:2003-03-18
       // For the file provides collection phase.
-      unsigned long SrcSize = ComputeSize(Files.begin(),
+      unsigned long long SrcSize = ComputeSize(Files.begin(),
 					  Files.begin()+EndOfSource);
       TotalSize = (TotalSize*2)+SrcSize;
       
@@ -1031,14 +1031,14 @@ bool pkgMakeOnlyStatusCache(OpProgress &Progress,DynamicMMap **OutMap)
 {
    unsigned long MapSize = _config->FindI("APT::Cache-Limit",6*(16+sizeof(long))*1024*1024);
    vector<pkgIndexFile *> Files;
-   unsigned long EndOfSource = Files.size();
+   size_t EndOfSource = Files.size();
    if (_system->AddStatusFiles(Files) == false)
       return false;
    
    SPtr<DynamicMMap> Map;   
    Map = new DynamicMMap(MMap::Public,MapSize);
-   unsigned long CurrentSize = 0;
-   unsigned long TotalSize = 0;
+   unsigned long long CurrentSize = 0;
+   unsigned long long TotalSize = 0;
    
    TotalSize = ComputeSize(Files.begin()+EndOfSource,Files.end());
 

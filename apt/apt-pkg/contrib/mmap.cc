@@ -86,7 +86,7 @@ bool MMap::Map(FileFd &Fd)
    // Map it.
    Base = mmap(0,iSize,Prot,Map,Fd.Fd(),0);
    if (Base == (void *)-1)
-      return _error->Errno("mmap",_("Couldn't make mmap of %lu bytes"),iSize);
+      return _error->Errno("mmap",_("Couldn't make mmap of %llu bytes"),iSize);
 
    return true;
 }
@@ -154,7 +154,7 @@ DynamicMMap::DynamicMMap(FileFd &F,unsigned long Flags,unsigned long WorkSpace) 
    if (_error->PendingError() == true)
       return;
    
-   unsigned long EndOfFile = Fd->Size();
+   unsigned long long EndOfFile = Fd->Size();
    if (EndOfFile > WorkSpace)
       WorkSpace = EndOfFile;
    else
@@ -193,7 +193,7 @@ DynamicMMap::~DynamicMMap()
       return;
    }
    
-   unsigned long EndOfFile = iSize;
+   unsigned long long EndOfFile = iSize;
    iSize = WorkSpace;
    Close(false);
    ftruncate(Fd->Fd(),EndOfFile);
@@ -204,7 +204,7 @@ DynamicMMap::~DynamicMMap()
 /* This allocates a block of memory aligned to the given size */
 unsigned long DynamicMMap::RawAllocate(unsigned long Size,unsigned long Aln)
 {
-   unsigned long Result = iSize;
+   unsigned long long Result = iSize;
    if (Aln != 0)
       Result += Aln - (iSize%Aln);
    

@@ -305,7 +305,7 @@ SHA1SumValue SHA1Summation::Result()
 // SHA1Summation::Add - Adds content of buffer into the checksum        /*{{{*/
 // ---------------------------------------------------------------------
 /* May not be called after Result() is called */
-bool SHA1Summation::Add(const unsigned char *data,unsigned long len)
+bool SHA1Summation::Add(const unsigned char *data,unsigned long long len)
 {
    if (Done)
       return false;
@@ -339,7 +339,7 @@ bool SHA1Summation::Add(const unsigned char *data,unsigned long len)
 // SHA1Summation::AddFD - Add content of file into the checksum         /*{{{*/
 // ---------------------------------------------------------------------
 /* */
-bool SHA1Summation::AddFD(int Fd,unsigned long Size)
+bool SHA1Summation::AddFD(int Fd,unsigned long long Size)
 {
    unsigned char Buf[64 * 64];
    int Res = 0;

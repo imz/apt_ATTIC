@@ -198,7 +198,7 @@ struct pkgCache::Header
    map_ptrloc StringList;            // struct StringItem
    map_ptrloc VerSysName;            // StringTable
    map_ptrloc Architecture;          // StringTable
-   unsigned long MaxVerFileSize;
+   unsigned long long MaxVerFileSize;
 
    /* Allocation pools, there should be one of these for each structure
       excluding the header */
@@ -245,7 +245,7 @@ struct pkgCache::PackageFile
    map_ptrloc Architecture;    // Stringtable
    map_ptrloc Site;            // Stringtable
    map_ptrloc IndexType;       // Stringtable
-   unsigned long Size;            
+   unsigned long long Size;            
    unsigned long Flags;
    
    // Linked list
