@@ -27,6 +27,7 @@
 #include <config.h>
 
 #define _BSD_SOURCE
+#include <apt-pkg/configuration.h>
 #include <apt-pkg/mmap.h>
 #include <apt-pkg/error.h>
 #include <apt-pkg/rebase_pointer.h>
@@ -268,6 +269,22 @@ std::optional<unsigned long> DynamicMMap::Allocate(unsigned long ItemSize)
    // No pool is allocated, use an unallocated one
    if (I == Pools + PoolCount)
    {
+      static const bool debug_alloc = _config->FindB("Debug::DynamicMMap::Allocate", false);
+
+      if (debug_alloc)
+      {
+         Pool *pool_iter = Pools;
+         size_t pool_idx = 0;
+
+         _error->Warning(_("DynamicMMap::Allocate: allocating item of size %lu"), ItemSize);
+
+         for (; pool_idx < PoolCount; ++pool_iter, ++pool_idx)
+         {
+            _error->Warning(_("DynamicMMap::Allocate: Pool %zu, item size: %lu, start: %lu, count: %lu"),
+                            pool_idx, pool_iter->ItemSize, pool_iter->Start, pool_iter->Count);
+         }
+      }
+
       // Woops, we ran out, the calling code should allocate more.
       if (Empty == 0)
       {
@@ -339,6 +356,8 @@ bool DynamicMMap::Grow(unsigned long size)
    if (GrowFactor <= 0)
       return _error->Error(_("Unable to increase size of the MMap as automatic growing is disabled by user."));
 
+   static const bool debug_grow = _config->FindB("Debug::DynamicMMap::Grow", false);
+
    unsigned long grow_size = 0;
 
    do
@@ -370,6 +389,10 @@ bool DynamicMMap::Grow(unsigned long size)
 #endif
          tmp_base = mremap(Base, WorkSpace, newSize, 0);
 
+      if (debug_grow)
+         _error->Warning(_("DynamicMMap::Grow: mremap from %lu to %lu, result: %s"),
+                         WorkSpace, newSize, (tmp_base == MAP_FAILED) ? _("Fail") : _("Success"));
+
       if (tmp_base == MAP_FAILED)
          return false;
 
@@ -379,6 +402,11 @@ bool DynamicMMap::Grow(unsigned long size)
          return false;
 
       void *tmp_base = realloc(Base, newSize);
+
+      if (debug_grow)
+         _error->Warning(_("DynamicMMap::Grow: realloc from %lu to %lu, result: %s"),
+                         WorkSpace, newSize, (tmp_base == nullptr) ? _("Fail") : _("Success"));
+
       if (tmp_base == NULL)
          return false;
 
