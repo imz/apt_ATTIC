@@ -226,7 +226,10 @@ std::experimental::optional<unsigned long> DynamicMMap::RawAllocate(unsigned lon
       if (!Grow(Result + Size - WorkSpace))
       {
          _error->Error(_("Dynamic MMap ran out of room. Please increase the size "
-                         "of APT::Cache-Start. Current value: %llu. (man 5 apt.conf)"), WorkSpace);
+                         "of APT::Cache-Start or APT::Cache-Limit, or remove value of APT::Cache-Limit. "
+                         "Current values are: %llu, %llu. (man 5 apt.conf)"),
+                       (unsigned long long) _config->FindI("APT::Cache-Start", 24*1024*1024),
+                       (unsigned long long) _config->FindI("APT::Cache-Limit", 0));
          return std::experimental::optional<unsigned long>();
       }
    }
