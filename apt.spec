@@ -1,6 +1,6 @@
 Name: apt
 Version: 0.5.15lorg2
-Release: alt53.M80P.2
+Release: alt53.M80P.3
 
 Summary: Debian's Advanced Packaging Tool with RPM support
 Summary(ru_RU.UTF-8): Debian APT - Усовершенствованное средство управления пакетами с поддержкой RPM
@@ -24,13 +24,22 @@ Patch101: apt-0.5.4cnc9-alt-getsrc-debug.patch
 
 Requires: libapt = %version-%release
 Requires: rpm >= 4.0.4-alt28, /etc/apt/pkgpriorities, apt-conf
+# We need (lib)rpm which finds pkgs by labels in N-E:V-R:D@T format:
+Requires: RPMQ(EPOCH)
+Requires: RPMQ(BUILDTIME)
+Requires: RPMQ(DISTTAG)
 # for methods.
 Requires: gzip, bzip2, xz
 Requires: gnupg, alt-gpgkeys
 
-# Older versions of update-kernel misunderstood the @-postfix with buildtime,
-# which is now added by APT to verstrs and the names of allow-duplicated pkgs.
-Conflicts: update-kernel < 0.9.12-alt1
+# Older versions of update-kernel misunderstood the @-postfix (with buildtime
+# and disttag), which is now added by APT to verstrs and the names of
+# allow-duplicated pkgs. (Epoch was also treated differently before, but that
+# was not important until we added disttags, which are also separated by :.)
+Conflicts: update-kernel < 0.9.14-alt1
+# Older versions of apt-scripts-nvidia relied on a certain format of the APT ids
+# of allow-duplicated packages, which changed (due to appending buildtime).
+Conflicts: apt-scripts-nvidia < 0.5.0-alt1
 
 # for autopoint.
 BuildPreReq: cvs
@@ -307,6 +316,11 @@ unset RPM_PYTHON
 %_libdir/%name/methods/https
 
 %changelog
+* Fri Jun  7 2019 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt53.M80P.1.1
+- Add disttag to VerStrs (used by APT to identify package versions).
+- Increase default APT::Cache-Limit in 1.5 times due to the extension of VerStrs
+  (ALT#36775).
+
 * Fri May 31 2019 Aleksei Nikiforov <darktemplar@altlinux.org> 0.5.15lorg2-alt53.M80P.2
 - Ported https support from Debian via https method to apt-https package.
 - Dropped processing Realm name in http/https methods.
