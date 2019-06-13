@@ -74,7 +74,7 @@ rpmListParser::~rpmListParser()
 // ListParser::UniqFindTagWrite - Find the tag and write a unq string	/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-unsigned long rpmListParser::UniqFindTagWrite(int Tag)
+std::experimental::optional<unsigned long> rpmListParser::UniqFindTagWrite(int Tag)
 {
    char *Start;
    char *Stop;
@@ -83,7 +83,7 @@ unsigned long rpmListParser::UniqFindTagWrite(int Tag)
    void *data;
    
    if (headerGetEntry(header, Tag, &type, &data, &count) != 1)
-      return 0;
+      return std::experimental::optional<unsigned long>();
    
    if (type == RPM_STRING_TYPE) 
    {
@@ -259,8 +259,13 @@ bool rpmListParser::NewVersion(pkgCache::VerIterator &Ver)
 #endif
    
    // Parse the section
-   Ver->Section = UniqFindTagWrite(RPMTAG_GROUP);
-   Ver->Arch = UniqFindTagWrite(RPMTAG_ARCH);
+   const auto idxSection = UniqFindTagWrite(RPMTAG_GROUP);
+   const auto idxArch = UniqFindTagWrite(RPMTAG_ARCH);
+   if ((!idxSection) || (!idxArch))
+      return false;
+
+   Ver->Section = *idxSection;
+   Ver->Arch = *idxArch;
    
    // Archive Size
    Ver->Size = Handler->FileSize();
@@ -300,7 +305,14 @@ bool rpmListParser::UsePackage(pkgCache::PkgIterator &Pkg,
    if (SeenPackages)
       SeenPackages->insert(Pkg.Name());
    if (Pkg->Section == 0)
-      Pkg->Section = UniqFindTagWrite(RPMTAG_GROUP);
+   {
+      const auto idxSection = UniqFindTagWrite(RPMTAG_GROUP);
+      if (!idxSection)
+         return false;
+
+      Pkg->Section = *idxSection;
+   }
+
    if (_error->PendingError()) 
        return false;
    string PkgName = Pkg.Name();
@@ -744,19 +756,61 @@ bool rpmListParser::LoadReleaseInfo(pkgCache::PkgFileIterator &FileI,
    
    const char *Start;
    const char *Stop;
+
    if (Section.Find("Archive",Start,Stop))
-       FileI->Archive = WriteUniqString(Start,Stop - Start);
+   {
+      const auto idx = WriteUniqString(Start, Stop - Start);
+      if (!idx)
+         return false;
+
+       FileI->Archive = *idx;
+   }
+
    if (Section.Find("Component",Start,Stop))
-       FileI->Component = WriteUniqString(Start,Stop - Start);
+   {
+      const auto idx = WriteUniqString(Start, Stop - Start);
+      if (!idx)
+         return false;
+
+      FileI->Component = *idx;
+   }
+
    if (Section.Find("Version",Start,Stop))
-       FileI->Version = WriteUniqString(Start,Stop - Start);
+   {
+      const auto idx = WriteUniqString(Start, Stop - Start);
+      if (!idx)
+         return false;
+
+      FileI->Version = *idx;
+   }
+
    if (Section.Find("Origin",Start,Stop))
-       FileI->Origin = WriteUniqString(Start,Stop - Start);
+   {
+      const auto idx = WriteUniqString(Start, Stop - Start);
+      if (!idx)
+         return false;
+
+      FileI->Origin = *idx;
+   }
+
    if (Section.Find("Label",Start,Stop))
-       FileI->Label = WriteUniqString(Start,Stop - Start);
+   {
+      const auto idx = WriteUniqString(Start, Stop - Start);
+      if (!idx)
+         return false;
+
+      FileI->Label = *idx;
+   }
+
    if (Section.Find("Architecture",Start,Stop))
-       FileI->Architecture = WriteUniqString(Start,Stop - Start);
-   
+   {
+      const auto idx = WriteUniqString(Start, Stop - Start);
+      if (!idx)
+         return false;
+
+      FileI->Architecture = *idx;
+   }
+
    if (Section.FindFlag("NotAutomatic",FileI->Flags,
 			pkgCache::Flag::NotAutomatic) == false)
        _error->Warning(_("Bad NotAutomatic flag"));
