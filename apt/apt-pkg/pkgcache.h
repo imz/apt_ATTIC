@@ -1,4 +1,3 @@
-// -*- mode: cpp; mode: fold -*-
 // Description								/*{{{*/
 // $Id: pkgcache.h,v 1.2 2003/01/29 13:04:48 niemeyer Exp $
 /* ######################################################################
@@ -266,10 +265,9 @@ struct pkgCache::VerFile
 struct pkgCache::Version
 {
    map_ptrloc VerStr;            // Stringtable
-   map_ptrloc BTime;             // int
    map_ptrloc Section;           // StringTable (StringItem)
    map_ptrloc Arch;              // StringTable
-
+      
    // Lists
    map_ptrloc FileList;          // VerFile
    map_ptrloc NextVer;           // Version
@@ -277,8 +275,12 @@ struct pkgCache::Version
    map_ptrloc ParentPkg;         // Package
    map_ptrloc ProvidesList;      // Provides
    
-   map_ptrloc Size;              // These are the .deb size
-   map_ptrloc InstalledSize;
+   /** \brief archive size for this version
+       For Debian this is the size of the .deb file. */
+   unsigned long long Size;      // These are the .deb size
+   /** \brief uncompressed size for this version */
+   unsigned long long InstalledSize;
+
    unsigned int Hash;
    unsigned int ID;
    unsigned char Priority;

@@ -184,6 +184,9 @@ string rpmListParser::Architecture()
    return string(res?arch:"");
 }
                                                                         /*}}}*/
+
+#include <sstream>
+
 // ListParser::Version - Return the version string			/*{{{*/
 // ---------------------------------------------------------------------
 /* This is to return the string describing the version in RPM form,
@@ -196,12 +199,14 @@ string rpmListParser::Version()
       return VI->VerStr();
 #endif
 
-   char *ver, *rel;
-   int_32 *ser;
+   char *ver, *rel, *dtag;
+   bool has_dtag = false;
+   uint32_t *ser;
    bool has_epoch = false;
+   uint32_t *btime;
+   bool has_btime = false;
    int type, count;
-   string str;
-   str.reserve(10);
+   stringstream ss;
 
    if (headerGetEntry(header, RPMTAG_EPOCH, &type, (void **)&ser, &count) == 1
        && count > 0) 
@@ -210,41 +215,25 @@ string rpmListParser::Version()
    headerGetEntry(header, RPMTAG_VERSION, &type, (void **)&ver, &count);
    headerGetEntry(header, RPMTAG_RELEASE, &type, (void **)&rel, &count);
 
-   if (has_epoch == true) {
-      char buf[32];
-      snprintf(buf, sizeof(buf), "%i", ser[0]);
-      str += buf;
-      str += ":";
-      str += ver;
-      str += "-";
-      str += rel;
-   }
-   else {
-      str += ver;
-      str += "-";
-      str += rel;
-   }
-   return str;
-}
-
-                                                                        /*}}}*/
-// ListParser::BuildTime - Return the buildtime				/*{{{*/
-// ---------------------------------------------------------------------
-/* This is to return the int describing the buildtime. */
-int rpmListParser::BuildTime()
-{
-#ifdef WITH_VERSION_CACHING
-   if (VI != NULL)
-      return VI->BTime();
-#endif
-
-   int *buildtime;
-   int type, count;
-
-   if (headerGetEntry(header, RPMTAG_BUILDTIME, &type, (void **)&buildtime, &count) == 1
+   if (headerGetEntry(header, RPMTAG_DISTTAG, &type, (void **)&dtag, &count) == 1
        && count > 0)
-	   return buildtime[0];
-   return 0;
+      has_dtag = true;
+
+   if (headerGetEntry(header, RPMTAG_BUILDTIME, &type, (void **)&btime, &count) == 1
+       && count > 0)
+      has_btime = true;
+
+   if (has_epoch) {
+      ss << ser[0] << ":";
+   }
+   ss << ver << "-" << rel;
+   if (has_dtag) {
+      ss << ":" << dtag;
+   }
+   if (has_btime) {
+      ss << "@" << btime[0];
+   }
+   return ss.str();
 }
                                                                         /*}}}*/
 // ListParser::NewVersion - Fill in the version structure		/*{{{*/
@@ -253,7 +242,7 @@ int rpmListParser::BuildTime()
 bool rpmListParser::NewVersion(pkgCache::VerIterator Ver)
 {
    int count, type;
-   int_32 *num;
+   int32_t *num;
 
 #if WITH_VERSION_CACHING
    // Cache it for future usage.
@@ -263,17 +252,13 @@ bool rpmListParser::NewVersion(pkgCache::VerIterator Ver)
    // Parse the section
    Ver->Section = UniqFindTagWrite(RPMTAG_GROUP);
    Ver->Arch = UniqFindTagWrite(RPMTAG_ARCH);
-
-   headerGetEntry(header, RPMTAG_BUILDTIME, &type, (void**)&num, &count);
-   if (type == RPM_INT32_TYPE && num)
-       Ver->BTime = *num;
-
+   
    // Archive Size
-   Ver->Size = Handler->FileSize();
+   Ver->Size = (unsigned long long)Handler->FileSize();
    
    // Unpacked Size (in kbytes)
    headerGetEntry(header, RPMTAG_SIZE, &type, (void**)&num, &count);
-   Ver->InstalledSize = (unsigned)num[0];
+   Ver->InstalledSize = (unsigned long long)num[0];
      
    if (ParseDepends(Ver,pkgCache::Dep::Depends) == false)
        return false;
@@ -414,7 +399,7 @@ bool rpmListParser::ParseStatus(pkgCache::PkgIterator Pkg,
 
 
 bool rpmListParser::ParseDepends(pkgCache::VerIterator Ver,
-				 char **namel, char **verl, int_32 *flagl,
+				 char **namel, char **verl, int32_t *flagl,
 				 int count, unsigned int Type)
 {
    int i = 0;
@@ -718,21 +703,9 @@ bool rpmListParser::Step()
       if (RpmData->IgnorePackage(RealName) == true)
 	 continue;
  
-#if OLD_BESTARCH
-      bool archOk = false;
-      string tmp = rpmSys.BestArchForPackage(RealName);
-      if (tmp.empty() == true && // has packages for a single arch only
-	  rpmMachineScore(RPM_MACHTABLE_INSTARCH, arch.c_str()) > 0)
-	 archOk = true;
-      else if (arch == tmp)
-	 archOk = true;
-      if (Handler->IsDatabase() == true || archOk == true)
-	 return true;
-#else
       if (Handler->IsDatabase() == true ||
 	  RpmData->ArchScore(Architecture().c_str()) > 0)
 	 return true;
-#endif
    }
    header = NULL;
    return false;
@@ -774,7 +747,7 @@ bool rpmListParser::LoadReleaseInfo(pkgCache::PkgFileIterator FileI,
 
 unsigned long rpmListParser::Size() 
 {
-   uint_32 *size;
+   uint32_t *size;
    int type, count;
    if (headerGetEntry(header, RPMTAG_SIZE, &type, (void **)&size, &count)!=1)
        return 1;

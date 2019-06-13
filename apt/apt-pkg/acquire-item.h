@@ -1,4 +1,3 @@
-// -*- mode: cpp; mode: fold -*-
 // Description								/*{{{*/
 // $Id: acquire-item.h,v 1.26 2003/02/02 03:13:13 doogie Exp $
 /* ######################################################################
@@ -49,7 +48,10 @@ class pkgAcquire::Item
     * Do not use anonyomus enums, as this breaks SWIG in some cases */
    enum StatusFlags {StatIdle, StatFetching, StatDone, StatError} Status;
    string ErrorText;
-   unsigned long FileSize;
+
+   /** \brief The size of the object to fetch. */
+   unsigned long long FileSize;
+
    unsigned long PartialSize;   
    const char *Mode;
    unsigned long ID;

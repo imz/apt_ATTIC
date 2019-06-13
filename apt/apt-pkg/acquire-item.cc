@@ -1,4 +1,3 @@
-// -*- mode: cpp; mode: fold -*-
 // Description								/*{{{*/
 // $Id: acquire-item.cc,v 1.46 2003/02/02 22:19:17 jgg Exp $
 /* ######################################################################
@@ -40,7 +39,6 @@ using namespace std;
 #include <unistd.h>
 #include <errno.h>
 #include <string>
-#include <sstream>
 #include <stdio.h>
 									/*}}}*/
 
@@ -692,13 +690,9 @@ pkgAcqArchive::pkgAcqArchive(pkgAcquire *Owner,pkgSourceList *Sources,
 	 return;
             
       // Generate the final file name as: package_version_arch.foo
-      std::ostringstream BTss;
-      BTss << Version.BTime();
-
       StoreFilename = QuoteString(Version.ParentPkg().Name(),"_:") + '_' +
 	              QuoteString(Version.VerStr(),"_:") + '_' +
-     	              QuoteString(Version.Arch(),"_:.") + '_' +
-		      QuoteString(BTss.str(),"_") +
+     	              QuoteString(Version.Arch(),"_:.") + 
 	              "." + flExtension(Parse.FileName());
    }
       

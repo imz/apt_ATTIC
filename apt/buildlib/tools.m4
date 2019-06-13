@@ -139,6 +139,29 @@ _LIBSTDCPP_
 	AC_SUBST(LIBSTDCPP_VER)
 ])
 
+AC_DEFUN([rc_CXX11ABI],
+	[AC_MSG_CHECKING([whether C++11 ABI is used])
+	dummy=if$$
+	cat <<_CXX11ABI_>$dummy.cc
+#include <string>
+_CXX11ABI_
+	${CXX-c++} -E -dM $dummy.cc -o $dummy.ii
+	if test "$?" = 0; then
+		if ! grep -Fe _GLIBCXX_USE_CXX11_ABI $dummy.ii; then
+			NO_CXX11ABI_SUFFIX=-nocxx11abi
+			AC_MSG_RESULT([no])
+		else
+			NO_CXX11ABI_SUFFIX=
+			AC_MSG_RESULT([yes])
+		fi
+	else
+		NO_CXX11ABI_SUFFIX=-strangecxx
+		AC_MSG_WARN([cannot use -E -dM with the compiler])
+	fi
+	rm -f $dummy.ii $dummy.cc
+	AC_SUBST(NO_CXX11ABI_SUFFIX)
+])
+
 AC_DEFUN([ah_GCC3DEP],[
 	AC_MSG_CHECKING(if $CXX -MD works)
 	touch gcc3dep.cc

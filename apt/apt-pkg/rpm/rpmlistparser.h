@@ -1,4 +1,3 @@
-// -*- mode: cpp; mode: fold -*-
 // Description								/*{{{*/
 // $Id: rpmlistparser.h,v 1.2 2002/07/26 17:39:28 niemeyer Exp $
 /* ######################################################################
@@ -13,6 +12,7 @@
 #ifndef PKGLIB_RPMLISTPARSER_H
 #define PKGLIB_RPMLISTPARSER_H
 
+#include <stdint.h>
 #include <apt-pkg/pkgcachegen.h>
 #include <apt-pkg/rpmhandler.h>
 #include <apt-pkg/rpmmisc.h>
@@ -48,7 +48,7 @@ class rpmListParser : public pkgCacheGenerator::ListParser
    unsigned long UniqFindTagWrite(int Tag);
    bool ParseStatus(pkgCache::PkgIterator Pkg,pkgCache::VerIterator Ver);
    bool ParseDepends(pkgCache::VerIterator Ver,
-		     char **namel, char **verl, int_32 *flagl,
+		     char **namel, char **verl, int32_t *flagl,
 		     int count, unsigned int Type);
    bool ParseDepends(pkgCache::VerIterator Ver, unsigned int Type);
    bool ParseProvides(pkgCache::VerIterator Ver);
@@ -62,7 +62,6 @@ class rpmListParser : public pkgCacheGenerator::ListParser
    // These all operate against the current header
    virtual string Package();
    virtual string Version();
-   virtual int BuildTime();
    virtual string Architecture();
    virtual bool NewVersion(pkgCache::VerIterator Ver);
    virtual unsigned short VersionHash();

@@ -2,7 +2,7 @@
 lib_LTLIBRARIES = libapt-pkg.la
 
 libapt_pkg_la_LIBADD = @RPMLIBS@
-libapt_pkg_la_LDFLAGS = -version-info 6:0:1 -release @GLIBC_VER@-@LIBSTDCPP_VER@@FILE_OFFSET_BITS_SUFFIX@
+libapt_pkg_la_LDFLAGS = -version-info 6:0:1 -release @GLIBC_VER@-@LIBSTDCPP_VER@@NO_CXX11ABI_SUFFIX@@FILE_OFFSET_BITS_SUFFIX@.2
 
 AM_CPPFLAGS = -DLIBDIR=\"$(libdir)\"
 
@@ -96,6 +96,7 @@ libapt_pkg_la_SOURCES = \
 	policy.h \
 	repository.cc \
 	repository.h \
+	scopeexit.h \
 	sourcelist.cc \
 	sourcelist.h \
 	srcrecords.cc \

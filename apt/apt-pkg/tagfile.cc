@@ -1,4 +1,3 @@
-// -*- mode: cpp; mode: fold -*-
 // Description								/*{{{*/
 // $Id: tagfile.cc,v 1.37 2003/05/19 17:13:57 doogie Exp $
 /* ######################################################################
@@ -328,6 +327,30 @@ signed int pkgTagSection::FindI(const char *Tag,signed long Default) const
    
    char *End;
    signed long Result = strtol(S,&End,10);
+   if (S == End)
+      return Default;
+   return Result;
+}
+									/*}}}*/
+// TagSection::FindULL - Find an unsigned long long integer		/*{{{*/
+// ---------------------------------------------------------------------
+/* */
+unsigned long long pkgTagSection::FindULL(const char *Tag, unsigned long long const &Default) const
+{
+   const char *Start;
+   const char *Stop;
+   if (Find(Tag,Start,Stop) == false)
+      return Default;
+
+   // Copy it into a temp buffer so we can use strtoull
+   char S[100];
+   if ((unsigned)(Stop - Start) >= sizeof(S))
+      return Default;
+   strncpy(S,Start,Stop-Start);
+   S[Stop - Start] = 0;
+   
+   char *End;
+   unsigned long long Result = strtoull(S,&End,10);
    if (S == End)
       return Default;
    return Result;

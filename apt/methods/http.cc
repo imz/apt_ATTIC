@@ -1,4 +1,3 @@
-// -*- mode: cpp; mode: fold -*-
 // Description								/*{{{*/
 // $Id: http.cc,v 1.56 2003/02/12 15:33:36 doogie Exp $
 /* ######################################################################
@@ -1263,8 +1262,25 @@ int HttpMethod::Loop()
 	       URIDone(Res);
 	    }
 	    else
-	       Fail(true);
+		{
+		  if (Server->ServerFd == -1)
+		  {
+			  FailCounter++;
+			  _error->Discard();
+			  Server->Close();
 	    
+			  if (FailCounter >= 2)
+			  {
+				  Fail(_("Connection failed"),true);
+				  FailCounter = 0;
+			  }
+	    
+			  QueueBack = Queue;
+		  }
+		  else
+			  Fail(true);
+		}
+
 	    break;
 	 }
 	 
@@ -1361,8 +1377,11 @@ int HttpMethod::Loop()
 
 int main()
 {
+   // ignore SIGPIPE, this can happen on write() if the socket
+   // closes the connection (this is dealt with via ServerDie())
+   signal(SIGPIPE, SIG_IGN);
+
    HttpMethod Mth;
-   
    return Mth.Loop();
 }
 

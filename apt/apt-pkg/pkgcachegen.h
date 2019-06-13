@@ -1,4 +1,3 @@
-// -*- mode: cpp; mode: fold -*-
 // Description								/*{{{*/
 // $Id: pkgcachegen.h,v 1.3 2002/07/25 18:07:18 niemeyer Exp $
 /* ######################################################################
@@ -141,7 +140,6 @@ class pkgCacheGenerator::ListParser
 
    ListParser() : FoundFileDeps(false) {};
    virtual ~ListParser() {};
-   virtual int BuildTime() = 0;
 };
 
 bool pkgMakeStatusCache(pkgSourceList &List,OpProgress &Progress,

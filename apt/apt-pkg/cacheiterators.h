@@ -1,4 +1,3 @@
-// -*- mode: cpp; mode: fold -*-
 // Description								/*{{{*/
 // $Id: cacheiterators.h,v 1.18 2003/10/09 23:15:25 mdz Exp $
 /* ######################################################################
@@ -126,7 +125,6 @@ class pkgCache::VerIterator
    inline pkgCache *Cache() {return Owner;};
       
    inline const char *VerStr() const {return Ver->VerStr == 0?0:Owner->StrP + Ver->VerStr;};
-   inline const int BTime() const {return Ver->BTime;};
    inline const char *Section() const {return Ver->Section == 0?0:Owner->StrP + Ver->Section;};
    inline const char *Arch() const {return Ver->Arch == 0?0:Owner->StrP + Ver->Arch;};
    inline PkgIterator ParentPkg() const {return PkgIterator(*Owner,Owner->PkgP + Ver->ParentPkg);};

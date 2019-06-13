@@ -1,4 +1,3 @@
-// -*- mode: cpp; mode: fold -*-
 // Description								/*{{{*/
 /* ######################################################################
 
@@ -21,6 +20,7 @@
 #include <apt-pkg/configuration.h>
 #include <apt-pkg/luaiface.h>
 #include <apt-pkg/depcache.h>
+#include <apt-pkg/scopeexit.h>
 
 #include <apti18n.h>
 
@@ -34,6 +34,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <cstring>
+#include <functional>
 
 #if RPM_VERSION >= 0x040100
 #include <rpm/rpmdb.h>
@@ -48,6 +49,39 @@
 #include "rpmshowprogress.h"
 #endif
 #endif
+
+namespace {
+
+std::string rpm_name_conversion(const pkgCache::PkgIterator &Pkg)
+{
+   string Name = Pkg.Name();
+   string::size_type loc;
+   bool NeedLabel = false;
+
+   // Unmunge our package names so rpm can find them...
+   if ((loc = Name.find('#')) != string::npos) {
+      Name = Name.substr(0, loc);
+      NeedLabel = true;
+   }
+   if ((loc = Name.rfind(".32bit")) != string::npos &&
+      loc == Name.length() - strlen(".32bit"))
+      Name = Name.substr(0,loc);
+   if (NeedLabel) {
+      const char *VerStr = Pkg.CurrentVer().VerStr();
+      Name += "-";
+      Name += VerStr;
+   }
+
+#if RPM_VERSION >= 0x040202
+   // This is needed for removal to work on multilib packages, but old
+   // rpm versions don't support name.arch in RPMDBI_LABEL, oh well...
+   Name = Name + "." + Pkg.CurrentVer().Arch();
+#endif
+
+   return Name;
+}
+
+} // unnamed namespace
 
 // RPMPM::pkgRPMPM - Constructor					/*{{{*/
 // ---------------------------------------------------------------------
@@ -262,34 +296,12 @@ bool pkgRPMPM::Go()
    {
       string Name = I->Pkg.Name();
       string::size_type loc;
-      bool NeedLabel;
 
       switch (I->Op)
       {
       case Item::Purge:
       case Item::Remove:
-	 // Unmunge our package names so rpm can find them...
-	 NeedLabel = false;
-	 if ((loc = Name.find('#')) != string::npos) {
-	    Name = Name.substr(0,loc);
-	    NeedLabel = true;
-	 }
-	 if ((loc = Name.rfind(".32bit")) != string::npos &&
-	       loc == Name.length() - strlen(".32bit"))
-	    Name = Name.substr(0,loc);
-	 if (NeedLabel) {
-	    const char *VerStr = I->Pkg.CurrentVer().VerStr();
-	    const char *Epoch = strchr(VerStr, ':');
-	    if (Epoch)
-	       VerStr = Epoch + 1;
-	    Name += "-";
-	    Name += VerStr;
-	 }
-#if RPM_VERSION >= 0x040202
-	 // This is needed for removal to work on multilib packages, but old
-	 // rpm versions don't support name.arch in RPMDBI_LABEL, oh well...
-	 Name = Name + "." + I->Pkg.CurrentVer().Arch();
-#endif
+	 Name = rpm_name_conversion(I->Pkg);
 	 uninstall.push_back(strdup(Name.c_str()));
 	 unalloc.push_back(strdup(Name.c_str()));
 	 pkgs_uninstall.push_back(I->Pkg);
@@ -709,26 +721,47 @@ bool pkgRPMLibPM::AddToTransaction(Item::RPMOps op, vector<const char*> &files)
 	 case Item::RPMUpgrade:
 	    upgrade = 1;
 	 case Item::RPMInstall:
+	  {
 	    fd = Fopen(*I, "r.ufdio");
 	    if (fd == NULL)
+	    {
 	       _error->Error(_("Failed opening %s"), *I);
+	       return false;
+	    }
+
+		scope_exit close_fd(std::bind(&Fclose, fd));
+
 #if RPM_VERSION >= 0x040100
             rc = rpmReadPackageFile(TS, fd, *I, &hdr);
 	    if (rc != RPMRC_OK && rc != RPMRC_NOTTRUSTED && rc != RPMRC_NOKEY)
+		{
 	       _error->Error(_("Failed reading file %s"), *I);
+		   return false;
+		}
+
+		scope_exit free_hd(std::bind(&headerFree, hdr));
+
 	    rc = rpmtsAddInstallElement(TS, hdr, *I, upgrade, 0);
 #else
 	    rc = rpmReadPackageHeader(fd, &hdr, 0, NULL, NULL);
 	    if (rc)
+		{
 	       _error->Error(_("Failed reading file %s"), *I);
+		   return false;
+		}
+
+		scope_exit free_hd(std::bind(&headerFree, hdr));
+
 	    rc = rpmtransAddPackage(TS, hdr, NULL, *I, upgrade, 0);
 #endif
 	    if (rc)
+		{
 	       _error->Error(_("Failed adding %s to transaction %s"),
 			     *I, "(install)");
-	    headerFree(hdr);
-	    Fclose(fd);
-	    break;
+	       return false;
+		}
+	  }
+	  break;
 
 	 case Item::RPMErase:
 #if RPM_VERSION >= 0x040000
@@ -748,8 +781,11 @@ bool pkgRPMLibPM::AddToTransaction(Item::RPMOps op, vector<const char*> &files)
 		  rc = rpmtransRemovePackage(TS, recOffset);
 #endif
 		  if (rc)
+		  {
 		     _error->Error(_("Failed adding %s to transaction %s"),
 				   *I, "(erase)");
+			 return false;
+		  }
 	       }
 	    }
 	    MI = rpmdbFreeIterator(MI);
@@ -764,7 +800,7 @@ bool pkgRPMLibPM::AddToTransaction(Item::RPMOps op, vector<const char*> &files)
 	       }
 	    }
 #endif
-	    break;
+	  break;
       }
    }
    return true;
@@ -858,11 +894,26 @@ bool pkgRPMLibPM::Process(vector<const char*> &install,
     }
 
    if (uninstall.empty() == false)
-       AddToTransaction(Item::RPMErase, uninstall);
+   {
+       if (not AddToTransaction(Item::RPMErase, uninstall))
+       {
+          goto exit;
+       }
+   }
    if (install.empty() == false)
-       AddToTransaction(Item::RPMInstall, install);
+   {
+       if (not AddToTransaction(Item::RPMInstall, install))
+       {
+          goto exit;
+       }
+   }
    if (upgrade.empty() == false)
-       AddToTransaction(Item::RPMUpgrade, upgrade);
+   {
+       if (not AddToTransaction(Item::RPMUpgrade, upgrade))
+       {
+          goto exit;
+       }
+   }
 
    // Setup the gauge used by rpmShowProgress.
    packagesTotal = install.size()+upgrade.size();

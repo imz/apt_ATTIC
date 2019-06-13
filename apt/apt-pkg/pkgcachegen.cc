@@ -1,4 +1,3 @@
-// -*- mode: cpp; mode: fold -*-
 // Description								/*{{{*/
 // $Id: pkgcachegen.cc,v 1.53 2003/02/02 02:44:20 doogie Exp $
 /* ######################################################################
@@ -146,7 +145,6 @@ bool pkgCacheGenerator::MergeList(ListParser &List,
 
       // CNC:2002-07-09
       string Arch = List.Architecture();
-      int BuildTime = List.BuildTime();
 
       pkgCache::VerIterator Ver = Pkg.VersionList();
       map_ptrloc *Last = &Pkg->VersionList;
@@ -161,18 +159,10 @@ bool pkgCacheGenerator::MergeList(ListParser &List,
 	 else
 	    Res = Cache.VS->CmpVersionArch(Version,Arch,
 					   Ver.VerStr(),Ver.Arch());
-
-	 if (Res == 0) {
-	    int BTime = Ver.BTime();
-	    if (BuildTime < BTime)
-	       Res = -1;
-	    else if (BuildTime > BTime)
-	       Res = 1;
-	 }
 	 if (Res >= 0)
 	    break;
       }
-
+      
       /* We already have a version for this item, record that we
          saw it */
       unsigned long Hash = List.VersionHash();
@@ -207,13 +197,6 @@ bool pkgCacheGenerator::MergeList(ListParser &List,
 	    // CNC:2002-07-09
 	    Res = Cache.VS->CmpVersionArch(Version,Arch,
 			    		   Ver.VerStr(),Ver.Arch());
-	    if (Res == 0) {
-		    int BTime = Ver.BTime();
-		    if (BuildTime < BTime)
-			    Res = -1;
-		    else if (BuildTime > BTime)
-			    Res = 1;
-	    }
 	    if (Res != 0)
 	       break;
 	 }
@@ -278,7 +261,6 @@ bool pkgCacheGenerator::MergeFileProvides(ListParser &List)
       string Version = List.Version();
       if (Version.empty() == true)
 	 continue;
-      int BuildTime = List.BuildTime();
       
       pkgCache::PkgIterator Pkg = Cache.FindPkg(PackageName);
       if (Pkg.end() == true)
@@ -308,7 +290,7 @@ bool pkgCacheGenerator::MergeFileProvides(ListParser &List)
       for (; Ver.end() == false; Ver++)
       {
 	 // CNC:2002-07-25
-	 if (Ver->Hash == Hash && strcmp(Version.c_str(), Ver.VerStr()) == 0 && BuildTime == Ver.BTime())
+	 if (Ver->Hash == Hash && strcmp(Version.c_str(), Ver.VerStr()) == 0)
 	 {
 	    if (List.CollectFileProvides(Cache,Ver) == false)
 	       return _error->Error(_("Error occured while processing %s (CollectFileProvides)"),PackageName.c_str());
@@ -780,7 +762,7 @@ static bool CollectFileProvides(pkgCacheGenerator &Gen,
 bool pkgMakeStatusCache(pkgSourceList &List,OpProgress &Progress,
 			MMap **OutMap,bool AllowMem)
 {
-   unsigned long MapSize = _config->FindI("APT::Cache-Limit",(64+4*sizeof(long))*1024*1024);
+   unsigned long MapSize = _config->FindI("APT::Cache-Limit",6*(16+sizeof(long))*1024*1024);
    
    vector<pkgIndexFile *> Files(List.begin(),List.end());
    unsigned long EndOfSource = Files.size();
@@ -993,7 +975,7 @@ bool pkgMakeStatusCache(pkgSourceList &List,OpProgress &Progress,
 /* */
 bool pkgMakeOnlyStatusCache(OpProgress &Progress,DynamicMMap **OutMap)
 {
-   unsigned long MapSize = _config->FindI("APT::Cache-Limit",(64+4*sizeof(long))*1024*1024);
+   unsigned long MapSize = _config->FindI("APT::Cache-Limit",6*(16+sizeof(long))*1024*1024);
    vector<pkgIndexFile *> Files;
    unsigned long EndOfSource = Files.size();
    if (_system->AddStatusFiles(Files) == false)

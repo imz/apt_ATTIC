@@ -1,4 +1,3 @@
-// -*- mode: cpp; mode: fold -*-
 // Description								/*{{{*/
 // $Id: rpmsrcrecords.cc,v 1.9 2003/01/29 15:19:02 niemeyer Exp $
 /* ######################################################################
@@ -16,6 +15,7 @@
 #include <config.h>
 
 #ifdef HAVE_RPM
+#include <stdint.h>
 
 #include <assert.h>
 
@@ -149,7 +149,7 @@ string rpmSrcRecordParser::Package() const
 string rpmSrcRecordParser::Version() const
 {
    char *version, *release;
-   int_32 *epoch;
+   int32_t *epoch;
    int type, count;
    int rc;
    
@@ -335,7 +335,7 @@ string rpmSrcRecordParser::AsStr()
    char **strv;
    char **strv2;
    int num;
-   int_32 *numv;
+   int32_t *numv;
    char buf[32];
 
    BufUsed = 0;

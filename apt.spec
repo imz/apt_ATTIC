@@ -1,6 +1,6 @@
 Name: apt
 Version: 0.5.15lorg2
-Release: alt53.M80C.1
+Release: alt53.M80P.1.M80C.1
 
 Summary: Debian's Advanced Packaging Tool with RPM support
 Summary(ru_RU.UTF-8): Debian APT - Усовершенствованное средство управления пакетами с поддержкой RPM
@@ -24,9 +24,22 @@ Patch101: apt-0.5.4cnc9-alt-getsrc-debug.patch
 
 Requires: libapt = %version-%release
 Requires: rpm >= 4.0.4-alt28, /etc/apt/pkgpriorities, apt-conf
+# We need (lib)rpm which finds pkgs by labels in N-E:V-R:D@T format:
+Requires: RPMQ(EPOCH)
+Requires: RPMQ(BUILDTIME)
+Requires: RPMQ(DISTTAG)
 # for methods.
 Requires: gzip, bzip2, xz
 Requires: gnupg, alt-gpgkeys
+
+# Older versions of update-kernel misunderstood the @-postfix (with buildtime
+# and disttag), which is now added by APT to verstrs and the names of
+# allow-duplicated pkgs. (Epoch was also treated differently before, but that
+# was not important until we added disttags, which are also separated by :.)
+Conflicts: update-kernel < 0.9.14-alt1
+# Older versions of apt-scripts-nvidia relied on a certain format of the APT ids
+# of allow-duplicated packages, which changed (due to appending buildtime).
+Conflicts: apt-scripts-nvidia < 0.5.0-alt1
 
 # for autopoint.
 BuildPreReq: cvs
@@ -61,14 +74,14 @@ Requires: libapt-devel = %version-%release, librpm-devel-static >= 4.0.4-alt28
 Summary: Utilities to create APT repositories (the indices)
 Summary(ru_RU.UTF-8): Утилиты для построения APT-репозиториев (индексов)
 Group: Development/Other
-Requires: %name = %version-%release, mktemp >= 1:1.3.1, getopt
+Requires: %name = %EVR, mktemp >= 1:1.3.1, getopt
 Requires: gnupg, sed
 
 %package rsync
 Summary: rsync method support for APT
 Summary(ru_RU.UTF-8): Поддержка метода rsync для APT
 Group: Development/Other
-Requires: %name = %version-%release, rsync >= 2.5.5-alt3
+Requires: %name = %EVR, rsync >= 2.5.5-alt3
 
 # {{{ descriptions 
 %define risk_usage_en This package is still under development.
@@ -192,8 +205,12 @@ sed -i 's,/usr/share/common-licenses/GPL,/usr/share/license/GPL,' COPYING
 # Unhide potential cc/c++ errors.
 sed -i 's, > /dev/null 2>&1,,' buildlib/tools.m4
 
+# Add trivial arch translation.
+printf '%_target_cpu\t%_target_cpu' >> buildlib/archtable
+
 %autoreconf
-%add_optflags -DPKG_NEVRA=\\\"%name-%{?epoch:%epoch:}%version-%release.%_target_cpu\\\"
+%add_optflags -std=c++11
+%add_optflags -DAPTRPM_ID=\\\"%name-%{?epoch:%epoch:}%version-%release%{?disttag::%disttag}.%_target_cpu\\\"
 %configure --includedir=%_includedir/apt-pkg %{subst_enable static}
 
 # Probably this obsolete now?
@@ -276,6 +293,42 @@ unset RPM_PYTHON
 # Probably %%doc with README.rsync?
 
 %changelog
+* Fri Jun  7 2019 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt53.M80P.1.1
+- Add disttag to VerStrs (used by APT to identify package versions).
+- Increase default APT::Cache-Limit in 1.5 times due to the extension of VerStrs
+  (ALT#36775).
+
+* Mon May 13 2019 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt53.M80P.1
+- Add buildtime to VerStrs (used by APT to identify package versions).
+  This data is used in several manners:
+  * by CheckDep() (only when matching a dependency with a real package);
+  * rpm_name_conversion() (only when making up an id for a duplicated package);
+  * and by *CmpVersion().
+  The latter needs buildtime to determine the correct upgrade direction and
+  can be called through the API with some externally supplied versions.
+  In order to honor buildtime without changing the API and its clients, we pass
+  buildtime inside the existing argument. (Also fixes ALT#36528)
+- Cherry-picked individual changes from:
+[0.5.15lorg2-alt63]
+- archtable:
+  + added ppc64le;
+  + added trivial arch translation (%%_target_cpu -> %%_target_cpu).
+[0.5.15lorg2-alt59]
+- Fixed crash on fail to read package file.
+[0.5.15lorg2-alt58]
+- cherry-picked from Debian 0.7.22 (git://anonscm.debian.org/git/apt/apt.git)
+  some fixes for http download method (ALT: 18925)
+  * Fix pipeline handling on http.cc
+  (closes: https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=413324)
+  (thx Otavio Salvador).
+  * show error details of failed methods
+  * if a process aborts with signal, show signal number
+  * in http method: ignore SIGPIPE, we deal with EPIPE elsewhere
+  (closes: https://bugs.launchpad.net/ubuntu/+source/apt/+bug/385144)
+  (thx Michael Vogt).
+[0.5.15lorg2-alt54]
+- Backported fix for logic about package sizes.
+
 * Fri Feb 01 2019 Anton V. Boyarshinov <boyarsh@altlinux.org> 0.5.15lorg2-alt53.M80C.1
 - apt-get moo removed
 
