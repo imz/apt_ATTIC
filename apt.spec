@@ -33,6 +33,9 @@ Requires: gnupg, alt-gpgkeys
 # Older versions of update-kernel misunderstood the @-postfix with buildtime,
 # which is now added by APT to verstrs and the names of allow-duplicated pkgs.
 Conflicts: update-kernel < 0.9.13-alt1
+# Older versions of apt-scripts-nvidia relied on a certain format of the APT ids
+# of allow-duplicated packages, which changed (due to appending buildtime).
+Conflicts: apt-scripts-nvidia < 0.5.0-alt1
 
 # for autopoint.
 BuildPreReq: cvs
