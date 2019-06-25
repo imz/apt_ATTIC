@@ -22,6 +22,8 @@
 #include <memory>
 
 class pkgPolicy;
+class pkgSourceList;
+
 class pkgCacheFile
 {
    protected:
@@ -29,6 +31,7 @@ class pkgCacheFile
    MMap *Map;
    pkgCache *Cache;
    pkgDepCache *DCache;
+   pkgSourceList *SrcList;
 
    public:
 
@@ -39,14 +42,22 @@ class pkgCacheFile
    inline operator pkgCache *() const {return Cache;}
    inline operator pkgDepCache &() const {return *DCache;}
    inline operator pkgDepCache *() const {return DCache;}
+   inline operator pkgSourceList &() const {return *SrcList;}
+   inline operator pkgSourceList *() const {return SrcList;}
    inline pkgDepCache *operator ->() const {return DCache;}
    inline pkgDepCache &operator *() const {return *DCache;}
    inline pkgDepCache::StateCache &operator [](pkgCache::PkgIterator const &I) const {return (*DCache)[I];}
    inline unsigned char &operator [](pkgCache::DepIterator const &I) const {return (*DCache)[I];}
 
    bool BuildCaches(OpProgress &Progress,bool WithLock);
+   bool BuildSourceList(OpProgress *Progress = NULL);
    bool Open(OpProgress &Progress,bool WithLock);
+   static void RemoveCaches();
    void Close();
+
+   inline pkgSourceList* GetSourceList() { BuildSourceList(); return SrcList; }
+
+   inline bool IsSrcListBuilt() const { return (SrcList != NULL); }
 
    pkgCacheFile();
    ~pkgCacheFile();
