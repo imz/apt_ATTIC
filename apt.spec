@@ -367,6 +367,8 @@ popd
 
 * Mon Jul 22 2019 Aleksei Nikiforov <darktemplar@altlinux.org> 0.5.15lorg2-alt71
 - Introduced new function ListUpdate for improved packagekit support.
+  (Note that the APT::Get::Archive-Cleanup configuration option has no longer
+  any effect after this change. It was off by default.)
 
 * Mon Jul 22 2019 Aleksei Nikiforov <darktemplar@altlinux.org> 0.5.15lorg2-alt70
 - Ported dynamic memory allocation from Debian.
