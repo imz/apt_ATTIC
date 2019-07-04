@@ -373,6 +373,14 @@ bool pkgCacheGenerator::NewPackage(pkgCache::PkgIterator &Pkg,string Name)
 bool pkgCacheGenerator::NewFileVer(pkgCache::VerIterator &Ver,
 				   ListParser &List)
 {
+   /* Make the presentation of the database of installed packages stable:
+      of the possible equivalent VerStrs, the one from the database should
+      override the ones from pkglists, so that adding something to sources.list
+      doesn't affect how an installed package is displayed to the user.
+    */
+   if (List.IsDatabase())
+      Ver->VerStr = Map.WriteString(List.Version());
+
    if (CurrentFile == 0)
       return true;
    
