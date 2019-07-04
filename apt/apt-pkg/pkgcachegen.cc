@@ -380,8 +380,11 @@ bool pkgCacheGenerator::NewFileVer(pkgCache::VerIterator &Ver,
       override the ones from pkglists, so that adding something to sources.list
       doesn't affect how an installed package is displayed to the user.
     */
-   if (List.IsDatabase())
-      Ver->VerStr = Map.WriteString(List.Version());
+   {
+      const std::string Version(List.Version());
+      if (List.IsDatabase() && strcmp(Version.c_str(), Ver.VerStr()) != 0)
+         Ver->VerStr = Map.WriteString(Version);
+   }
 
    if (CurrentFile == 0)
       return true;
