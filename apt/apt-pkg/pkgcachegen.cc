@@ -292,7 +292,23 @@ bool pkgCacheGenerator::MergeFileProvides(ListParser &List)
       for (; Ver.end() == false; Ver++)
       {
 	 // CNC:2002-07-25
-	 if (Ver->Hash == Hash && strcmp(Version.c_str(), Ver.VerStr()) == 0)
+         /* VerStrs can be equivalent even if some component is not specified
+            in one of them. MergeList() would have merged them into one version.
+            CmpVersionArch() is not necessary, because arch is included in Hash.
+            (ALT rpm's CmpVersion() algorithm allows disttag and buildtime to be
+            underspecified and treats an absent epoch like 0.) Even though
+            the VerStrs are not identical, we can do no better than to assume
+            that these entries are about the same package (but the pkglists are
+            incomplete): this way we'll get a more complete set of File Provides
+            for the package, which would satisfy requirements in both pkglists;
+            also this way we won't miss the File Provides from the database even
+            if Ver.VerStr() has been saved in a different form.
+
+            If you want to tell apart packages that are actually different,
+            include the distinguishing information in Hash or add another
+            comparison in MergeList() and here.
+         */
+	 if (Ver->Hash == Hash && Cache.VS->CmpVersion(Version, Ver.VerStr()) == 0)
 	 {
 	    if (List.CollectFileProvides(Cache,Ver) == false)
 	       return _error->Error(_("Error occured while processing %s (CollectFileProvides)"),PackageName.c_str());
