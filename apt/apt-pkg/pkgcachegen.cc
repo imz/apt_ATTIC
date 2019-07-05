@@ -375,15 +375,24 @@ bool pkgCacheGenerator::NewPackage(pkgCache::PkgIterator &Pkg,string Name)
 bool pkgCacheGenerator::NewFileVer(pkgCache::VerIterator &Ver,
 				   ListParser &List)
 {
-   /* Make the presentation of the database of installed packages stable:
+   /* 1. Make the presentation of the package versions stable, independent of
+      the order of processing pkglists: of the seen equivalent VerStrs,
+      choose one deterministically, namely,
+      the one that compares to the other one same as ":DISTTAG" to "@BTIME".
+
+      2. Make the presentation of the database of installed packages stable:
       of the possible equivalent VerStrs, the one from the database should
       override the ones from pkglists, so that adding something to sources.list
       doesn't affect how an installed package is displayed to the user.
     */
    {
       const std::string Version(List.Version());
-      if (List.IsDatabase() && strcmp(Version.c_str(), Ver.VerStr()) != 0)
-         Ver->VerStr = Map.WriteString(Version);
+      const int rc = strcmp(Version.c_str(), Ver.VerStr());
+      if ( (':' - '@' < 0 ? rc < 0 : rc > 0) ||
+           (rc != 0 && List.IsDatabase()) )
+         {
+            Ver->VerStr = Map.WriteString(Version);
+         }
    }
 
    if (CurrentFile == 0)
