@@ -316,7 +316,7 @@ unset RPM_PYTHON
 %_libdir/%name/methods/https
 
 %changelog
-* Thu Jul  4 2019 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt53.M80P.3.M80C.1
+* Thu Jul  4 2019 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt53.M80P.4
 [0.5.15lorg2-alt68.1 cherry-picked]
 - Made the treatment of the File Provides and the version ID of
   installed packages "stable": not affected negatively by sources.list.
