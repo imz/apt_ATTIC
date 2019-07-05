@@ -1,6 +1,6 @@
 Name: apt
 Version: 0.5.15lorg2
-Release: alt53.M80P.2.M80C.1
+Release: alt53.M80P.3
 
 Summary: Debian's Advanced Packaging Tool with RPM support
 Summary(ru_RU.UTF-8): Debian APT - Усовершенствованное средство управления пакетами с поддержкой RPM
@@ -316,7 +316,7 @@ unset RPM_PYTHON
 %_libdir/%name/methods/https
 
 %changelog
-* Fri Jun  7 2019 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt53.M80P.2.M80C.1
+* Fri Jun  7 2019 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt53.M80P.3
 - Add disttag to VerStrs (used by APT to identify package versions).
 - Increase default APT::Cache-Limit in 1.5 times due to the extension of VerStrs
   (ALT#36775).
@@ -355,9 +355,6 @@ unset RPM_PYTHON
   (thx Michael Vogt).
 [0.5.15lorg2-alt54]
 - Backported fix for logic about package sizes.
-
-* Fri Feb 01 2019 Anton V. Boyarshinov <boyarsh@altlinux.org> 0.5.15lorg2-alt53.M80C.1
-- apt-get moo removed
 
 * Fri Nov 27 2015 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt53
 - doc/: Add a note about APT_CONFIG in the -c description
