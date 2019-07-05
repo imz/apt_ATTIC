@@ -1,6 +1,6 @@
 Name: apt
 Version: 0.5.15lorg2
-Release: alt53.M80P.2.M80C.1
+Release: alt53.M80P.3.M80C.1
 
 Summary: Debian's Advanced Packaging Tool with RPM support
 Summary(ru_RU.UTF-8): Debian APT - Усовершенствованное средство управления пакетами с поддержкой RPM
@@ -316,6 +316,14 @@ unset RPM_PYTHON
 %_libdir/%name/methods/https
 
 %changelog
+* Thu Jul  4 2019 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt53.M80P.1.M80C.1.M70C.1
+[0.5.15lorg2-alt68.1 cherry-picked]
+- Made the treatment of the File Provides and the version ID of
+  installed packages "stable": not affected negatively by sources.list.
+  Also negative effects of different pkglists from sources.list on each other
+  have been mitigated. (A pkglist from sources.list that lacked disttags could
+  shadow the File Provides of packages from the database or other pkglists.)
+
 * Fri Jun  7 2019 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt53.M80P.2.M80C.1
 - Add disttag to VerStrs (used by APT to identify package versions).
 - Increase default APT::Cache-Limit in 1.5 times due to the extension of VerStrs
