@@ -2482,6 +2482,23 @@ bool DoBuildDep(CommandLine &CmdL)
 }
 									/*}}}*/
 
+// DoMoo - Never Ask, Never Tell					/*{{{*/
+// ---------------------------------------------------------------------
+/* */
+bool DoMoo(CommandLine &CmdL)
+{
+   cout << 
+      "         (__) \n"
+      "         (oo) \n"
+      "   /------\\/ \n"
+      "  / |    ||   \n" 
+      " *  /\\---/\\ \n"
+      "    ~~   ~~   \n"
+      "....\"Have you mooed today?\"...\n";
+			    
+   return true;
+}
+									/*}}}*/
 
 // CNC:2003-03-18
 // DoScript - Scripting stuff.						/*{{{*/
@@ -2702,6 +2719,7 @@ int main(int argc,const char *argv[])
                                    {"autoclean",&DoAutoClean},
                                    {"check",&DoCheck},
 				   {"source",&DoSource},
+				   {"moo",&DoMoo},
 				   {"help",&ShowHelp},
 // CNC:2003-03-19
 #ifdef WITH_LUA
