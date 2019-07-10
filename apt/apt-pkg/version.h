@@ -51,7 +51,7 @@ class pkgVersioningSystem
 				const char *B,const char *Bend,
 				const char *BA,const char *BAend)
 	{return DoCmpVersion(A,Aend,B,Bend);};
-   virtual int CmpVersionArch(string A,string AA,
+   virtual int CmpVersionArch(const string &A,const string &AA,
 		   	      const char *B,const char *BA)
 	{
 	   if (AA.length() == 0 || BA == NULL || *BA == 0)

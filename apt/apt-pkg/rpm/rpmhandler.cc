@@ -35,7 +35,7 @@
 #define rpmxxInitIterator(a,b,c,d) rpmdbInitIterator(a,b,c,d)
 #endif
 
-RPMFileHandler::RPMFileHandler(string File)
+RPMFileHandler::RPMFileHandler(const string &File)
 {
    ID = File;
    FD = Fopen(File.c_str(), "r");
@@ -237,7 +237,7 @@ string RPMSingleFileHandler::MD5Sum()
    return MD5.Result().Value();
 }
 
-RPMDirHandler::RPMDirHandler(string DirName)
+RPMDirHandler::RPMDirHandler(const string &DirName)
    : sDirName(DirName)
 {
    ID = DirName;
