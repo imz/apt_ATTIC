@@ -39,7 +39,7 @@ class rpmSystem : public pkgSystem
    public:
 
 #ifdef OLD_FILEDEPS
-   bool IsFileDep(string File);
+   bool IsFileDep(const string &File);
 #endif
    RPMDBHandler *GetDBHandler();
    
