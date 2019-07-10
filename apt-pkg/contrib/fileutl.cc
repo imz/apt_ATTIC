@@ -111,7 +111,7 @@ bool RemoveFile(const char * const Function, const std::string &FileName)/*{{{*/
    is done all other calls to GetLock in any other process will fail with
    -1. The return result is the fd of the file, the call should call
    close at some time. */
-int GetLock(string File,bool Errors)
+int GetLock(const string &File,bool Errors)
 {
    int FD = open(File.c_str(),O_RDWR | O_CREAT | O_TRUNC,0640);
    if (FD < 0)
@@ -160,7 +160,7 @@ int GetLock(string File,bool Errors)
 // FileExists - Check if a file exists					/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-bool FileExists(string File)
+bool FileExists(const string &File)
 {
    struct stat Buf;
    if (stat(File.c_str(),&Buf) != 0)
@@ -436,7 +436,7 @@ string SafeGetCWD()
 // flNotDir - Strip the directory from the filename			/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-string flNotDir(string File)
+string flNotDir(const string &File)
 {
    string::size_type Res = File.rfind('/');
    if (Res == string::npos)
@@ -448,7 +448,7 @@ string flNotDir(string File)
 // flNotFile - Strip the file from the directory name			/*{{{*/
 // ---------------------------------------------------------------------
 /* Result ends in a / */
-string flNotFile(string File)
+string flNotFile(const string &File)
 {
    string::size_type Res = File.rfind('/');
    if (Res == string::npos)
@@ -460,7 +460,7 @@ string flNotFile(string File)
 // flExtension - Return the extension for the file or "" if none	/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-string flExtension(string File)
+string flExtension(const string &File)
 {
    string::size_type Res = File.rfind('.');
    if (Res == string::npos)
@@ -472,7 +472,7 @@ string flExtension(string File)
 // flNoLink - If file is a symlink then deref it			/*{{{*/
 // ---------------------------------------------------------------------
 /* If the name is not a link then the returned path is the input. */
-string flNoLink(string File)
+string flNoLink(const string &File)
 {
    struct stat St;
    if (lstat(File.c_str(),&St) != 0 || S_ISLNK(St.st_mode) == 0)
@@ -512,7 +512,7 @@ string flNoLink(string File)
 // ---------------------------------------------------------------------
 /* If the file is an absolute path then it is just returned, otherwise
    the directory is pre-pended to it. */
-string flCombine(string Dir,string File)
+string flCombine(const string &Dir, const string &File)
 {
    if (File.empty() == true)
       return string();
@@ -676,7 +676,7 @@ bool ExecWait(int Pid,const char *Name,bool Reap)
 // FileFd::Open - Open a file						/*{{{*/
 // ---------------------------------------------------------------------
 /* The most commonly used open mode combinations are given with Mode */
-bool FileFd::Open(string FileName,OpenMode Mode, unsigned long Perms)
+bool FileFd::Open(const string &FileName,OpenMode Mode, unsigned long Perms)
 {
    Close();
    Flags = AutoClose;
