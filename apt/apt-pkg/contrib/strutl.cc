@@ -354,9 +354,9 @@ string URItoFileName(string URI)
 {
    // Nuke 'sensitive' items
    ::URI U(URI);
-   U.User = string();
-   U.Password = string();
-   U.Access = "";
+   U.User.clear();
+   U.Password.clear();
+   U.Access.clear();
    
    // "\x00-\x20{}|\\\\^\\[\\]<>\"\x7F-\xFF";
    URI = QuoteString(U,"\\|{}[]<>\"^~_=!@#$%^&*");
@@ -1179,9 +1179,9 @@ URI::operator string()
 string URI::SiteOnly(const string &URI)
 {
    ::URI U(URI);
-   U.User = string();
-   U.Password = string();
-   U.Path = string();
+   U.User.clear();
+   U.Password.clear();
+   U.Path.clear();
    U.Port = 0;
    return U;
 }
