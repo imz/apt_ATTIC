@@ -52,7 +52,7 @@ void OpProgress::Progress(unsigned long Cur)
 // ---------------------------------------------------------------------
 /* */
 void OpProgress::OverallProgress(unsigned long Current, unsigned long Total,
-	  			 unsigned long Size,string Op)
+	  			 unsigned long Size,const string &Op)
 {
    this->Current = Current;
    this->Total = Total;
@@ -69,7 +69,7 @@ void OpProgress::OverallProgress(unsigned long Current, unsigned long Total,
 // OpProgress::SubProgress - Set the sub progress state			/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-void OpProgress::SubProgress(unsigned long SubTotal,string Op)
+void OpProgress::SubProgress(unsigned long SubTotal,const string &Op)
 {
    this->SubTotal = SubTotal;
    SubOp = Op;
@@ -135,7 +135,7 @@ bool OpProgress::CheckChange(float Interval)
 // OpTextProgress::OpTextProgress - Constructor				/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-OpTextProgress::OpTextProgress(Configuration &Config) : 
+OpTextProgress::OpTextProgress(const Configuration &Config) :
                                NoUpdate(false), NoDisplay(false), LastLen(0) 
 {
    if (Config.FindI("quiet",0) >= 1)
