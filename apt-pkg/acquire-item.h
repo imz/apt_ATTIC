@@ -35,7 +35,7 @@ class pkgAcquire::Item
    inline void Dequeue() {Owner->Dequeue(this);}
 
    // Safe rename function with timestamp preservation
-   void Rename(string From,string To);
+   void Rename(const string &From,const string &To);
 
    public:
 
@@ -112,8 +112,8 @@ class pkgAcqIndex : public pkgAcquire::Item
    virtual string DescURI() override {return RealURI;} // CNC:2003-02-14
 
    // CNC:2002-07-03
-   pkgAcqIndex(pkgAcquire *Owner,const pkgRepository *Repository,string URI,
-	       string URIDesc,string ShortDesct);
+   pkgAcqIndex(pkgAcquire *Owner,const pkgRepository *Repository,const string &URI,
+	       const string &URIDesc,const string &ShortDesct);
 };
 
 // Item class for index files
@@ -146,8 +146,8 @@ class pkgAcqIndexRel : public pkgAcquire::Item
    virtual string DescURI() override {return RealURI;}
 
    // CNC:2002-07-03
-   pkgAcqIndexRel(pkgAcquire *Owner,pkgRepository *Repository,string URI,
-		  string URIDesc,string ShortDesc,bool Master=false);
+   pkgAcqIndexRel(pkgAcquire *Owner,pkgRepository *Repository,const string &URI,
+		  const string &URIDesc, const string &ShortDesc,bool Master=false);
 };
 
 // Item class for archive files
@@ -202,8 +202,8 @@ class pkgAcqFile : public pkgAcquire::Item
    virtual string ExpectedHash() const override {return ExpectMd5Hash;}
    virtual string DescURI() override {return Desc.URI;}
 
-   pkgAcqFile(pkgAcquire *Owner,string URI,string MD5,unsigned long Size,
-		  string Desc,string ShortDesc);
+   pkgAcqFile(pkgAcquire *Owner,const string &URI, const string &MD5,unsigned long Size,
+		  const string &Desc, const string &ShortDesc);
 };
 
 #endif
