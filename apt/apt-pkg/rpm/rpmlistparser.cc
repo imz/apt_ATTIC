@@ -74,7 +74,7 @@ rpmListParser::~rpmListParser()
 // ListParser::UniqFindTagWrite - Find the tag and write a unq string	/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-std::experimental::optional<unsigned long> rpmListParser::UniqFindTagWrite(int Tag)
+std::experimental::optional<map_ptrloc> rpmListParser::UniqFindTagWrite(int Tag)
 {
    char *Start;
    char *Stop;
@@ -89,7 +89,7 @@ std::experimental::optional<unsigned long> rpmListParser::UniqFindTagWrite(int T
        * But since cacheiterators treat zero as special value,
        * just pass it instead of failing
        */
-      return std::experimental::optional<unsigned long>(0);
+      return std::experimental::optional<map_ptrloc>(0);
    }
    
    if (type == RPM_STRING_TYPE) 

@@ -214,7 +214,7 @@ DynamicMMap::~DynamicMMap()
 // DynamicMMap::RawAllocate - Allocate a raw chunk of unaligned space	/*{{{*/
 // ---------------------------------------------------------------------
 /* This allocates a block of memory aligned to the given size */
-std::experimental::optional<unsigned long> DynamicMMap::RawAllocate(unsigned long long Size,unsigned long Aln)
+std::experimental::optional<map_ptrloc> DynamicMMap::RawAllocate(unsigned long long Size,unsigned long Aln)
 {
    unsigned long long Result = iSize;
    if (Aln != 0)
@@ -230,25 +230,25 @@ std::experimental::optional<unsigned long> DynamicMMap::RawAllocate(unsigned lon
                          "Current values are: %llu, %llu. (man 5 apt.conf)"),
                        (unsigned long long) _config->FindI("APT::Cache-Start", 24*1024*1024),
                        (unsigned long long) _config->FindI("APT::Cache-Limit", 0));
-         return std::experimental::optional<unsigned long>();
+         return std::experimental::optional<map_ptrloc>();
       }
    }
 
    iSize = Result + Size;
 
-   return std::experimental::optional<unsigned long>(Result);
+   return std::experimental::optional<map_ptrloc>(Result);
 }
 									/*}}}*/
 // DynamicMMap::Allocate - Pooled aligned allocation			/*{{{*/
 // ---------------------------------------------------------------------
 /* This allocates an Item of size ItemSize so that it is aligned to its
    size in the file. */
-std::experimental::optional<unsigned long> DynamicMMap::Allocate(unsigned long ItemSize)
+std::experimental::optional<map_ptrloc> DynamicMMap::Allocate(unsigned long ItemSize)
 {
    if (ItemSize == 0)
    {
       _error->Error("Can't allocate an item of size zero");
-      return std::experimental::optional<unsigned long>();
+      return std::experimental::optional<map_ptrloc>();
    }
 
    // Look for a matching pool entry
@@ -269,7 +269,7 @@ std::experimental::optional<unsigned long> DynamicMMap::Allocate(unsigned long I
       if (Empty == 0)
       {
 	 _error->Error("Ran out of allocation pools");
-	 return std::experimental::optional<unsigned long>();
+	 return std::experimental::optional<map_ptrloc>();
       }
       
       I = Empty;
@@ -300,13 +300,13 @@ std::experimental::optional<unsigned long> DynamicMMap::Allocate(unsigned long I
 
    I->Count--;
    I->Start += ItemSize;  
-   return std::experimental::optional<unsigned long>(Result/ItemSize);
+   return std::experimental::optional<map_ptrloc>(Result/ItemSize);
 }
 									/*}}}*/
 // DynamicMMap::WriteString - Write a string to the file		/*{{{*/
 // ---------------------------------------------------------------------
 /* Strings are not aligned to anything */
-std::experimental::optional<unsigned long> DynamicMMap::WriteString(const char *String,
+std::experimental::optional<map_ptrloc> DynamicMMap::WriteString(const char *String,
 				       unsigned long Len)
 {
    if (Len == std::numeric_limits<unsigned long>::max())
@@ -315,7 +315,7 @@ std::experimental::optional<unsigned long> DynamicMMap::WriteString(const char *
    auto Result = RawAllocate(Len+1,0);
 
    if (Base == NULL || !Result)
-      return std::experimental::optional<unsigned long>();
+      return std::experimental::optional<map_ptrloc>();
 
    memcpy((char *)Base + *Result,String,Len);
    ((char *)Base)[*Result + Len] = 0;
