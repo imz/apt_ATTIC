@@ -159,7 +159,7 @@ DynamicMMap::DynamicMMap(FileFd &F,unsigned long Flags,unsigned long WorkSpace) 
       WorkSpace = EndOfFile;
    else
    {
-      Fd->Seek(WorkSpace);
+      Fd->Seek(WorkSpace - 1);
       char C = 0;
       Fd->Write(&C,sizeof(C));
    }
