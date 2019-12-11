@@ -66,7 +66,7 @@ class pkgSimulate : public pkgPackageManager
    virtual bool Install(PkgIterator Pkg,string File) override;
    virtual bool Configure(PkgIterator Pkg) override;
    virtual bool Remove(PkgIterator Pkg,bool Purge) override;
-   virtual bool Go() override {return true;}
+   virtual bool Go(PackageManagerCallback_t /*callback*/, void * /*callbackData*/) override {return true;}
    virtual void Reset() override {}
    void ShortBreaks();
    void Describe(PkgIterator iPkg,ostream &out,bool Now);
