@@ -45,6 +45,32 @@ class pkgDepCache;
 class pkgSourceList;
 class pkgOrderList;
 class pkgRecords;
+
+typedef enum aptCallbackType_e {
+    APTCALLBACK_UNKNOWN = 0,
+    APTCALLBACK_INST_PROGRESS,
+    APTCALLBACK_INST_START,
+    APTCALLBACK_INST_STOP,
+    APTCALLBACK_TRANS_PROGRESS,
+    APTCALLBACK_TRANS_START,
+    APTCALLBACK_TRANS_STOP,
+    APTCALLBACK_UNINST_PROGRESS,
+    APTCALLBACK_UNINST_START,
+    APTCALLBACK_UNINST_STOP,
+    APTCALLBACK_UNPACK_ERROR,
+    APTCALLBACK_CPIO_ERROR,
+    APTCALLBACK_SCRIPT_ERROR,
+    APTCALLBACK_SCRIPT_START,
+    APTCALLBACK_SCRIPT_STOP,
+    APTCALLBACK_ELEM_PROGRESS,
+} aptCallbackType;
+
+typedef void (*PackageManagerCallback_t)(const char *nevra,
+                                         aptCallbackType what,
+                                         uint64_t amount,
+                                         uint64_t total,
+                                         void *callbackData);
+
 class pkgPackageManager : protected pkgCache::Namespace
 {
    public:
@@ -76,7 +102,7 @@ class pkgPackageManager : protected pkgCache::Namespace
    virtual bool Install(PkgIterator /*Pkg*/,string /*File*/) = 0;
    virtual bool Configure(PkgIterator /*Pkg*/) = 0;
    virtual bool Remove(PkgIterator /*Pkg*/,bool /*Purge*/) = 0;
-   virtual bool Go() = 0;
+   virtual bool Go(PackageManagerCallback_t /*callback*/, void * /*callbackData*/) = 0;
    virtual void Reset() = 0;
 
    public:
@@ -84,7 +110,7 @@ class pkgPackageManager : protected pkgCache::Namespace
    // Main action members
    bool GetArchives(pkgAcquire *Owner,pkgSourceList *Sources,
 		    pkgRecords *Recs);
-   OrderResult DoInstall();
+   OrderResult DoInstall(PackageManagerCallback_t callback = nullptr, void *callbackData = nullptr);
    bool FixMissing();
 
    // Also a part of the Actual installation implementation,

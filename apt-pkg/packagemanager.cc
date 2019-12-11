@@ -661,11 +661,11 @@ pkgPackageManager::OrderResult pkgPackageManager::OrderInstall()
 // ---------------------------------------------------------------------
 /* This uses the filenames in FileNames and the information in the
    DepCache to perform the installation of packages.*/
-pkgPackageManager::OrderResult pkgPackageManager::DoInstall()
+pkgPackageManager::OrderResult pkgPackageManager::DoInstall(PackageManagerCallback_t const callback, void * const callbackData)
 {
    OrderResult Res = OrderInstall();
    if (Res != Failed)
-      if (Go() == false)
+      if (Go(callback, callbackData) == false)
 	 return Failed;
    return Res;
 }
