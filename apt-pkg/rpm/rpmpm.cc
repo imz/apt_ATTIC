@@ -270,7 +270,7 @@ bool pkgRPMPM::RunScriptsWithPkgs(const char *Cnf)
 // RPMPM::Go - Run the sequence						/*{{{*/
 // ---------------------------------------------------------------------
 /* This globs the operations and calls rpm */
-bool pkgRPMPM::Go()
+bool pkgRPMPM::Go(PackageManagerCallback_t callback, void *callbackData)
 {
    if (List.empty() == true)
       return true;
@@ -356,7 +356,7 @@ bool pkgRPMPM::Go()
    }
 #endif
 
-   if (Process(install, upgrade, uninstall) == false)
+   if (Process(install, upgrade, uninstall, callback, callbackData) == false)
       Ret = false;
 
 #ifdef WITH_LUA
@@ -685,7 +685,8 @@ bool pkgRPMExtPM::ExecRPM(Item::RPMOps op, const std::vector<apt_item> &files)
 
 bool pkgRPMExtPM::Process(const std::vector<apt_item> &install,
 		       const std::vector<apt_item> &upgrade,
-		       const std::vector<apt_item> &uninstall)
+		       const std::vector<apt_item> &uninstall,
+		       PackageManagerCallback_t callback, void *callbackData)
 {
    if (uninstall.empty() == false)
        ExecRPM(Item::RPMErase, uninstall);
@@ -786,9 +787,82 @@ bool pkgRPMLibPM::AddToTransaction(Item::RPMOps op, const std::vector<apt_item> 
    return true;
 }
 
+struct CallbackData
+{
+   PackageManagerCallback_t callback;
+   void *callbackData;
+};
+
+void * pkgRPMLibPM::customCallback(const void * h,
+                                   const rpmCallbackType what,
+                                   const uint64_t amount,
+                                   const uint64_t total,
+                                   const void * pkgKey,
+                                   void * data)
+{
+   /* When invoking rpmShowProgress, the last parameter is notifyFlags,
+      which ain't used when callback type is OPEN_FILE or CLOSE_FILE
+      so it's safe to just pass zero. */
+   if (what == RPMCALLBACK_INST_OPEN_FILE || what == RPMCALLBACK_INST_CLOSE_FILE)
+      return rpmShowProgress(h, what, amount, total, pkgKey, 0);
+
+   CallbackData *s = (CallbackData *) data;
+   PackageManagerCallback_t func = s->callback;
+   rpmtd td = nullptr;
+
+   const char* nevra = nullptr;
+   if (h != nullptr) {
+      td = rpmtdNew();
+
+      // Get NEVRA for package
+      int rc = headerGet((rpmHeader) h, RPMTAG_NEVRA, td, HEADERGET_DEFAULT);
+      if (rc == 1)
+         nevra = rpmtdGetString(td);
+   }
+
+#define DEF_CASE(name) case RPMCALLBACK_##name: callbackType = APTCALLBACK_##name; break
+
+   aptCallbackType callbackType = APTCALLBACK_UNKNOWN;
+   switch (what) {
+      DEF_CASE(INST_PROGRESS);
+      DEF_CASE(INST_START);
+      DEF_CASE(INST_STOP);
+      DEF_CASE(TRANS_PROGRESS);
+      DEF_CASE(TRANS_START);
+      DEF_CASE(TRANS_STOP);
+      DEF_CASE(UNINST_PROGRESS);
+      DEF_CASE(UNINST_START);
+      DEF_CASE(UNINST_STOP);
+      DEF_CASE(UNPACK_ERROR);
+      DEF_CASE(CPIO_ERROR);
+      DEF_CASE(SCRIPT_ERROR);
+      DEF_CASE(SCRIPT_START);
+      DEF_CASE(SCRIPT_STOP);
+      DEF_CASE(ELEM_PROGRESS);
+
+#undef DEF_CASE
+      default:
+         break;
+   }
+
+   try {
+      func(nevra, callbackType, amount, total, s->callbackData);
+   }
+   catch (...)
+   {
+   }
+
+   if (h != nullptr) {
+      rpmtdFreeData(td);
+      rpmtdFree(td);
+   }
+   return nullptr;
+}
+
 bool pkgRPMLibPM::Process(const std::vector<apt_item> &install,
 			  const std::vector<apt_item> &upgrade,
-			  const std::vector<apt_item> &uninstall)
+			  const std::vector<apt_item> &uninstall,
+			  PackageManagerCallback_t callback, void *callbackData)
 {
    int rc = 0;
    bool Success = false;
@@ -906,8 +980,17 @@ bool pkgRPMLibPM::Process(const std::vector<apt_item> &install,
    probFilter |= rpmtsFilterFlags(TS);
    rpmtsSetFlags(TS, (rpmtransFlags)(rpmtsFlags(TS) | tsFlags));
    rpmtsClean(TS);
-   rc = rpmtsSetNotifyCallback(TS, rpmShowProgress,
-                               (void *) (unsigned long) notifyFlags);
+   struct CallbackData data;
+
+   if (callback != nullptr ) {
+      data.callback = callback;
+      data.callbackData = callbackData;
+
+      rc = rpmtsSetNotifyCallback(TS, customCallback, &data);
+   } else {
+      rc = rpmtsSetNotifyCallback(TS, rpmShowProgress,
+                                  (void *) (unsigned long) notifyFlags);
+   }
    rc = rpmtsRun(TS, NULL, (rpmprobFilterFlags)probFilter);
    probs = rpmtsProblems(TS);
 
