@@ -45,6 +45,32 @@ class pkgDepCache;
 class pkgSourceList;
 class pkgOrderList;
 class pkgRecords;
+
+typedef enum aptCallbackType_e {
+    APTCALLBACK_UNKNOWN = 0,
+    APTCALLBACK_INST_PROGRESS,
+    APTCALLBACK_INST_START,
+    APTCALLBACK_INST_STOP,
+    APTCALLBACK_TRANS_PROGRESS,
+    APTCALLBACK_TRANS_START,
+    APTCALLBACK_TRANS_STOP,
+    APTCALLBACK_UNINST_PROGRESS,
+    APTCALLBACK_UNINST_START,
+    APTCALLBACK_UNINST_STOP,
+    APTCALLBACK_UNPACK_ERROR,
+    APTCALLBACK_CPIO_ERROR,
+    APTCALLBACK_SCRIPT_ERROR,
+    APTCALLBACK_SCRIPT_START,
+    APTCALLBACK_SCRIPT_STOP,
+    APTCALLBACK_ELEM_PROGRESS,
+} aptCallbackType;
+
+typedef void (*PackageManagerCallback_t)(const char *nevra,
+                                         const aptCallbackType what,
+                                         const uint64_t amount,
+                                         const uint64_t total,
+                                         void *callbackData);
+
 class pkgPackageManager : protected pkgCache::Namespace
 {
    public:
@@ -78,7 +104,7 @@ class pkgPackageManager : protected pkgCache::Namespace
    virtual bool Remove(PkgIterator /*Pkg*/,bool /*Purge*/) {return false;}
    /* a virtual method with default parameter is confusing; instead, define: */
    bool Remove(const PkgIterator Pkg) {return Remove(Pkg,false);}
-   virtual bool Go() {return true;}
+   virtual bool Go(PackageManagerCallback_t /*callback*/, void * /*callbackData*/) {return true;}
    virtual void Reset() {}
 
    public:
@@ -86,7 +112,7 @@ class pkgPackageManager : protected pkgCache::Namespace
    // Main action members
    bool GetArchives(pkgAcquire *Owner,pkgSourceList *Sources,
 		    pkgRecords *Recs);
-   OrderResult DoInstall();
+   OrderResult DoInstall(PackageManagerCallback_t callback, void *callbackData);
    bool FixMissing();
 
    // If marks updating not supported, skip this step
