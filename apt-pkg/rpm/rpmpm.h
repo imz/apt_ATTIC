@@ -49,9 +49,10 @@ class pkgRPMPM : public pkgPackageManager
 
    virtual bool Process(const std::vector<apt_item> &install,
 		const std::vector<apt_item> &upgrade,
-		const std::vector<apt_item> &uninstall) {return false;}
+		const std::vector<apt_item> &uninstall,
+		PackageManagerCallback_t callback, void *callbackData) {return false;}
 
-   virtual bool Go() override;
+   virtual bool Go(PackageManagerCallback_t callback, void *callbackData) override;
    virtual void Reset() override;
 
    public:
@@ -66,7 +67,8 @@ class pkgRPMExtPM : public pkgRPMPM
    bool ExecRPM(Item::RPMOps op, const std::vector<apt_item> &files);
    virtual bool Process(const std::vector<apt_item> &install,
 		const std::vector<apt_item> &upgrade,
-		const std::vector<apt_item> &uninstall) override;
+		const std::vector<apt_item> &uninstall,
+		PackageManagerCallback_t callback, void *callbackData) override;
 
    public:
    pkgRPMExtPM(pkgDepCache *Cache);
@@ -80,9 +82,13 @@ class pkgRPMLibPM : public pkgRPMPM
 
    bool ParseRpmOpts(const char *Cnf, int *tsFlags, int *probFilter);
    bool AddToTransaction(Item::RPMOps op, const std::vector<apt_item> &files);
+   static void * customCallback(const void * h, const rpmCallbackType what,
+				const uint64_t amount, const uint64_t total,
+				const void * pkgKey, void * data);
    virtual bool Process(const std::vector<apt_item> &install,
 		const std::vector<apt_item> &upgrade,
-		const std::vector<apt_item> &uninstall) override;
+		const std::vector<apt_item> &uninstall,
+		PackageManagerCallback_t callback, void *callbackData) override;
 
    public:
 
