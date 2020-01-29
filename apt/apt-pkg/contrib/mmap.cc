@@ -37,6 +37,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <cstring>
+#include <cassert>
    									/*}}}*/
 
 // MMap::MMap - Constructor						/*{{{*/
@@ -231,6 +232,10 @@ std::experimental::optional<unsigned long> DynamicMMap::RawAllocate(unsigned lon
    size in the file. */
 std::experimental::optional<unsigned long> DynamicMMap::Allocate(unsigned long ItemSize)
 {
+   assert(ItemSize != 0); /* Actually, we are always called with sizeof(...)
+                             compile-time non-zero constant as the argument.
+                          */
+
    // Look for a matching pool entry
    Pool *I;
    Pool *Empty = 0;
