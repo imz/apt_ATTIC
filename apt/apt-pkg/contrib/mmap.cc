@@ -271,6 +271,9 @@ unsigned long DynamicMMap::Allocate(unsigned long ItemSize)
 unsigned long DynamicMMap::WriteString(const char *String,
 				       unsigned long Len)
 {
+   if (Len == (unsigned long)-1)
+      Len = strlen(String);
+
    unsigned long Result = iSize;
    // Just in case error check
    if (Result + Len > WorkSpace)
@@ -279,8 +282,6 @@ unsigned long DynamicMMap::WriteString(const char *String,
       return 0;
    }
 
-   if (Len == (unsigned long)-1)
-      Len = strlen(String);
    iSize += Len + 1;
    memcpy((char *)Base + Result,String,Len);
    ((char *)Base)[Result + Len] = 0;
