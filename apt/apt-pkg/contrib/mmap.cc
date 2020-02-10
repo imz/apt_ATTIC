@@ -211,7 +211,7 @@ unsigned long DynamicMMap::RawAllocate(unsigned long Size,unsigned long Aln)
 {
    unsigned long Result = iSize;
    if (Aln != 0)
-      Result += Aln - (iSize%Aln);
+      Result += Aln - (iSize%Aln ? : Aln);
 
    // Just in case error check
    if (Result + Size > WorkSpace)
