@@ -70,7 +70,13 @@ MMap::~MMap()
 /* */
 bool MMap::Map(FileFd &Fd)
 {
-   iSize = Fd.Size();
+   {
+      unsigned long long EndOfFile = Fd.Size();
+      if (EndOfFile > SIZE_MAX)
+         return _error->Error(_("File of %llu bytes is too large for mmap(2)"),
+                              EndOfFile);
+      iSize = EndOfFile;
+   }
 
    // Set the permissions.
    int Prot = PROT_READ;
@@ -86,7 +92,7 @@ bool MMap::Map(FileFd &Fd)
    // Map it.
    Base = mmap(0,iSize,Prot,Map,Fd.Fd(),0);
    if (Base == MAP_FAILED)
-      return _error->Errno("mmap",_("Couldn't make mmap of %llu bytes"),iSize);
+      return _error->Errno("mmap",_("Couldn't make mmap of %lu bytes"),iSize);
 
    return true;
 }
@@ -155,17 +161,16 @@ DynamicMMap::DynamicMMap(FileFd &F,unsigned long Flags,unsigned long WorkSpace) 
       return;
 
    unsigned long long EndOfFile = Fd->Size();
-   if (EndOfFile >= WorkSpace)
-      WorkSpace = EndOfFile;
-   else
+   if (EndOfFile < WorkSpace)
    {
       Fd->Seek(WorkSpace - 1);
       char C = 0;
       Fd->Write(&C,sizeof(C));
    }
 
-   Map(F);
-   iSize = EndOfFile;
+   Map(F); // sets iSize to current Fd->Size()
+   WorkSpace = iSize; // WorkSpace may be increased here to Fd->Size()
+   iSize = EndOfFile; // decrease it to the space initially used in the file
 }
 									/*}}}*/
 // DynamicMMap::DynamicMMap - Constructor for a non-file backed map	/*{{{*/
@@ -204,7 +209,7 @@ DynamicMMap::~DynamicMMap()
 /* This allocates a block of memory aligned to the given size */
 unsigned long DynamicMMap::RawAllocate(unsigned long Size,unsigned long Aln)
 {
-   unsigned long long Result = iSize;
+   unsigned long Result = iSize;
    if (Aln != 0)
       Result += Aln - (iSize%Aln);
 
