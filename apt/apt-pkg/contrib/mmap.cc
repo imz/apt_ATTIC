@@ -32,7 +32,6 @@
 
 #include <apti18n.h>
 
-#include <sys/mman.h>
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -103,7 +102,7 @@ bool MMap::Map(FileFd &Fd)
 /* */
 bool MMap::Close(bool DoSync)
 {
-   if ((Flags & UnMapped) == UnMapped || Base == 0 || iSize == 0)
+   if ((Flags & UnMapped) == UnMapped || validData() == false || iSize == 0)
       return true;
 
    if (DoSync == true)

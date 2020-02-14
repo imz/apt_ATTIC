@@ -32,6 +32,8 @@
 #include <limits>
 #include <optional>
 
+#include <sys/mman.h>
+
 #include <apt-pkg/fileutl.h>
 
 using std::string;
@@ -61,6 +63,7 @@ class MMap
    inline operator void *() {return Base;};
    inline void *Data() {return Base;};
    inline unsigned long Size() {return iSize;};
+   inline bool validData() const { return Base != nullptr && Base != MAP_FAILED; };
 
    // File manipulators
    bool Sync();
