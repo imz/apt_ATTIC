@@ -5,7 +5,7 @@
    Debian Version - Versioning system for Debian
 
    This implements the standard Debian versioning system.
-   
+
    ##################################################################### */
 									/*}}}*/
 #ifndef PKGLIB_DEBVERSION_H
@@ -13,17 +13,17 @@
 
 #ifdef __GNUG__
 #pragma interface "apt-pkg/debversion.h"
-#endif 
+#endif
 
 #include <apt-pkg/version.h>
-    
+
 class debVersioningSystem : public pkgVersioningSystem
-{     
+{
    public:
-   
+
    static int CmpFragment(const char *A, const char *AEnd, const char *B,
 			  const char *BEnd);
-   
+
    // Compare versions..
    virtual int DoCmpVersion(const char *A,const char *Aend,
 			  const char *B,const char *Bend);
@@ -32,7 +32,7 @@ class debVersioningSystem : public pkgVersioningSystem
 			     const char *B,const char *Bend)
    {
       return DoCmpVersion(A,Aend,B,Bend);
-   }   
+   }
    virtual string UpstreamVersion(const char *A);
 
    debVersioningSystem();
@@ -49,7 +49,7 @@ inline int pkgVersionCompare(const char *A, const char *B)
 {
    return debVS.CmpVersion(A,B);
 }
-inline int pkgVersionCompare(const char *A, const char *AEnd, 
+inline int pkgVersionCompare(const char *A, const char *AEnd,
 			     const char *B, const char *BEnd)
 {
    return debVS.DoCmpVersion(A,AEnd,B,BEnd);

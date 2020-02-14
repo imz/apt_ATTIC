@@ -5,7 +5,7 @@
    Acquire Item - Item to acquire
 
    Each item can download to exactly one file at a time. This means you
-   cannot create an item that fetches two uri's to two files at the same 
+   cannot create an item that fetches two uri's to two files at the same
    time. The pkgAcqIndex class creates a second class upon instantiation
    to fetch the other index files because of this.
 
@@ -34,7 +34,7 @@
 using namespace std;
 
 #include <apti18n.h>
-    
+
 #include <sys/stat.h>
 #include <unistd.h>
 #include <errno.h>
@@ -52,8 +52,8 @@ using std::string;
 static bool VerifyChecksums(string File, unsigned long Size, string MD5)
 {
    struct stat Buf;
-   
-   if (stat(File.c_str(),&Buf) != 0) 
+
+   if (stat(File.c_str(),&Buf) != 0)
       return true;
 
    if (Buf.st_size != Size)
@@ -67,7 +67,7 @@ static bool VerifyChecksums(string File, unsigned long Size, string MD5)
    {
       MD5Summation md5sum = MD5Summation();
       FileFd F(File, FileFd::ReadOnly);
-      
+
       md5sum.AddFD(F.Fd(), F.Size());
       if (md5sum.Result().Value() != MD5)
       {
@@ -76,7 +76,7 @@ static bool VerifyChecksums(string File, unsigned long Size, string MD5)
          return false;
       }
    }
-   
+
    return true;
 }
                                                                         /*}}}*/
@@ -84,7 +84,7 @@ static bool VerifyChecksums(string File, unsigned long Size, string MD5)
 // ---------------------------------------------------------------------
 /* */
 pkgAcquire::Item::Item(pkgAcquire *Owner) : Owner(Owner), FileSize(0),
-                       PartialSize(0), Mode(0), ID(0), Complete(false), 
+                       PartialSize(0), Mode(0), ID(0), Complete(false),
                        Local(false), QueueCounter(0)
 {
    Owner->Add(this);
@@ -119,15 +119,15 @@ void pkgAcquire::Item::Failed(string Message,pkgAcquire::MethodConfig *Cnf)
 	 Dequeue();
 	 return;
       }
-      
+
       Status = StatError;
       Dequeue();
-   }   
+   }
 }
 									/*}}}*/
 // Acquire::Item::Start - Item has begun to download			/*{{{*/
 // ---------------------------------------------------------------------
-/* Stash status and the file size. Note that setting Complete means 
+/* Stash status and the file size. Note that setting Complete means
    sub-phases of the acquire process such as decompresion are operating */
 void pkgAcquire::Item::Start(string /*Message*/,unsigned long Size)
 {
@@ -152,7 +152,7 @@ void pkgAcquire::Item::Done(string Message,unsigned long Size,string,
 
    if (FileSize == 0)
       FileSize= Size;
-   
+
    Status = StatDone;
    ErrorText = string();
    Owner->Dequeue(this);
@@ -171,14 +171,14 @@ void pkgAcquire::Item::Rename(string From,string To)
 	      From.c_str(),To.c_str());
       Status = StatError;
       ErrorText = S;
-   }   
+   }
 }
 									/*}}}*/
 
 // AcqIndex::AcqIndex - Constructor					/*{{{*/
 // ---------------------------------------------------------------------
-/* The package file is added to the queue and a second class is 
-   instantiated to fetch the revision file */   
+/* The package file is added to the queue and a second class is
+   instantiated to fetch the revision file */
 // CNC:2002-07-03
 pkgAcqIndex::pkgAcqIndex(pkgAcquire *Owner,pkgRepository *Repository,
 			 string URI,string URIDesc,string ShortDesc) :
@@ -186,7 +186,7 @@ pkgAcqIndex::pkgAcqIndex(pkgAcquire *Owner,pkgRepository *Repository,
 {
    Decompression = false;
    Erase = false;
-   
+
    DestFile = _config->FindDir("Dir::State::lists") + "partial/";
    DestFile += URItoFileName(URI);
 
@@ -196,7 +196,7 @@ pkgAcqIndex::pkgAcqIndex(pkgAcquire *Owner,pkgRepository *Repository,
    Desc.Description = URIDesc;
    Desc.Owner = this;
    Desc.ShortDesc = ShortDesc;
-      
+
    // CNC:2002-07-03
    // If we're verifying authentication, check whether the size and
    // checksums match, if not, delete the cached files and force redownload
@@ -250,11 +250,11 @@ string pkgAcqIndex::Custom600Headers()
 {
    string Final = _config->FindDir("Dir::State::lists");
    Final += URItoFileName(RealURI);
-   
+
    struct stat Buf;
    if (stat(Final.c_str(),&Buf) != 0)
       return "\nIndex-File: true";
-   
+
    return "\nIndex-File: true\nLast-Modified: " + TimeRFC1123(Buf.st_mtime);
 }
 									/*}}}*/
@@ -280,24 +280,24 @@ void pkgAcqIndex::Done(string Message,unsigned long Size,string MD5,
 	  Repository->FindChecksums(RealURI,FSize,MD5Hash) == true)
       {
 	 // We must always get here if the repository is authenticated
-	 
+
 	 if (FSize != Size)
 	 {
 	    Status = StatError;
 	    ErrorText = _("Size mismatch");
 	    Rename(DestFile,DestFile + ".FAILED");
-	    if (_config->FindB("Acquire::Verbose",false) == true) 
+	    if (_config->FindB("Acquire::Verbose",false) == true)
 	       _error->Warning("Size mismatch of index file %s: %lu was supposed to be %lu",
 			       RealURI.c_str(), Size, FSize);
 	    return;
 	 }
-	    
+
 	 if (MD5.empty() == false && MD5Hash != MD5)
 	 {
 	    Status = StatError;
 	    ErrorText = _("MD5Sum mismatch");
 	    Rename(DestFile,DestFile + ".FAILED");
-	    if (_config->FindB("Acquire::Verbose",false) == true) 
+	    if (_config->FindB("Acquire::Verbose",false) == true)
 	       _error->Warning("MD5Sum mismatch of index file %s: %s was supposed to be %s",
 			       RealURI.c_str(), MD5.c_str(), MD5Hash.c_str());
 	    return;
@@ -308,18 +308,18 @@ void pkgAcqIndex::Done(string Message,unsigned long Size,string MD5,
 	 // Redundant security check
 	 assert(Repository == NULL || Repository->IsAuthenticated() == false);
       }
-	 
+
       // Done, move it into position
       string FinalFile = _config->FindDir("Dir::State::lists");
       FinalFile += URItoFileName(RealURI);
       Rename(DestFile,FinalFile);
       chmod(FinalFile.c_str(),0644);
-      
+
       /* We restore the original name to DestFile so that the clean operation
          will work OK */
       DestFile = _config->FindDir("Dir::State::lists") + "partial/";
       DestFile += URItoFileName(RealURI);
-      
+
       // Remove the compressed version.
       if (Erase == true)
 	 unlink(DestFile.c_str());
@@ -328,7 +328,7 @@ void pkgAcqIndex::Done(string Message,unsigned long Size,string MD5,
 
    Erase = false;
    Complete = true;
-   
+
    // Handle the unzipd case
    string FileName = LookupTag(Message,"Alt-Filename");
    if (FileName.empty() == false)
@@ -336,7 +336,7 @@ void pkgAcqIndex::Done(string Message,unsigned long Size,string MD5,
       // The files timestamp matches
       if (StringToBool(LookupTag(Message,"Alt-IMS-Hit"),false) == true)
 	 return;
-      
+
       Decompression = true;
       Local = true;
       DestFile += ".decomp";
@@ -352,7 +352,7 @@ void pkgAcqIndex::Done(string Message,unsigned long Size,string MD5,
       Status = StatError;
       ErrorText = "Method gave a blank filename";
    }
-   
+
    // The files timestamp matches
    if (StringToBool(LookupTag(Message,"IMS-Hit"),false) == true)
       return;
@@ -361,7 +361,7 @@ void pkgAcqIndex::Done(string Message,unsigned long Size,string MD5,
       Erase = true;
    else
       Local = true;
-   
+
    Decompression = true;
    DestFile += ".decomp";
 
@@ -393,7 +393,7 @@ pkgAcqIndexRel::pkgAcqIndexRel(pkgAcquire *Owner,pkgRepository *Repository,
 
    DestFile = _config->FindDir("Dir::State::lists") + "partial/";
    DestFile += URItoFileName(URI);
-   
+
    // Create the item
    Desc.URI = URI;
    Desc.Description = URIDesc;
@@ -447,7 +447,7 @@ string pkgAcqIndexRel::Custom600Headers()
 {
    string Final = _config->FindDir("Dir::State::lists");
    Final += URItoFileName(RealURI);
-   
+
    struct stat Buf;
    if (stat(Final.c_str(),&Buf) != 0)
       return "\nIndex-File: true";
@@ -470,7 +470,7 @@ void pkgAcqIndexRel::Done(string Message,unsigned long Size,string MD5,
    Item::Done(Message,Size,MD5,Cfg);
 
    // CNC:2002-07-03
-   if (Authentication == true) 
+   if (Authentication == true)
    {
       if (Repository->IsAuthenticated() == true)
       {
@@ -495,7 +495,7 @@ void pkgAcqIndexRel::Done(string Message,unsigned long Size,string MD5,
  	       break;
  	    }
  	 }
- 
+
  	 if (!found)
  	 {
  	    Status = StatError;
@@ -519,13 +519,13 @@ void pkgAcqIndexRel::Done(string Message,unsigned long Size,string MD5,
          will work OK */
       DestFile = _config->FindDir("Dir::State::lists") + "partial/";
       DestFile += URItoFileName(RealURI);
-      
+
       // Remove the compressed version.
       if (Erase == true)
 	 unlink(DestFile.c_str());
 
       // Update the hashes and file sizes for this repository
-      if (Repository->ParseRelease(FinalFile) == false && 
+      if (Repository->ParseRelease(FinalFile) == false &&
 	  Repository->IsAuthenticated() == true)
       {
          Status = StatError;
@@ -533,7 +533,7 @@ void pkgAcqIndexRel::Done(string Message,unsigned long Size,string MD5,
       }
       return;
    }
-   
+
    string FileName = LookupTag(Message,"Filename");
    if (FileName.empty() == true)
    {
@@ -545,7 +545,7 @@ void pkgAcqIndexRel::Done(string Message,unsigned long Size,string MD5,
    // CNC:2002-07-11
    Erase = false;
    Complete = true;
-   
+
    // The files timestamp matches
    if (StringToBool(LookupTag(Message,"IMS-Hit"),false) == true)
    {
@@ -559,7 +559,7 @@ void pkgAcqIndexRel::Done(string Message,unsigned long Size,string MD5,
       }
       return;
    }
-   
+
    // We have to copy it into place
    if (FileName != DestFile)
    {
@@ -568,7 +568,7 @@ void pkgAcqIndexRel::Done(string Message,unsigned long Size,string MD5,
       QueueURI(Desc);
       return;
    }
-   
+
    // CNC:2002-07-03
    unsigned long FSize;
    string MD5Hash;
@@ -581,7 +581,7 @@ void pkgAcqIndexRel::Done(string Message,unsigned long Size,string MD5,
 	 Status = StatError;
 	 ErrorText = _("Size mismatch");
 	 Rename(DestFile,DestFile + ".FAILED");
-	 if (_config->FindB("Acquire::Verbose",false) == true) 
+	 if (_config->FindB("Acquire::Verbose",false) == true)
 	    _error->Warning("Size mismatch of index file %s: %lu was supposed to be %lu",
 			    RealURI.c_str(), Size, FSize);
 	 return;
@@ -591,7 +591,7 @@ void pkgAcqIndexRel::Done(string Message,unsigned long Size,string MD5,
 	 Status = StatError;
 	 ErrorText = _("MD5Sum mismatch");
 	 Rename(DestFile,DestFile + ".FAILED");
-	 if (_config->FindB("Acquire::Verbose",false) == true) 
+	 if (_config->FindB("Acquire::Verbose",false) == true)
 	    _error->Warning("MD5Sum mismatch of index file %s: %s was supposed to be %s",
 			    RealURI.c_str(), MD5.c_str(), MD5Hash.c_str());
 	 return;
@@ -610,13 +610,13 @@ void pkgAcqIndexRel::Done(string Message,unsigned long Size,string MD5,
       if (Master == true)
 	 Repository->ParseRelease(FinalFile);
    }
-   else 
+   else
    {
       if (FileName == DestFile)
 	 Erase = true;
       else
 	 Local = true;
-   
+
       // Still have the authentication phase
       Authentication = true;
       DestFile += ".auth";
@@ -631,9 +631,9 @@ void pkgAcqIndexRel::Done(string Message,unsigned long Size,string MD5,
 /* */
 void pkgAcqIndexRel::Failed(string Message,pkgAcquire::MethodConfig *Cnf)
 {
-   if (Cnf->LocalOnly == true || 
+   if (Cnf->LocalOnly == true ||
        StringToBool(LookupTag(Message,"Transient-Failure"),false) == false)
-   {      
+   {
       // CNC:2002-07-03
       if (Master == false || Repository->IsAuthenticated() == false)
       {
@@ -644,7 +644,7 @@ void pkgAcqIndexRel::Failed(string Message,pkgAcquire::MethodConfig *Cnf)
 	 return;
       }
    }
-   
+
    Item::Failed(Message,Cnf);
 }
 									/*}}}*/
@@ -656,7 +656,7 @@ void pkgAcqIndexRel::Failed(string Message,pkgAcquire::MethodConfig *Cnf)
 pkgAcqArchive::pkgAcqArchive(pkgAcquire *Owner,pkgSourceList *Sources,
 			     pkgRecords *Recs,pkgCache::VerIterator const &Version,
 			     string &StoreFilename) :
-               Item(Owner), Version(Version), Sources(Sources), Recs(Recs), 
+               Item(Owner), Version(Version), Sources(Sources), Recs(Recs),
                StoreFilename(StoreFilename), Vf(Version.FileList())
 {
    Retries = _config->FindI("Acquire::Retries",0);
@@ -669,7 +669,7 @@ pkgAcqArchive::pkgAcqArchive(pkgAcquire *Owner,pkgSourceList *Sources,
 		    Version.ParentPkg().Name());
       return;
    }
-   
+
    /* We need to find a filename to determine the extension. We make the
       assumption here that all the available sources for this version share
       the same extension.. */
@@ -680,22 +680,22 @@ pkgAcqArchive::pkgAcqArchive(pkgAcquire *Owner,pkgSourceList *Sources,
 	 continue;
       break;
    }
-   
+
    // Does not really matter here.. we are going to fail out below
    if (Vf.end() != true)
-   {     
+   {
       // If this fails to get a file name we will bomb out below.
       pkgRecords::Parser &Parse = Recs->Lookup(Vf);
       if (_error->PendingError() == true)
 	 return;
-            
+
       // Generate the final file name as: package_version_arch.foo
       StoreFilename = QuoteString(Version.ParentPkg().Name(),"_:") + '_' +
 	              QuoteString(Version.VerStr(),"_:") + '_' +
-     	              QuoteString(Version.Arch(),"_:.") + 
+     	              QuoteString(Version.Arch(),"_:.") +
 	              "." + flExtension(Parse.FileName());
    }
-      
+
    // Select a source
    if (QueueNext() == false && _error->PendingError() == false)
       _error->Error(_("I wasn't able to locate file for the %s package. "
@@ -709,7 +709,7 @@ pkgAcqArchive::pkgAcqArchive(pkgAcquire *Owner,pkgSourceList *Sources,
    the archive is already available in the cache and stashs the MD5 for
    checking later. */
 bool pkgAcqArchive::QueueNext()
-{   
+{
    for (; Vf.end() == false; Vf++)
    {
       // Ignore not source sources
@@ -720,12 +720,12 @@ bool pkgAcqArchive::QueueNext()
       pkgIndexFile *Index;
       if (Sources->FindIndex(Vf.File(),Index) == false)
 	    continue;
-      
+
       // Grab the text package record
       pkgRecords::Parser &Parse = Recs->Lookup(Vf);
       if (_error->PendingError() == true)
 	 return false;
-      
+
       string PkgFile = Parse.FileName();
       MD5 = Parse.MD5Hash();
       if (PkgFile.empty() == true)
@@ -748,7 +748,7 @@ bool pkgAcqArchive::QueueNext()
 	    StoreFilename = DestFile = FinalFile;
 	    return true;
 	 }
-	 
+
 	 /* Hmm, we have a file and its size does not match, this means it is
 	    an old style mismatched arch */
 	 unlink(FinalFile.c_str());
@@ -767,14 +767,14 @@ bool pkgAcqArchive::QueueNext()
 	    StoreFilename = DestFile = FinalFile;
 	    return true;
 	 }
-	 
+
 	 /* Hmm, we have a file and its size does not match, this shouldnt
 	    happen.. */
 	 unlink(FinalFile.c_str());
       }
 
       DestFile = _config->FindDir("Dir::Cache::Archives") + "partial/" + flNotDir(StoreFilename);
-      
+
       // Check the destination file
       if (stat(DestFile.c_str(),&Buf) == 0)
       {
@@ -784,7 +784,7 @@ bool pkgAcqArchive::QueueNext()
 	 else
 	    PartialSize = Buf.st_size;
       }
-      
+
       // Create the item
       Local = false;
       Desc.URI = Index->ArchiveURI(PkgFile);
@@ -797,7 +797,7 @@ bool pkgAcqArchive::QueueNext()
       return true;
    }
    return false;
-}   
+}
 									/*}}}*/
 
 // CNC:2003-03-19
@@ -833,7 +833,7 @@ void pkgAcqArchive::Done(string Message,unsigned long Size,string Md5Hash,
 			 pkgAcquire::MethodConfig *Cfg)
 {
    Item::Done(Message,Size,Md5Hash,Cfg);
-   
+
    // Check the size
    if (Size != Version->Size)
    {
@@ -841,7 +841,7 @@ void pkgAcqArchive::Done(string Message,unsigned long Size,string Md5Hash,
       ErrorText = _("Size mismatch");
       return;
    }
-   
+
    // Check the md5
    if (Md5Hash.empty() == false && MD5.empty() == false)
    {
@@ -882,12 +882,12 @@ void pkgAcqArchive::Done(string Message,unsigned long Size,string Md5Hash,
 
       return;
    }
-   
+
    // Done, move it into position
    string FinalFile = _config->FindDir("Dir::Cache::Archives");
    FinalFile += flNotDir(StoreFilename);
    Rename(DestFile,FinalFile);
-   
+
    StoreFilename = DestFile = FinalFile;
    Complete = true;
 
@@ -905,11 +905,11 @@ void pkgAcqArchive::Done(string Message,unsigned long Size,string Md5Hash,
 void pkgAcqArchive::Failed(string Message,pkgAcquire::MethodConfig *Cnf)
 {
    ErrorText = LookupTag(Message,"Message");
-   
-   /* We don't really want to retry on failed media swaps, this prevents 
+
+   /* We don't really want to retry on failed media swaps, this prevents
       that. An interesting observation is that permanent failures are not
       recorded. */
-   if (Cnf->Removable == true && 
+   if (Cnf->Removable == true &&
        StringToBool(LookupTag(Message,"Transient-Failure"),false) == true)
    {
       // Vf = Version.FileList();
@@ -918,7 +918,7 @@ void pkgAcqArchive::Failed(string Message,pkgAcquire::MethodConfig *Cnf)
       Item::Failed(Message,Cnf);
       return;
    }
-   
+
    if (QueueNext() == false)
    {
       // This is the retry counter
@@ -931,7 +931,7 @@ void pkgAcqArchive::Failed(string Message,pkgAcquire::MethodConfig *Cnf)
 	 if (QueueNext() == true)
 	    return;
       }
-      
+
       StoreFilename = string();
       Item::Failed(Message,Cnf);
    }
@@ -957,9 +957,9 @@ pkgAcqFile::pkgAcqFile(pkgAcquire *Owner,string URI,string MD5,
                        Item(Owner), Md5Hash(MD5)
 {
    Retries = _config->FindI("Acquire::Retries",0);
-   
+
    DestFile = flNotDir(URI);
-   
+
    // Create the item
    Desc.URI = URI;
    Desc.Description = Dsc;
@@ -967,7 +967,7 @@ pkgAcqFile::pkgAcqFile(pkgAcquire *Owner,string URI,string MD5,
 
    // Set the short description to the archive component
    Desc.ShortDesc = ShortDesc;
-      
+
    // Get the transfer sizes
    FileSize = Size;
    struct stat Buf;
@@ -979,7 +979,7 @@ pkgAcqFile::pkgAcqFile(pkgAcquire *Owner,string URI,string MD5,
       else
 	 PartialSize = Buf.st_size;
    }
-   
+
    QueueURI(Desc);
 }
 									/*}}}*/
@@ -1003,7 +1003,7 @@ void pkgAcqFile::Done(string Message,unsigned long Size,string MD5,
 	 return;
       }
    }
-   
+
    Item::Done(Message,Size,MD5,Cnf);
 
    string FileName = LookupTag(Message,"Filename");
@@ -1015,11 +1015,11 @@ void pkgAcqFile::Done(string Message,unsigned long Size,string MD5,
    }
 
    Complete = true;
-   
+
    // The files timestamp matches
    if (StringToBool(LookupTag(Message,"IMS-Hit"),false) == true)
       return;
-   
+
    // We have to copy it into place
    if (FileName != DestFile)
    {
@@ -1031,7 +1031,7 @@ void pkgAcqFile::Done(string Message,unsigned long Size,string MD5,
 	 QueueURI(Desc);
 	 return;
       }
-      
+
       // Erase the file if it is a symlink so we can overwrite it
       struct stat St;
       if (lstat(DestFile.c_str(),&St) == 0)
@@ -1046,14 +1046,14 @@ void pkgAcqFile::Done(string Message,unsigned long Size,string MD5,
 	       return;
 	 }
       }
-      
+
       // Symlink the file
       if (symlink(FileName.c_str(),DestFile.c_str()) != 0)
       {
 	 ErrorText = "Link to " + DestFile + " failure ";
 	 Status = StatError;
 	 Complete = false;
-      }      
+      }
    }
 }
 									/*}}}*/
@@ -1063,7 +1063,7 @@ void pkgAcqFile::Done(string Message,unsigned long Size,string MD5,
 void pkgAcqFile::Failed(string Message,pkgAcquire::MethodConfig *Cnf)
 {
    ErrorText = LookupTag(Message,"Message");
-   
+
    // This is the retry counter
    if (Retries != 0 &&
        Cnf->LocalOnly == false &&
@@ -1073,7 +1073,7 @@ void pkgAcqFile::Failed(string Message,pkgAcquire::MethodConfig *Cnf)
       QueueURI(Desc);
       return;
    }
-   
+
    Item::Failed(Message,Cnf);
 }
 									/*}}}*/

@@ -4,12 +4,12 @@
 /* ######################################################################
 
    Lua interface system.
-   
+
    ##################################################################### */
 									/*}}}*/
 #ifdef __GNUG__
 #pragma implementation "apt-pkg/luaiface.h"
-#endif       
+#endif
 
 #include <config.h>
 
@@ -201,7 +201,7 @@ bool Lua::RunScript(const char *Script, const char *ChunkCacheKey)
 
    if (Script == NULL || *Script == '\0')
       return false;
-   
+
    bool Cached = false;
    if (ChunkCacheKey) {
       lua_pushstring(L, ChunkCacheKey);
@@ -393,13 +393,13 @@ void Lua::SetGlobal(const char *Name, const std::vector<apt_item> &Value, int To
    {
       Total = Value.size();
    }
-   
+
    for (int i = 0; i != Total; ++i)
    {
       lua_pushstring(L, Value[i].file.c_str());
       lua_rawseti(L, -2, i+1);
    }
-   
+
    lua_setglobal(L, Name);
    Globals.push_back(Name);
 }
@@ -884,7 +884,7 @@ static int AptLua_pkgsummary(lua_State *L)
       if (Cache == NULL)
 	 return 0;
       pkgRecords Recs(*Cache);
-      pkgRecords::Parser &Parse = 
+      pkgRecords::Parser &Parse =
 			      Recs.Lookup(PkgI->VersionList().FileList());
       lua_pushstring(L, Parse.ShortDesc().c_str());
    }
@@ -998,7 +998,7 @@ static int AptLua_verarch(lua_State *L)
    if (Ver == NULL)
       return 0;
    return AptAux_PushCacheString(L, Ver->Arch);
-   
+
 }
 
 static int AptLua_verid(lua_State *L)
@@ -1008,7 +1008,7 @@ static int AptLua_verid(lua_State *L)
       return 0;
    lua_pushnumber(L, Ver->ID);
    return 1;
-   
+
 }
 
 static int AptLua_verisonline(lua_State *L)

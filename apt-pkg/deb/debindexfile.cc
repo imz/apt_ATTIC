@@ -4,7 +4,7 @@
 
    Debian Specific sources.list types and the three sorts of Debian
    index files.
-   
+
    ##################################################################### */
 									/*}}}*/
 // Include Files							/*{{{*/
@@ -22,7 +22,7 @@
 #include <apt-pkg/error.h>
 #include <apt-pkg/strutl.h>
 #include <apt-pkg/acquire-item.h>
-    
+
 #include <sys/stat.h>
 									/*}}}*/
 
@@ -47,10 +47,10 @@ string debSourcesIndex::SourceInfo(pkgSrcRecords::Parser const &Record,
    {
       if (Dist != "/")
 	 Res += Dist;
-   }      
+   }
    else
       Res += Dist + '/' + Section;
-   
+
    Res += " ";
    Res += Record.Package();
    Res += " ";
@@ -81,7 +81,7 @@ string debSourcesIndex::Describe(bool Short) const
    else
       snprintf(S,sizeof(S),"%s (%s)",Info("Packages").c_str(),
 	       IndexFile("Sources").c_str());
-   
+
    return S;
 }
 									/*}}}*/
@@ -97,7 +97,7 @@ string debSourcesIndex::Info(const char *Type) const
 	 Info += Dist;
    }
    else
-      Info += Dist + '/' + Section;   
+      Info += Dist + '/' + Section;
    Info += " ";
    Info += Type;
    return Info;
@@ -117,13 +117,13 @@ string debSourcesIndex::IndexURI(const char *Type) const
    {
       if (Dist != "/")
 	 Res = URI + Dist;
-      else 
+      else
 	 Res = URI;
    }
    else
       Res = URI + "dists/" + Dist + '/' + Section +
       "/source/";
-   
+
    Res += Type;
    return Res;
 }
@@ -162,7 +162,7 @@ unsigned long debSourcesIndex::Size() const
 // PackagesIndex::debPackagesIndex - Contructor				/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-debPackagesIndex::debPackagesIndex(string URI,string Dist,string Section) : 
+debPackagesIndex::debPackagesIndex(string URI,string Dist,string Section) :
                   URI(URI), Dist(Dist), Section(Section)
 {
 }
@@ -180,7 +180,7 @@ string debPackagesIndex::ArchiveInfo(pkgCache::VerIterator Ver) const
    }
    else
       Res += Dist + '/' + Section;
-   
+
    Res += " ";
    Res += Ver.ParentPkg().Name();
    Res += " ";
@@ -193,7 +193,7 @@ string debPackagesIndex::ArchiveInfo(pkgCache::VerIterator Ver) const
 /* This should help the user find the index in the sources.list and
    in the filesystem for problem solving */
 string debPackagesIndex::Describe(bool Short) const
-{   
+{
    char S[300];
    if (Short == true)
       snprintf(S,sizeof(S),"%s",Info("Packages").c_str());
@@ -206,7 +206,7 @@ string debPackagesIndex::Describe(bool Short) const
 // PackagesIndex::Info - One liner describing the index URI		/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-string debPackagesIndex::Info(const char *Type) const 
+string debPackagesIndex::Info(const char *Type) const
 {
    string Info = ::URI::SiteOnly(URI) + ' ';
    if (Dist[Dist.size() - 1] == '/')
@@ -215,7 +215,7 @@ string debPackagesIndex::Info(const char *Type) const
 	 Info += Dist;
    }
    else
-      Info += Dist + '/' + Section;   
+      Info += Dist + '/' + Section;
    Info += " ";
    Info += Type;
    return Info;
@@ -235,13 +235,13 @@ string debPackagesIndex::IndexURI(const char *Type) const
    {
       if (Dist != "/")
 	 Res = URI + Dist;
-      else 
+      else
 	 Res = URI;
    }
    else
       Res = URI + "dists/" + Dist + '/' + Section +
       "/binary-" + _config->Find("APT::Architecture") + '/';
-   
+
    Res += Type;
    return Res;
 }
@@ -286,7 +286,7 @@ bool debPackagesIndex::Merge(pkgCacheGenerator &Gen,OpProgress &Prog) const
    debListParser Parser(&Pkg);
    if (_error->PendingError() == true)
       return _error->Error("Problem opening %s",PackageFile.c_str());
-   
+
    Prog.SubProgress(0,Info("Packages"));
    ::URI Tmp(URI);
    if (Gen.SelectFile(PackageFile,Tmp.Host,*this) == false)
@@ -299,7 +299,7 @@ bool debPackagesIndex::Merge(pkgCacheGenerator &Gen,OpProgress &Prog) const
       return _error->Errno("fstat","Failed to stat");
    File->Size = St.st_size;
    File->mtime = St.st_mtime;
-   
+
    if (Gen.MergeList(Parser) == false)
       return _error->Error("Problem with MergeList %s",PackageFile.c_str());
 
@@ -312,7 +312,7 @@ bool debPackagesIndex::Merge(pkgCacheGenerator &Gen,OpProgress &Prog) const
 	 return false;
       Parser.LoadReleaseInfo(File,Rel);
    }
-   
+
    return true;
 }
 									/*}}}*/
@@ -327,7 +327,7 @@ pkgCache::PkgFileIterator debPackagesIndex::FindInCache(pkgCache &Cache) const
    {
       if (FileName != File.FileName())
 	 continue;
-      
+
       struct stat St;
       if (stat(File.FileName(),&St) != 0)
 	 return pkgCache::PkgFileIterator(Cache);
@@ -335,7 +335,7 @@ pkgCache::PkgFileIterator debPackagesIndex::FindInCache(pkgCache &Cache) const
 	 return pkgCache::PkgFileIterator(Cache);
       return File;
    }
-   
+
    return File;
 }
 									/*}}}*/
@@ -369,7 +369,7 @@ bool debStatusIndex::Merge(pkgCacheGenerator &Gen,OpProgress &Prog) const
    debListParser Parser(&Pkg);
    if (_error->PendingError() == true)
       return false;
-   
+
    Prog.SubProgress(0,File);
    if (Gen.SelectFile(File,string(),*this,pkgCache::Flag::NotSource) == false)
       return _error->Error("Problem with SelectFile %s",File.c_str());
@@ -382,9 +382,9 @@ bool debStatusIndex::Merge(pkgCacheGenerator &Gen,OpProgress &Prog) const
    CFile->Size = St.st_size;
    CFile->mtime = St.st_mtime;
    CFile->Archive = Gen.WriteUniqString("now");
-   
+
    if (Gen.MergeList(Parser) == false)
-      return _error->Error("Problem with MergeList %s",File.c_str());   
+      return _error->Error("Problem with MergeList %s",File.c_str());
    return true;
 }
 									/*}}}*/
@@ -398,14 +398,14 @@ pkgCache::PkgFileIterator debStatusIndex::FindInCache(pkgCache &Cache) const
    {
       if (this->File != File.FileName())
 	 continue;
-      
+
       struct stat St;
       if (stat(File.FileName(),&St) != 0)
 	 return pkgCache::PkgFileIterator(Cache);
       if ((unsigned)St.st_size != File->Size || St.st_mtime != File->mtime)
 	 return pkgCache::PkgFileIterator(Cache);
       return File;
-   }   
+   }
    return File;
 }
 									/*}}}*/
@@ -436,7 +436,7 @@ class debSLTypeDeb : public pkgSourceList::Type
    {
       Name = "deb";
       Label = "Standard Debian binary tree";
-   }   
+   }
 };
 
 class debSLTypeDebSrc : public pkgSourceList::Type
@@ -445,17 +445,17 @@ class debSLTypeDebSrc : public pkgSourceList::Type
 
    bool CreateItem(vector<pkgIndexFile *> &List,string URI,
 		   string Dist,string Section,
-		   pkgSourceList::Vendor const *Vendor) const 
-   {      
+		   pkgSourceList::Vendor const *Vendor) const
+   {
       List.push_back(new debSourcesIndex(URI,Dist,Section));
       return true;
-   };  
-   
+   };
+
    debSLTypeDebSrc()
    {
       Name = "deb-src";
       Label = "Standard Debian source tree";
-   }   
+   }
 };
 
 debSLTypeDeb _apt_DebType;
@@ -465,14 +465,14 @@ debSLTypeDebSrc _apt_DebSrcType;
 class debIFTypeSrc : public pkgIndexFile::Type
 {
    public:
-   
+
    debIFTypeSrc() {Label = "Debian Source Index";};
 };
 class debIFTypePkg : public pkgIndexFile::Type
 {
    public:
-   
-   virtual pkgRecords::Parser *CreatePkgParser(pkgCache::PkgFileIterator File) const 
+
+   virtual pkgRecords::Parser *CreatePkgParser(pkgCache::PkgFileIterator File) const
    {
       return new debRecordParser(File.FileName(),*File.Cache());
    };
@@ -481,8 +481,8 @@ class debIFTypePkg : public pkgIndexFile::Type
 class debIFTypeStatus : public pkgIndexFile::Type
 {
    public:
-   
-   virtual pkgRecords::Parser *CreatePkgParser(pkgCache::PkgFileIterator File) const 
+
+   virtual pkgRecords::Parser *CreatePkgParser(pkgCache::PkgFileIterator File) const
    {
       return new debRecordParser(File.FileName(),*File.Cache());
    };

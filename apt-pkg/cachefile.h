@@ -1,16 +1,16 @@
 // Description								/*{{{*/
 // $Id: cachefile.h,v 1.2 2002/07/25 18:07:18 niemeyer Exp $
 /* ######################################################################
-   
+
    CacheFile - Simple wrapper class for opening, generating and whatnot
-   
+
    This class implements a simple 2 line mechanism to open various sorts
    of caches. It can operate as root, as not root, show progress and so on,
    it transparently handles everything necessary.
-   
+
    This means it can rebuild caches from the source list and instantiates
    and prepares the standard policy mechanism.
-   
+
    ##################################################################### */
 									/*}}}*/
 #ifndef PKGLIB_CACHEFILE_H
@@ -18,7 +18,7 @@
 
 #ifdef __GNUG__
 #pragma interface "apt-pkg/cachefile.h"
-#endif 
+#endif
 
 #include <apt-pkg/depcache.h>
 #include <apt-pkg/cmndline.h>
@@ -29,15 +29,15 @@ class pkgPolicy;
 class pkgCacheFile
 {
    protected:
-   
+
    MMap *Map;
    pkgCache *Cache;
    pkgDepCache *DCache;
-   
+
    public:
 
    pkgPolicy *Policy;
-      
+
    // We look pretty much exactly like a pointer to a dep cache
    inline operator pkgCache &() {return *Cache;};
    inline operator pkgCache *() {return Cache;};
@@ -51,7 +51,7 @@ class pkgCacheFile
    bool BuildCaches(OpProgress &Progress,bool WithLock);
    bool Open(OpProgress &Progress,bool WithLock);
    void Close();
-   
+
    pkgCacheFile();
    ~pkgCacheFile();
 };

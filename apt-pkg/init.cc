@@ -3,7 +3,7 @@
 /* ######################################################################
 
    Init - Initialize the package library
-   
+
    ##################################################################### */
 									/*}}}*/
 // Include files							/*{{{*/
@@ -27,11 +27,11 @@
 #define Stringfy(x)  Stringfy_(x)
 const char *pkgVersion = VERSION;
 const char *pkgLibVersion = Stringfy(APT_PKG_MAJOR) "."
-                            Stringfy(APT_PKG_MINOR) "." 
+                            Stringfy(APT_PKG_MINOR) "."
                             Stringfy(APT_PKG_RELEASE);
 const char *pkgCPU = COMMON_CPU;
 const char *pkgOS = COMMON_OS;
-    
+
 // pkgInitConfig - Initialize the configuration class			/*{{{*/
 // ---------------------------------------------------------------------
 /* Directories are specified in such a way that the FindDir function will
@@ -55,26 +55,26 @@ bool pkgInitConfig(Configuration &Cnf)
    // CNC:2002-09-10
    //Cnf.CndSet("APT::Build-Essential::", "build-essential");
    Cnf.CndSet("Dir","/");
-   
-   // State   
+
+   // State
    Cnf.CndSet("Dir::State","var/lib/apt/");
-   
+
    /* Just in case something goes horribly wrong, we can fall back to the
       old /var/state paths.. */
-   struct stat St;   
+   struct stat St;
    if (stat("/var/lib/apt/.",&St) != 0 &&
        stat("/var/state/apt/.",&St) == 0)
       Cnf.CndSet("Dir::State","var/state/apt/");
-       
+
    Cnf.CndSet("Dir::State::lists","lists/");
    Cnf.CndSet("Dir::State::cdroms","cdroms.list");
-   
+
    // Cache
    Cnf.CndSet("Dir::Cache","var/cache/apt/");
    Cnf.CndSet("Dir::Cache::archives","archives/");
    Cnf.CndSet("Dir::Cache::srcpkgcache","srcpkgcache.bin");
    Cnf.CndSet("Dir::Cache::pkgcache","pkgcache.bin");
-   
+
    // Configuration
    Cnf.CndSet("Dir::Etc","etc/apt/");
    Cnf.CndSet("Dir::Etc::sourcelist","sources.list");
@@ -88,38 +88,38 @@ bool pkgInitConfig(Configuration &Cnf)
    Cnf.CndSet("Dir::Etc::preferencesparts","preferences.d");
    Cnf.CndSet("Dir::Bin::methods",LIBDIR "/apt/methods");
    Cnf.CndSet("Acquire::ComprExtension", ".bz2");
-	      
+
    bool Res = true;
-   
+
    // Read an alternate config file
    const char *Cfg = getenv("APT_CONFIG");
    if (Cfg != 0 && FileExists(Cfg) == true)
       Res &= ReadConfigFile(Cnf,Cfg);
-   
+
    // Read the configuration parts dir
    string Parts = Cnf.FindDir("Dir::Etc::parts");
    if (FileExists(Parts) == true)
       Res &= ReadConfigDir(Cnf,Parts);
-      
+
    // Read the main config file
    string FName = Cnf.FindFile("Dir::Etc::main");
    if (FileExists(FName) == true)
       Res &= ReadConfigFile(Cnf,FName);
-   
+
    if (Res == false)
       return false;
-   
+
    if (Cnf.FindB("Debug::pkgInitConfig",false) == true)
       Cnf.Dump();
-   
+
 #ifdef APT_DOMAIN
    if (Cnf.Exists("Dir::Locale"))
-   {  
+   {
       bindtextdomain(APT_DOMAIN,Cnf.FindDir("Dir::Locale").c_str());
       bindtextdomain(textdomain(0),Cnf.FindDir("Dir::Locale").c_str());
    }
 #endif
-   
+
    return true;
 }
 									/*}}}*/
@@ -163,7 +163,7 @@ bool pkgInitSystem(Configuration &Cnf,pkgSystem *&Sys)
 	    Sys = pkgSystem::GlobalList[I];
 	 }
       }
-      
+
       if (Sys == 0)
 	 return _error->Error(_("Unable to determine a suitable system type"));
    }

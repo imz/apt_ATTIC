@@ -3,13 +3,13 @@
 /* ######################################################################
 
    Version - Versioning system..
-   
+
    ##################################################################### */
 									/*}}}*/
 // Include Files							/*{{{*/
 #ifdef __GNUG__
 #pragma implementation "apt-pkg/version.h"
-#endif 
+#endif
 
 #include <config.h>
 
@@ -18,7 +18,7 @@
 
 #include <stdlib.h>
 									/*}}}*/
-    
+
 static pkgVersioningSystem *VSList[10];
 pkgVersioningSystem **pkgVersioningSystem::GlobalList = VSList;
 unsigned long pkgVersioningSystem::GlobalListLen = 0;

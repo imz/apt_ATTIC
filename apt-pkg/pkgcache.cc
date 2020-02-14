@@ -1,18 +1,18 @@
 // Description								/*{{{*/
 // $Id: pkgcache.cc,v 1.37 2003/02/10 01:40:58 doogie Exp $
 /* ######################################################################
-   
+
    Package Cache - Accessor code for the cache
-   
-   Please see doc/apt-pkg/cache.sgml for a more detailed description of 
+
+   Please see doc/apt-pkg/cache.sgml for a more detailed description of
    this format. Also be sure to keep that file up-to-date!!
-   
+
    This is the general utility functions for cache managment. They provide
    a complete set of accessor functions for the cache. The cacheiterators
    header contains the STL-like iterators that can be used to easially
-   navigate the cache as well as seemlessly dereference the mmap'd 
+   navigate the cache as well as seemlessly dereference the mmap'd
    indexes. Use these always.
-   
+
    The main class provides for ways to get package indexes and some
    general lookup functions to start the iterators.
 
@@ -22,7 +22,7 @@
 #ifdef __GNUG__
 #pragma implementation "apt-pkg/pkgcache.h"
 #pragma implementation "apt-pkg/cacheiterators.h"
-#endif 
+#endif
 
 #include <config.h>
 
@@ -34,7 +34,7 @@
 #include <apt-pkg/configuration.h>
 
 #include <apti18n.h>
-    
+
 #include <string>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -53,7 +53,7 @@ using std::string;
 pkgCache::Header::Header()
 {
    Signature = 0x98FE76DC;
-   
+
    /* Whenever the structures change the major version should be bumped,
       whenever the generator changes the minor version should be bumped. */
    // CNC:2003-11-24
@@ -66,7 +66,7 @@ pkgCache::Header::Header()
 
    // CNC:2003-11-24
    OptionsHash = 0;
-   
+
    HeaderSz = sizeof(pkgCache::Header);
    PackageSz = sizeof(pkgCache::Package);
    PackageFileSz = sizeof(pkgCache::PackageFile);
@@ -74,7 +74,7 @@ pkgCache::Header::Header()
    DependencySz = sizeof(pkgCache::Dependency);
    ProvidesSz = sizeof(pkgCache::Provides);
    VerFileSz = sizeof(pkgCache::VerFile);
-   
+
    PackageCount = 0;
    VersionCount = 0;
    DependsCount = 0;
@@ -82,7 +82,7 @@ pkgCache::Header::Header()
    VerFileCount = 0;
    ProvidesCount = 0;
    MaxVerFileSize = 0;
-   
+
    FileList = 0;
    StringList = 0;
    VerSysName = 0;
@@ -135,13 +135,13 @@ bool pkgCache::ReMap()
 
    if (Map.Size() == 0 || HeaderP == 0)
       return _error->Error(_("Empty package cache"));
-   
+
    // Check the header
    Header DefHeader;
    if (HeaderP->Signature != DefHeader.Signature ||
        HeaderP->Dirty == true)
       return _error->Error(_("The package cache file is corrupted"));
-   
+
    if (HeaderP->MajorVersion != DefHeader.MajorVersion ||
        HeaderP->MinorVersion != DefHeader.MinorVersion ||
        HeaderP->CheckSizes(DefHeader) == false)
@@ -221,26 +221,26 @@ pkgCache::Package *pkgCache::FindPackage(const char *Name)
 }
 // Cache::CompTypeDeb - Return a string describing the compare type	/*{{{*/
 // ---------------------------------------------------------------------
-/* This returns a string representation of the dependency compare 
+/* This returns a string representation of the dependency compare
    type in the weird debian style.. */
 const char *pkgCache::CompTypeDeb(unsigned char Comp)
 {
    const char *Ops[] = {"","<=",">=","<<",">>","=","!="};
    if ((unsigned)(Comp & 0xF) < 7)
       return Ops[Comp & 0xF];
-   return "";	 
+   return "";
 }
 									/*}}}*/
 // Cache::CompType - Return a string describing the compare type	/*{{{*/
 // ---------------------------------------------------------------------
-/* This returns a string representation of the dependency compare 
+/* This returns a string representation of the dependency compare
    type */
 const char *pkgCache::CompType(unsigned char Comp)
 {
    const char *Ops[] = {"","<=",">=","<",">","=","!="};
    if ((unsigned)(Comp & 0xF) < 7)
       return Ops[Comp & 0xF];
-   return "";	 
+   return "";
 }
 									/*}}}*/
 // Cache::DepType - Return a string describing the dep type		/*{{{*/
@@ -277,7 +277,7 @@ void pkgCache::PrvIterator::_dummy() {}
 // PkgIterator::operator ++ - Postfix incr				/*{{{*/
 // ---------------------------------------------------------------------
 /* This will advance to the next logical package in the hash table. */
-void pkgCache::PkgIterator::operator ++(int) 
+void pkgCache::PkgIterator::operator ++(int)
 {
    // Follow the current links
    if (Pkg != Owner->PkgP)
@@ -295,19 +295,19 @@ void pkgCache::PkgIterator::operator ++(int)
 // ---------------------------------------------------------------------
 /* By this we mean if it is either cleanly installed or cleanly removed. */
 pkgCache::PkgIterator::OkState pkgCache::PkgIterator::State() const
-{  
+{
    if (Pkg->InstState == pkgCache::State::ReInstReq ||
        Pkg->InstState == pkgCache::State::HoldReInstReq)
       return NeedsUnpack;
-   
+
    if (Pkg->CurrentState == pkgCache::State::UnPacked ||
        Pkg->CurrentState == pkgCache::State::HalfConfigured)
       return NeedsConfigure;
-   
+
    if (Pkg->CurrentState == pkgCache::State::HalfInstalled ||
        Pkg->InstState != pkgCache::State::Ok)
       return NeedsUnpack;
-      
+
    return NeedsNothing;
 }
 									/*}}}*/
@@ -333,37 +333,37 @@ bool pkgCache::DepIterator::IsCritical()
 /* This intellegently looks at dep target packages and tries to figure
    out which package should be used. This is needed to nicely handle
    provide mapping. If the target package has no other providing packages
-   then it returned. Otherwise the providing list is looked at to 
+   then it returned. Otherwise the providing list is looked at to
    see if there is one one unique providing package if so it is returned.
    Otherwise true is returned and the target package is set. The return
-   result indicates whether the node should be expandable 
- 
-   In Conjunction with the DepCache the value of Result may not be 
+   result indicates whether the node should be expandable
+
+   In Conjunction with the DepCache the value of Result may not be
    super-good since the policy may have made it uninstallable. Using
    AllTargets is better in this case. */
 bool pkgCache::DepIterator::SmartTargetPkg(PkgIterator &Result)
 {
    Result = TargetPkg();
-   
+
    // No provides at all
    if (Result->ProvidesList == 0)
       return false;
-   
+
    // There is the Base package and the providing ones which is at least 2
    if (Result->VersionList != 0)
       return true;
-      
+
    /* We have to skip over indirect provisions of the package that
       owns the dependency. For instance, if libc5-dev depends on the
       virtual package libc-dev which is provided by libc5-dev and libc6-dev
-      we must ignore libc5-dev when considering the provides list. */ 
+      we must ignore libc5-dev when considering the provides list. */
    PrvIterator PStart = Result.ProvidesList();
    for (; PStart.end() != true && PStart.OwnerPkg() == ParentPkg(); PStart++);
 
    // Nothing but indirect self provides
    if (PStart.end() == true)
       return false;
-   
+
    // Check for single packages in the provides list
    PrvIterator P = PStart;
    for (; P.end() != true; P++)
@@ -376,11 +376,11 @@ bool pkgCache::DepIterator::SmartTargetPkg(PkgIterator &Result)
    }
 
    Result = PStart.OwnerPkg();
-   
+
    // Check for non dups
    if (P.end() != true)
       return true;
-   
+
    return false;
 }
 									/*}}}*/
@@ -425,13 +425,13 @@ pkgCache::Version **pkgCache::DepIterator::AllTargets()
 	 assert(Size < sizeof(Res)/sizeof(*Res));
 	 Res[Size++] = v;
       }
-      
+
       // Follow all provides
       for (PrvIterator I = DPkg.ProvidesList(); I.end() == false; I++)
       {
 	 if (Owner->VS->CheckDep(I.ProvideVersion(),*this) == false) // CNC:2002-07-10
 	    continue;
-	 
+
 	 if ((Dep->Type == pkgCache::Dep::Conflicts ||
 	      Dep->Type == pkgCache::Dep::Obsoletes) &&
 	     ParentPkg() == I.OwnerPkg())
@@ -455,7 +455,7 @@ pkgCache::Version **pkgCache::DepIterator::AllTargets()
 	 Res[Size++] = v;
       }
    }
-   
+
    Version **Ret = new Version *[Size+1];
    if (Size)
       memcpy(Ret, Res, Size*sizeof(*Res));
@@ -496,7 +496,7 @@ int pkgCache::VerIterator::CompareVer(const VerIterator &B) const
       return -1;
    if (B.end() == true)
       return 1;
-       
+
    /* Start at A and look for B. If B is found then A > B otherwise
       B was before A so A < B */
    VerIterator I = *this;
@@ -520,7 +520,7 @@ bool pkgCache::VerIterator::Downloadable() const
 									/*}}}*/
 // VerIterator::Automatic - Check if this version is 'automatic'	/*{{{*/
 // ---------------------------------------------------------------------
-/* This checks to see if any of the versions files are not NotAutomatic. 
+/* This checks to see if any of the versions files are not NotAutomatic.
    True if this version is selectable for automatic installation. */
 bool pkgCache::VerIterator::Automatic() const
 {
@@ -544,13 +544,13 @@ pkgCache::VerFileIterator pkgCache::VerIterator::NewestFile() const
       if (Owner->VS->CmpReleaseVer(Files.File().Version(),Highest.File().Version()) > 0)
 	 Highest = Files;
    }
-   
+
    return Highest;
 }
 									/*}}}*/
 // VerIterator::RelStr - Release description string			/*{{{*/
 // ---------------------------------------------------------------------
-/* This describes the version from a release-centric manner. The output is a 
+/* This describes the version from a release-centric manner. The output is a
    list of Label:Version/Archive */
 string pkgCache::VerIterator::RelStr()
 {
@@ -573,7 +573,7 @@ string pkgCache::VerIterator::RelStr()
 
 	 if (strcmp(File.Label(),File2.Label()) != 0)
 	    continue;
-	 
+
 	 if (File2->Version == File->Version)
 	 {
 	    Seen = true;
@@ -584,15 +584,15 @@ string pkgCache::VerIterator::RelStr()
 	 if (strcmp(File.Version(),File2.Version()) == 0)
 	    Seen = true;
       }
-      
+
       if (Seen == true)
 	 continue;
-      
+
       if (First == false)
 	 Res += ", ";
       else
 	 First = false;
-      
+
       if (File->Label != 0)
 	 Res = Res + File.Label() + ':';
 
@@ -610,15 +610,15 @@ string pkgCache::VerIterator::RelStr()
 	    Res += "localhost";
 	 else
 	    Res += File.Site();
-      }      
-   }   
+      }
+   }
    return Res;
 }
 									/*}}}*/
 // PkgFileIterator::IsOk - Checks if the cache is in sync with the file	/*{{{*/
 // ---------------------------------------------------------------------
 /* This stats the file and compares its stats with the ones that were
-   stored during generation. Date checks should probably also be 
+   stored during generation. Date checks should probably also be
    included here. */
 bool pkgCache::PkgFileIterator::IsOk()
 {

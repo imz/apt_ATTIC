@@ -3,14 +3,14 @@
 /* ######################################################################
 
    Configuration Class
-   
+
    This class provides a configuration file and command line parser
    for a tree-oriented configuration environment. All runtime configuration
    is stored in here.
 
    This source is placed in the Public Domain, do with it what you will
    It was originally written by Jason Gunthorpe <jgg@debian.org>.
-   
+
    ##################################################################### */
 									/*}}}*/
 // Include files							/*{{{*/
@@ -29,7 +29,7 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
-    
+
 #include <stdio.h>
 #include <dirent.h>
 #include <sys/stat.h>
@@ -88,7 +88,7 @@ Configuration::~Configuration()
 {
    if (ToFree == false)
       return;
-   
+
    Item *Top = Root;
    for (; Top != 0;)
    {
@@ -97,13 +97,13 @@ Configuration::~Configuration()
 	 Top = Top->Child;
 	 continue;
       }
-            
+
       while (Top != 0 && Top->Next == 0)
       {
 	 Item *Parent = Top->Parent;
 	 delete Top;
 	 Top = Parent;
-      }      
+      }
       if (Top != 0)
       {
 	 Item *Next = Top->Next;
@@ -115,7 +115,7 @@ Configuration::~Configuration()
 									/*}}}*/
 // Configuration::Lookup - Lookup a single item				/*{{{*/
 // ---------------------------------------------------------------------
-/* This will lookup a single item by name below another item. It is a 
+/* This will lookup a single item by name below another item. It is a
    helper function for the main lookup function */
 Configuration::Item *Configuration::Lookup(Item *Head,const char *S,
 					   unsigned long Len,bool Create)
@@ -123,7 +123,7 @@ Configuration::Item *Configuration::Lookup(Item *Head,const char *S,
    int Res = 1;
    Item *I = Head->Child;
    Item **Last = &Head->Child;
-   
+
    // Empty strings match nothing. They are used for lists.
    if (Len != 0)
    {
@@ -133,12 +133,12 @@ Configuration::Item *Configuration::Lookup(Item *Head,const char *S,
    }
    else
       for (; I != 0; Last = &I->Next, I = I->Next);
-      
+
    if (Res == 0)
       return I;
    if (Create == false)
       return 0;
-   
+
    I = new Item;
    I->Tag = string(S,Len);
    I->Next = *Last;
@@ -155,7 +155,7 @@ Configuration::Item *Configuration::Lookup(const char *Name,bool Create)
 {
    if (Name == 0)
       return Root->Child;
-   
+
    const char *Start = Name;
    const char *End = Start + strlen(Name);
    const char *TagEnd = Name;
@@ -167,9 +167,9 @@ Configuration::Item *Configuration::Lookup(const char *Name,bool Create)
 	 Itm = Lookup(Itm,Start,TagEnd - Start,Create);
 	 if (Itm == 0)
 	    return 0;
-	 TagEnd = Start = TagEnd + 2;	 
+	 TagEnd = Start = TagEnd + 2;
       }
-   }   
+   }
 
    // This must be a trailing ::, we create unique items in a list
    if (End - Start == 0)
@@ -177,7 +177,7 @@ Configuration::Item *Configuration::Lookup(const char *Name,bool Create)
       if (Create == false)
 	 return 0;
    }
-   
+
    Itm = Lookup(Itm,Start,End - Start,Create);
    return Itm;
 }
@@ -195,7 +195,7 @@ string Configuration::Find(const char *Name,const char *Default) const
       else
 	 return Default;
    }
-   
+
    return Itm->Value;
 }
 									/*}}}*/
@@ -214,22 +214,22 @@ string Configuration::FindFile(const char *Name,const char *Default) const
       else
 	 return Default;
    }
-   
+
    string val = Itm->Value;
    while (Itm->Parent != 0 && Itm->Parent->Value.empty() == false)
-   {	 
+   {
       // Absolute
       if (val.length() >= 1 && val[0] == '/')
          break;
 
-      // ~/foo or ./foo 
+      // ~/foo or ./foo
       if (val.length() >= 2 && (val[0] == '~' || val[0] == '.') && val[1] == '/')
 	 break;
-	 
-      // ../foo 
+
+      // ../foo
       if (val.length() >= 3 && val[0] == '.' && val[1] == '.' && val[2] == '/')
 	 break;
-      
+
       if (Itm->Parent->Value.end()[-1] != '/')
 	 val.insert(0, "/");
 
@@ -259,12 +259,12 @@ int Configuration::FindI(const char *Name,int Default) const
    const Item *Itm = Lookup(Name);
    if (Itm == 0 || Itm->Value.empty() == true)
       return Default;
-   
+
    char *End;
    int Res = strtol(Itm->Value.c_str(),&End,0);
    if (End == Itm->Value.c_str())
       return Default;
-   
+
    return Res;
 }
 									/*}}}*/
@@ -276,7 +276,7 @@ bool Configuration::FindB(const char *Name,bool Default) const
    const Item *Itm = Lookup(Name);
    if (Itm == 0 || Itm->Value.empty() == true)
       return Default;
-   
+
    return StringToBool(Itm->Value,Default);
 }
 									/*}}}*/
@@ -297,20 +297,20 @@ string Configuration::FindAny(const char *Name,const char *Default) const
    switch (type)
    {
       // file
-      case 'f': 
+      case 'f':
       return FindFile(key.c_str(), Default);
-      
+
       // directory
-      case 'd': 
+      case 'd':
       return FindDir(key.c_str(), Default);
-      
+
       // bool
-      case 'b': 
+      case 'b':
       // CNC:2003-11-23
       return FindB(key, StringToBool(Default)) ? "true" : "false";
-      
+
       // int
-      case 'i': 
+      case 'i':
       {
 	 char buf[16];
 	 snprintf(buf, sizeof(buf)-1, "%d", FindI(key, Default ? atoi(Default) : 0 ));
@@ -381,7 +381,7 @@ void Configuration::Clear(string Name)
    Item *Top = Lookup(Name.c_str(),false);
    if (Top == 0)
       return;
-   
+
    Top->Value = string();
    Item *Stop = Top;
    Top = Top->Child;
@@ -399,11 +399,11 @@ void Configuration::Clear(string Name)
 	 Item *Tmp = Top;
 	 Top = Top->Parent;
 	 delete Tmp;
-	 
+
 	 if (Top == Stop)
 	    return;
       }
-      
+
       Item *Tmp = Top;
       if (Top != 0)
 	 Top = Top->Next;
@@ -449,19 +449,19 @@ bool Configuration::ExistsAny(const char *Name) const
 /* Dump the entire configuration space */
 void Configuration::Dump(ostream& str)
 {
-   /* Write out all of the configuration directives by walking the 
+   /* Write out all of the configuration directives by walking the
       configuration tree */
    const Configuration::Item *Top = Tree(0);
    for (; Top != 0;)
    {
       str << Top->FullTag() << " \"" << Top->Value << "\";" << endl;
-      
+
       if (Top->Child != 0)
       {
 	 Top = Top->Child;
 	 continue;
       }
-      
+
       while (Top != 0 && Top->Next == 0)
 	 Top = Top->Parent;
       if (Top != 0)
@@ -485,27 +485,27 @@ string Configuration::Item::FullTag(const Item *Stop) const
 // ReadConfigFile - Read a configuration file				/*{{{*/
 // ---------------------------------------------------------------------
 /* The configuration format is very much like the named.conf format
-   used in bind8, in fact this routine can parse most named.conf files. 
-   Sectional config files are like bind's named.conf where there are 
+   used in bind8, in fact this routine can parse most named.conf files.
+   Sectional config files are like bind's named.conf where there are
    sections like 'zone "foo.org" { .. };' This causes each section to be
-   added in with a tag like "zone::foo.org" instead of being split 
+   added in with a tag like "zone::foo.org" instead of being split
    tag/value. AsSectional enables Sectional parsing.*/
 bool ReadConfigFile(Configuration &Conf,string FName,bool AsSectional,
 		    unsigned Depth)
-{   
+{
    // Open the stream for reading
-   ifstream F(FName.c_str(),ios::in); 
+   ifstream F(FName.c_str(),ios::in);
    if (!F != 0)
       return _error->Errno("ifstream::ifstream",_("Opening configuration file %s"),FName.c_str());
-   
+
    char Buffer[300];
    string LineBuffer;
    string Stack[100];
    unsigned int StackPos = 0;
-   
+
    // Parser state
    string ParentTag;
-   
+
    int CurLine = 0;
    bool InComment = false;
    while (F.eof() == false)
@@ -525,12 +525,12 @@ bool ReadConfigFile(Configuration &Conf,string FName,bool AsSectional,
 	       memmove(Buffer,I+2,strlen(I+2) + 1);
 	       InComment = false;
 	       break;
-	    }	    
+	    }
 	 }
 	 if (InComment == true)
 	    continue;
       }
-      
+
       // Discard single line comments
       bool InQuote = false;
       for (char *I = Buffer; *I != 0; I++)
@@ -539,7 +539,7 @@ bool ReadConfigFile(Configuration &Conf,string FName,bool AsSectional,
 	    InQuote = !InQuote;
 	 if (InQuote == true)
 	    continue;
-	 
+
 	 if (*I == '/' && I[1] == '/')
          {
 	    *I = 0;
@@ -555,7 +555,7 @@ bool ReadConfigFile(Configuration &Conf,string FName,bool AsSectional,
 	    InQuote = !InQuote;
 	 if (InQuote == true)
 	    continue;
-	 
+
 	 if (*I == '/' && I[1] == '*')
          {
 	    InComment = true;
@@ -566,28 +566,28 @@ bool ReadConfigFile(Configuration &Conf,string FName,bool AsSectional,
 		  memmove(I,J+2,strlen(J+2) + 1);
 		  InComment = false;
 		  break;
-	       }	       
+	       }
 	    }
-	    
+
 	    if (InComment == true)
 	    {
 	       *I = 0;
 	       break;
-	    }	    
+	    }
 	 }
       }
-      
+
       // Blank
       if (Buffer[0] == 0)
 	 continue;
-      
+
       // We now have a valid line fragment
       InQuote = false;
       for (char *I = Buffer; *I != 0;)
       {
 	 if (*I == '"')
 	    InQuote = !InQuote;
-	 
+
 	 if (InQuote == false && (*I == '{' || *I == ';' || *I == '}'))
 	 {
 	    // Put the last fragment into the buffer
@@ -598,16 +598,16 @@ bool ReadConfigFile(Configuration &Conf,string FName,bool AsSectional,
 	    if (LineBuffer.empty() == false && Stop - Start != 0)
 	       LineBuffer += ' ';
 	    LineBuffer += string(Start,Stop - Start);
-	    
+
 	    // Remove the fragment
 	    char TermChar = *I;
 	    memmove(Buffer,I + 1,strlen(I + 1) + 1);
 	    I = Buffer;
-	    
+
 	    // Syntax Error
 	    if (TermChar == '{' && LineBuffer.empty() == true)
 	       return _error->Error(_("Syntax error %s:%u: Block starts with no name."),FName.c_str(),CurLine);
-	    
+
 	    // No string on this line
 	    if (LineBuffer.empty() == true)
 	    {
@@ -620,7 +620,7 @@ bool ReadConfigFile(Configuration &Conf,string FName,bool AsSectional,
 	       }
 	       continue;
 	    }
-	    
+
 	    // Parse off the tag
 	    string Tag;
 	    const char *Pos = LineBuffer.c_str();
@@ -649,7 +649,7 @@ bool ReadConfigFile(Configuration &Conf,string FName,bool AsSectional,
 	    {
 	       if (StackPos <= 100)
 		  Stack[StackPos++] = ParentTag;
-	       
+
 	       /* Make sectional tags incorperate the section into the
 	          tag string */
 	       if (AsSectional == true && Word.empty() == false)
@@ -658,14 +658,14 @@ bool ReadConfigFile(Configuration &Conf,string FName,bool AsSectional,
 		  Tag += Word;
 		  Word = "";
 	       }
-	       
+
 	       if (ParentTag.empty() == true)
 		  ParentTag = Tag;
 	       else
 		  ParentTag += string("::") + Tag;
 	       Tag = string();
 	    }
-	    
+
 	    // Generate the item name
 	    string Item;
 	    if (ParentTag.empty() == true)
@@ -677,7 +677,7 @@ bool ReadConfigFile(Configuration &Conf,string FName,bool AsSectional,
 	       else
 		  Item = ParentTag;
 	    }
-	    
+
 	    // Specials
 	    if (Tag.length() >= 1 && Tag[0] == '#')
 	    {
@@ -699,7 +699,7 @@ bool ReadConfigFile(Configuration &Conf,string FName,bool AsSectional,
 		  {
 		     if (ReadConfigFile(Conf,Word,AsSectional,Depth+1) == false)
 			return _error->Error(_("Syntax error %s:%u: Included from here"),FName.c_str(),CurLine);
-		  }		  
+		  }
 	       }
 	       else
 		  return _error->Error(_("Syntax error %s:%u: Unsupported directive '%s'"),FName.c_str(),CurLine,Tag.c_str());
@@ -710,10 +710,10 @@ bool ReadConfigFile(Configuration &Conf,string FName,bool AsSectional,
 	       if (NoWord == false)
 		  Conf.Set(Item,Word);
 	    }
-	    
+
 	    // Empty the buffer
 	    LineBuffer = string();
-	    
+
 	    // Move up a tag, but only if there is no bit to parse
 	    if (TermChar == '}')
 	    {
@@ -722,7 +722,7 @@ bool ReadConfigFile(Configuration &Conf,string FName,bool AsSectional,
 	       else
 		  ParentTag = Stack[--StackPos];
 	    }
-	    
+
 	 }
 	 else
 	    I++;
@@ -745,23 +745,23 @@ bool ReadConfigFile(Configuration &Conf,string FName,bool AsSectional,
 /* */
 bool ReadConfigDir(Configuration &Conf,string Dir,bool AsSectional,
 		    unsigned Depth)
-{   
+{
    DIR *D = opendir(Dir.c_str());
    if (D == 0)
       return _error->Errno("opendir",_("Unable to read %s"),Dir.c_str());
 
    vector<string> List;
-   
+
    for (struct dirent *Ent = readdir(D); Ent != 0; Ent = readdir(D))
    {
       if (Ent->d_name[0] == '.')
 	 continue;
 
       // CNC:2003-12-02 Only accept .list & .conf files as valid config parts
-      if ((flExtension(Ent->d_name) != "list") && 
+      if ((flExtension(Ent->d_name) != "list") &&
 	  (flExtension(Ent->d_name) != "conf"))
 	 continue;
-      
+
       // Skip bad file names ala run-parts
       const char *C = Ent->d_name;
       for (; *C != 0; C++)
@@ -771,17 +771,17 @@ bool ReadConfigDir(Configuration &Conf,string Dir,bool AsSectional,
 	    break;
       if (*C != 0)
 	 continue;
-      
+
       // Make sure it is a file and not something else
       string File = flCombine(Dir,Ent->d_name);
       struct stat St;
       if (stat(File.c_str(),&St) != 0 || S_ISREG(St.st_mode) == 0)
 	 continue;
-      
-      List.push_back(File);      
-   }   
+
+      List.push_back(File);
+   }
    closedir(D);
-   
+
    sort(List.begin(),List.end());
 
    // Read the files

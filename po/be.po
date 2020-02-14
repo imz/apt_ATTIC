@@ -1,7 +1,7 @@
 # Belarusian translation for APT.
 # Copyright (C) 2001-2003, 2004 Free Software Foundation, Inc.
-# 
-# 
+#
+#
 msgid ""
 msgstr ""
 "Project-Id-Version: apt-0.5.15cnc5-alt0.1\n"

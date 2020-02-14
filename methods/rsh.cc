@@ -58,7 +58,7 @@ void RSHConn::Close()
 {
    if (Process == -1)
       return;
-   
+
    close(WriteFd);
    close(ReadFd);
    kill(Process,SIGINT);
@@ -99,7 +99,7 @@ bool RSHConn::Connect(string Host, string User)
    }
    for (int I = 0; I != 4; I++)
       SetCloseExec(Pipes[I],true);
-   
+
    Process = ExecFork();
 
    // The child
@@ -147,7 +147,7 @@ bool RSHConn::Connect(string Host, string User)
    SetNonBlock(Pipes[3],true);
    close(Pipes[1]);
    close(Pipes[2]);
-   
+
    return true;
 }
 									/*}}}*/
@@ -158,7 +158,7 @@ bool RSHConn::ReadLine(string &Text)
 {
    if (Process == -1 || ReadFd == -1)
       return false;
-   
+
    // Suck in a line
    while (Len < sizeof(Buffer))
    {
@@ -225,11 +225,11 @@ bool RSHConn::WriteMsg(string &Text,bool Sync,const char *Fmt,...)
    {
       if (WaitFd(WriteFd,true,TimeOut) == false)
       {
-	 
+
 	 Close();
 	 return _error->Error(_("Connection timeout"));
-      }      
-      
+      }
+
       int Res = write(WriteFd,S + Start,Len);
       if (Res <= 0)
       {
@@ -249,7 +249,7 @@ bool RSHConn::WriteMsg(string &Text,bool Sync,const char *Fmt,...)
 									/*}}}*/
 // RSHConn::Size - Return the size of the file				/*{{{*/
 // ---------------------------------------------------------------------
-/* Right now for successfull transfer the file size must be known in 
+/* Right now for successfull transfer the file size must be known in
    advance. */
 bool RSHConn::Size(const char *Path,unsigned long &Size)
 {
@@ -259,9 +259,9 @@ bool RSHConn::Size(const char *Path,unsigned long &Size)
 
    if (WriteMsg(Msg,true,"find %s -follow -printf '%%s\\n'",Path) == false)
       return false;
-   
-   // FIXME: Sense if the bad reply is due to a File Not Found. 
-   
+
+   // FIXME: Sense if the bad reply is due to a File Not Found.
+
    char *End;
    Size = strtoul(Msg.c_str(),&End,10);
    if (End == Msg.c_str())
@@ -308,7 +308,7 @@ bool RSHConn::Get(const char *Path,FileFd &To,unsigned long Resume,
 	 return false;
       }
    }
-   
+
    // FIXME: Detect file-not openable type errors.
    string Jnk;
    if (WriteMsg(Jnk,false,"dd if=%s bs=2048 skip=%u", Path, Resume / 2048) == false)
@@ -333,7 +333,7 @@ bool RSHConn::Get(const char *Path,FileFd &To,unsigned long Resume,
 	 Close();
 	 return _error->Error(_("Connection closed prematurely"));
       }
-      
+
       if (Res < 0)
       {
          if (errno == EAGAIN)
@@ -370,7 +370,7 @@ RSHMethod::RSHMethod() : pkgAcqMethod("1.0",SendConfig)
 bool RSHMethod::Configuration(string Message)
 {
    char ProgStr[100];
-  
+
    if (pkgAcqMethod::Configuration(Message) == false)
       return false;
 
@@ -469,7 +469,7 @@ bool RSHMethod::Fetch(FetchItem *Itm)
       FileFd Fd(Itm->DestFile,FileFd::WriteAny);
       if (_error->PendingError() == true)
 	 return false;
-      
+
       URIStart(Res);
 
       FailFile = Itm->DestFile;
