@@ -155,7 +155,7 @@ DynamicMMap::DynamicMMap(FileFd &F,unsigned long Flags,unsigned long WorkSpace) 
       return;
 
    unsigned long EndOfFile = Fd->Size();
-   if (EndOfFile > WorkSpace)
+   if (EndOfFile >= WorkSpace)
       WorkSpace = EndOfFile;
    else
    {
