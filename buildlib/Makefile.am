@@ -7,21 +7,16 @@ EXTRA_DIST = \
 	     config.h.in \
 	     gettext.h \
 	     statvfs.h \
-	     netdb.h \
 	     tools.m4
 
 CLEANFILES  = $(top_builddir)/include/apti18n.h \
-              $(top_builddir)/include/sys/statvfs.h \
-              $(top_builddir)/include/netdb.h
+              $(top_builddir)/include/sys/statvfs.h
 
 
 COPYHEADERS = copy-apti18n
 
 if NEED_STATVFS_H
 COPYHEADERS += copy-statvfs
-endif
-if NEED_NETDB_H
-COPYHEADERS += copy-netdb
 endif
 
 copy-headers: $(COPYHEADERS)
@@ -35,7 +30,3 @@ copy-statvfs:
 	@$(mkinstalldirs) $(top_builddir)/include/sys
 	@echo "Copying statvfs.h to $(top_builddir)/include/sys/statvfs.h"
 	@cp -f -p $(srcdir)/statvfs.h $(top_builddir)/include/sys/statvfs.h
-
-copy-netdb:
-	@echo "Copying netdb.h to $(top_builddir)/include/netdb.h"
-	@cp -f -p $(srcdir)/netdb.h $(top_builddir)/include/netdb.h
