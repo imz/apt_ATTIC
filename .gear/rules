@@ -3,5 +3,4 @@ copy: *.old
 copy: *.po
 copy: *.rsync
 copy: genbasedir
-tar: @version@:apt
-diff: @version@:apt apt
+tar: apt name=@name@-@version@-@release@
