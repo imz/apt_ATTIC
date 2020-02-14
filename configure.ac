@@ -169,13 +169,6 @@ osset="`awk \" ! /^#|^\\\$/ {if (match(\\\"$host_vendor-$host_os\\\",\\\$1)) {pr
 AC_MSG_RESULT($osset)
 AC_DEFINE_UNQUOTED(COMMON_OS,"$osset")
 
-dnl We use C99 types if at all possible
-AC_CACHE_CHECK([for C99 integer types],c9x_ints,[
-    AC_TRY_COMPILE([#include <inttypes.h>],
-                   [uint8_t Foo1;uint16_t Foo2;uint32_t Foo3;],
-		   c9x_ints=yes,c9x_ints=no)])
-AM_CONDITIONAL(NEED_INTTYPES_H, test "$c9x_ints" = "no")
-
 AC_C_BIGENDIAN
 
 dnl Check the sizes etc. of the architecture
