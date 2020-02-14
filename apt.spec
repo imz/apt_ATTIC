@@ -202,7 +202,6 @@ ln -sf gzip %buildroot%_libdir/%name/methods/bzip2
 ln -sf gzip %buildroot%_libdir/%name/methods/xz
 
 # Cleanup
-find %buildroot%_includedir -type f -name rpmshowprogress.h -delete -print
 rm %buildroot%_libdir/*.la
 
 bzip2 -9fk ChangeLog-rpm.old
