@@ -12,8 +12,6 @@ Source0: %name-%version-%release.tar
 Source1: apt.conf
 Source2: genbasedir
 Source3: README.rsync
-Source4: apt.ru.po
-Source5: apt.be.po
 Source6: ChangeLog-rpm.old
 
 Requires: libapt = %EVR
@@ -195,9 +193,6 @@ This package contains method 'https' for APT.
 %setup -n %name-%version-%release
 
 install -pm644 %SOURCE3 %SOURCE6 .
-install -pm644 %SOURCE4 po/ru.po
-install -pm644 %SOURCE5 po/be.po
-sed -i 's|^\(.\+\)$|\1 be|' po/LINGUAS
 
 %build
 # Fix url.
