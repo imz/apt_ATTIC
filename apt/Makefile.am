@@ -1,5 +1,5 @@
 
-SUBDIRS = buildlib apt-pkg methods cmdline tools doc m4 po
+SUBDIRS = buildlib apt-pkg methods cmdline tools doc po
 
 ACLOCAL_AMFLAGS = -I m4 -I buildlib
 
