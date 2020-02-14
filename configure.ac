@@ -245,11 +245,9 @@ AM_CONDITIONAL(COMPILE_MANPAGES, test -n "$DOCBOOK2MAN" -a "$enable_docs" != "no
 AM_GNU_GETTEXT_VERSION([0.11.4])
 AM_GNU_GETTEXT([external])
 
-dnl ah_NUM_PROCS
 rc_GLIBC_VER
 rc_LIBSTDCPP_VER
 rc_CXX11ABI
-dnl ah_GCC3DEP
 
 AC_OUTPUT([
 	  Makefile
