@@ -73,7 +73,7 @@ Summary(ru_RU.UTF-8): Поддержка метода https для APT
 Group: Other
 Requires: %name = %EVR
 
-# {{{ descriptions 
+# {{{ descriptions
 %define risk_usage_en This package is still under development.
 
 %description
@@ -726,7 +726,7 @@ unset RPM_PYTHON
   + alt-install_virtual.patch
   + alt-install_virtual_version.patch
   + alt-virtual_scores.patch
-  
+
 * Mon Dec 08 2003 Anton V. Denisov <avd@altlinux.org> 0.5.15cnc4-alt0.1
 - Updated to 0.5.15cnc4.
 - Updated alt-distro.patch.

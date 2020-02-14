@@ -1,15 +1,15 @@
 // Description								/*{{{*/
 // $Id: progress.cc,v 1.2 2003/01/29 18:43:48 niemeyer Exp $
 /* ######################################################################
-   
+
    OpProgress - Operation Progress
-   
+
    ##################################################################### */
 									/*}}}*/
 // Include Files							/*{{{*/
 #ifdef __GNUG__
 #pragma implementation "apt-pkg/progress.h"
-#endif 
+#endif
 #include <config.h>
 
 #include <apt-pkg/progress.h>
@@ -28,7 +28,7 @@ using namespace std;
 // OpProgress::OpProgress - Constructor					/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-OpProgress::OpProgress() : Current(0), Total(0), Size(0), SubTotal(1), 
+OpProgress::OpProgress() : Current(0), Total(0), Size(0), SubTotal(1),
                            LastPercent(0), Percent(0)
 {
    memset(&LastTime,0,sizeof(LastTime));
@@ -95,11 +95,11 @@ void OpProgress::SubProgress(unsigned long SubTotal)
 									/*}}}*/
 // OpProgress::CheckChange - See if the display should be updated	/*{{{*/
 // ---------------------------------------------------------------------
-/* Progress calls are made so frequently that if every one resulted in 
+/* Progress calls are made so frequently that if every one resulted in
    an update the display would be swamped and the system much slower.
    This provides an upper bound on the update rate. */
 bool OpProgress::CheckChange(float Interval)
-{  
+{
    // New major progress indication
    if (Op != LastOp)
    {
@@ -114,20 +114,20 @@ bool OpProgress::CheckChange(float Interval)
       LastSubOp = SubOp;
       return true;
    }
-   
+
    if ((int)LastPercent == (int)Percent)
       return false;
-   
+
    if (Interval == 0)
       return false;
-   
+
    // Check time delta
    struct timeval Now;
    gettimeofday(&Now,0);
    double Diff = Now.tv_sec - LastTime.tv_sec + (Now.tv_usec - LastTime.tv_usec)/1000000.0;
    if (Diff < Interval)
       return false;
-   LastTime = Now;   
+   LastTime = Now;
    LastPercent = Percent;
    return true;
 }
@@ -135,8 +135,8 @@ bool OpProgress::CheckChange(float Interval)
 // OpTextProgress::OpTextProgress - Constructor				/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-OpTextProgress::OpTextProgress(Configuration &Config) : 
-                               NoUpdate(false), NoDisplay(false), LastLen(0) 
+OpTextProgress::OpTextProgress(Configuration &Config) :
+                               NoUpdate(false), NoDisplay(false), LastLen(0)
 {
    if (Config.FindI("quiet",0) >= 1)
       NoUpdate = true;
@@ -160,12 +160,12 @@ void OpTextProgress::Done()
       cout << endl;
       OldOp = string();
    }
-   
+
    if (NoUpdate == true && NoDisplay == false && OldOp.empty() == false)
    {
       OldOp = string();
-      cout << endl;   
-   }   
+      cout << endl;
+   }
 }
 									/*}}}*/
 // OpTextProgress::Update - Simple text spinner				/*{{{*/
@@ -175,7 +175,7 @@ void OpTextProgress::Update()
 {
    if (CheckChange((NoUpdate == true?0:0.7)) == false)
       return;
-   
+
    // No percent spinner
    if (NoUpdate == true)
    {
@@ -188,7 +188,7 @@ void OpTextProgress::Update()
 	 OldOp = "a";
 	 cout << Op << "..." << flush;
       }
-      
+
       return;
    }
 
@@ -200,7 +200,7 @@ void OpTextProgress::Update()
       Write(S);
       cout << endl;
    }
-   
+
    // Print the spinner
    snprintf(S,sizeof(S),"\r%s... %u%%",Op.c_str(),(unsigned int)Percent);
    Write(S);

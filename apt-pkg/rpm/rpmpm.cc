@@ -2,8 +2,8 @@
 /* ######################################################################
 
    RPM Package Manager - Provide an interface to rpm
-   
-   ##################################################################### 
+
+   #####################################################################
  */
 									/*}}}*/
 // Includes								/*{{{*/
@@ -123,7 +123,7 @@ bool pkgRPMPM::Configure(PkgIterator Pkg)
    if (Pkg.end() == true) {
       return false;
    }
-   
+
    List.push_back(Item(Item::Configure,Pkg));
    return true;
 }
@@ -135,7 +135,7 @@ bool pkgRPMPM::Remove(PkgIterator Pkg,bool Purge)
 {
    if (Pkg.end() == true)
       return false;
-   
+
    if (Purge == true)
       List.push_back(Item(Item::Purge,Pkg));
    else
@@ -159,9 +159,9 @@ bool pkgRPMPM::RunScripts(const char *Cnf)
    {
       if (Opts->Value.empty() == true)
          continue;
-		
+
       // Purified Fork for running the script
-      pid_t Process = ExecFork();      
+      pid_t Process = ExecFork();
       if (Process == 0)
       {
 	 if (chdir("/tmp") != 0)
@@ -175,7 +175,7 @@ bool pkgRPMPM::RunScripts(const char *Cnf)
 	 execv(Args[0],(char **)Args);
 	 _exit(100);
       }
-      
+
       // Clean up the sub process
       if (ExecWait(Process,Opts->Value.c_str()) == false) {
 	 _error->Error(_("Problem executing scripts %s '%s'"),Cnf,
@@ -183,14 +183,14 @@ bool pkgRPMPM::RunScripts(const char *Cnf)
 	 error = true;
       }
    }
- 
+
    // Restore sig int/quit
    signal(SIGQUIT,SIG_DFL);
-   signal(SIGINT,SIG_DFL);   
+   signal(SIGINT,SIG_DFL);
 
    if (error)
       return _error->Error(_("Sub-process returned an error code"));
-   
+
    return true;
 }
 
@@ -206,27 +206,27 @@ bool pkgRPMPM::RunScriptsWithPkgs(const char *Cnf)
    if (Opts == 0 || Opts->Child == 0)
       return true;
    Opts = Opts->Child;
-   
+
    for (; Opts != 0; Opts = Opts->Next)
    {
       if (Opts->Value.empty() == true)
          continue;
-		
+
       // Create the pipes
       int Pipes[2];
       if (pipe(Pipes) != 0)
 	 return _error->Errno("pipe",_("Failed to create IPC pipe to subprocess"));
       SetCloseExec(Pipes[0],true);
       SetCloseExec(Pipes[1],true);
-      
+
       // Purified Fork for running the script
-      pid_t Process = ExecFork();      
+      pid_t Process = ExecFork();
       if (Process == 0)
       {
 	 // Setup the FDs
 	 dup2(Pipes[0],STDIN_FILENO);
 	 SetCloseExec(STDOUT_FILENO,false);
-	 SetCloseExec(STDIN_FILENO,false);      
+	 SetCloseExec(STDIN_FILENO,false);
 	 SetCloseExec(STDERR_FILENO,false);
 
 	 const char *Args[4];
@@ -250,20 +250,20 @@ bool pkgRPMPM::RunScriptsWithPkgs(const char *Cnf)
 	 // No errors here..
 	 if (I->File[0] != '/')
 	    continue;
-	 
+
 	 /* Feed the filename of each package that is pending install
 	    into the pipe. */
-	 if (Fd.Write(I->File.c_str(),I->File.length()) == false || 
+	 if (Fd.Write(I->File.c_str(),I->File.length()) == false ||
 	     Fd.Write("\n",1) == false)
 	 {
-	    kill(Process,SIGINT);	    
-	    Fd.Close();   
+	    kill(Process,SIGINT);
+	    Fd.Close();
 	    ExecWait(Process,Opts->Value.c_str(),true);
 	    return _error->Error(_("Failure running script %s"),Opts->Value.c_str());
 	 }
       }
       Fd.Close();
-      
+
       // Clean up the sub process
       if (ExecWait(Process,Opts->Value.c_str()) == false)
 	 return _error->Error(_("Failure running script %s"),Opts->Value.c_str());
@@ -288,7 +288,7 @@ bool pkgRPMPM::Go()
 
    if (RunScriptsWithPkgs("RPM::Pre-Install-Pkgs") == false)
       return false;
-   
+
    vector<apt_item> install_or_upgrade;
    vector<apt_item> install;
    vector<apt_item> upgrade;
@@ -297,7 +297,7 @@ bool pkgRPMPM::Go()
    vector<pkgCache::Package*> pkgs_uninstall;
 
    vector<char*> unalloc;
-   
+
    for (vector<Item>::iterator I = List.begin(); I != List.end(); I++)
    {
       string Name = I->Pkg.Name();
@@ -338,7 +338,7 @@ bool pkgRPMPM::Go()
 	 install_or_upgrade.push_back(apt_item(I->File.c_str(), collect_autoinstalled_flag(Cache, I->Pkg)));
 	 pkgs_install.push_back(I->Pkg);
 	 break;
-	  
+
        default:
 	 return _error->Error(_("Unknown pkgRPMPM operation."));
       }
@@ -386,7 +386,7 @@ bool pkgRPMPM::Go()
    }
 #endif
 
-   
+
    if (Ret == true)
       Ret = RunScripts("RPM::Post-Invoke");
 
@@ -400,7 +400,7 @@ exit:
 // pkgRPMPM::Reset - Dump the contents of the command list		/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-void pkgRPMPM::Reset() 
+void pkgRPMPM::Reset()
 {
    List.erase(List.begin(),List.end());
 }
@@ -470,9 +470,9 @@ bool pkgRPMExtPM::ExecRPM(Item::RPMOps op, const std::vector<apt_item> &files)
 			}
 		}
 	}
-    
+
    string rootdir = _config->Find("RPM::RootDir", "");
-   if (!rootdir.empty()) 
+   if (!rootdir.empty())
    {
        Args[n++] = "-r";
        Args[n++] = rootdir.c_str();
@@ -518,7 +518,7 @@ bool pkgRPMExtPM::ExecRPM(Item::RPMOps op, const std::vector<apt_item> &files)
 	    else if (Opts->Value.empty() == true)
 	       continue;
 	    Args[n++] = Opts->Value.c_str();
-	 }	 
+	 }
       }
       if (oldpackage == true)
 	 Args[n++] = "--oldpackage";
@@ -540,12 +540,12 @@ bool pkgRPMExtPM::ExecRPM(Item::RPMOps op, const std::vector<apt_item> &files)
 	 if (Opts->Value.empty() == true)
 	    continue;
 	 Args[n++] = Opts->Value.c_str();
-      }	 
+      }
    }
 
    if (_config->FindB("RPM::Order", true) == false)
       Args[n++] = "--noorder";
-      
+
     string cmd;
     for (unsigned i = 0; i < n; ++i)
     {
@@ -553,7 +553,7 @@ bool pkgRPMExtPM::ExecRPM(Item::RPMOps op, const std::vector<apt_item> &files)
 	    cmd += ' ';
 	    cmd += Args[i];
     }
-    
+
    bool FilesInArgs = true;
    char *ArgsFileName = NULL;
 #if RPM_VERSION >= 0x040000
@@ -583,7 +583,7 @@ bool pkgRPMExtPM::ExecRPM(Item::RPMOps op, const std::vector<apt_item> &files)
 	   I != files.end(); I++)
 	 Args[n++] = I->file.c_str();
    }
-   
+
    Args[n++] = 0;
 
    if (_config->FindB("Debug::pkgRPMPM",false) == true)
@@ -605,9 +605,9 @@ bool pkgRPMExtPM::ExecRPM(Item::RPMOps op, const std::vector<apt_item> &files)
    clog << flush;
    cerr << flush;
 
-   /* Mask off sig int/quit. We do this because dpkg also does when 
+   /* Mask off sig int/quit. We do this because dpkg also does when
     it forks scripts. What happens is that when you hit ctrl-c it sends
-    it to all processes in the group. Since dpkg ignores the signal 
+    it to all processes in the group. Since dpkg ignores the signal
     it doesn't die but we do! So we must also ignore it */
    //akk ??
    signal(SIGQUIT,SIG_IGN);
@@ -615,25 +615,25 @@ bool pkgRPMExtPM::ExecRPM(Item::RPMOps op, const std::vector<apt_item> &files)
 
    // Fork rpm
    pid_t Child = ExecFork();
-            
+
    // This is the child
    if (Child == 0)
    {
       if (chdir(_config->FindDir("RPM::Run-Directory","/").c_str()) != 0)
 	  _exit(100);
-	 
+
       if (_config->FindB("RPM::FlushSTDIN",true) == true)
       {
 	 int Flags,dummy;
 	 if ((Flags = fcntl(STDIN_FILENO,F_GETFL,dummy)) < 0)
 	     _exit(100);
-	 
+
 	 // Discard everything in stdin before forking dpkg
 	 if (fcntl(STDIN_FILENO,F_SETFL,Flags | O_NONBLOCK) < 0)
 	     _exit(100);
-	 
+
 	 while (read(STDIN_FILENO,&dummy,1) == 1);
-	 
+
 	 if (fcntl(STDIN_FILENO,F_SETFL,Flags & (~(long)O_NONBLOCK)) < 0)
 	     _exit(100);
       }
@@ -641,8 +641,8 @@ bool pkgRPMExtPM::ExecRPM(Item::RPMOps op, const std::vector<apt_item> &files)
       execvp(Args[0],(char **)Args);
       cerr << _("Could not exec ") << Args[0] << endl;
       _exit(100);
-   }      
-   
+   }
+
    // Wait for rpm
    int Status = 0;
    while (waitpid(Child,&Status,0) != Child)
@@ -664,18 +664,18 @@ bool pkgRPMExtPM::ExecRPM(Item::RPMOps op, const std::vector<apt_item> &files)
    // Restore sig int/quit
    signal(SIGQUIT,SIG_DFL);
    signal(SIGINT,SIG_DFL);
-       
+
    // Check for an error code.
    if (WIFEXITED(Status) == 0 || WEXITSTATUS(Status) != 0)
    {
       RunScripts("RPM::Post-Invoke");
       if (WIFSIGNALED(Status) != 0 && WTERMSIG(Status) == SIGSEGV)
 	  return _error->Error(_("Sub-process %s recieved a segmentation fault."),Args[0]);
-      
+
       if (WIFEXITED(Status) != 0)
 	  return _error->Error(_("Sub-process %s returned an error code (%u)"),Args[0],
 			       WEXITSTATUS(Status));
-      
+
       return _error->Error(_("Sub-process %s exited unexpectedly"),Args[0]);
    }
 
@@ -792,7 +792,7 @@ bool pkgRPMLibPM::AddToTransaction(Item::RPMOps op, const std::vector<apt_item> 
 #else
 	    MI = rpmdbInitIterator(DB, RPMDBI_LABEL, I->file.c_str(), 0);
 #endif
-	    while ((hdr = rpmdbNextIterator(MI)) != NULL) 
+	    while ((hdr = rpmdbNextIterator(MI)) != NULL)
 	    {
 	       unsigned int recOffset = rpmdbGetIteratorOffset(MI);
 	       if (recOffset) {
@@ -1026,7 +1026,7 @@ exit:
 bool pkgRPMLibPM::ParseRpmOpts(const char *Cnf, int *tsFlags, int *probFilter)
 {
    Configuration::Item const *Opts = _config->Tree(Cnf);
-   
+
    if (Opts != 0)
    {
       Opts = Opts->Child;
@@ -1104,7 +1104,7 @@ bool pkgRPMLibPM::ParseRpmOpts(const char *Cnf, int *tsFlags, int *probFilter)
       }
    }
    return true;
-} 
+}
 
 bool pkgRPMLibPM::UpdateMarks()
 {
@@ -1161,7 +1161,7 @@ bool pkgRPMLibPM::UpdateMarks()
       _error->Error(_("Could not open RPM database"));
       return false;
    }
-   
+
    scope_exit free_db(std::bind(&rpmdbClose, DB));
 
    TS = rpmtransCreateSet(DB, Dir.c_str());
@@ -1172,7 +1172,7 @@ bool pkgRPMLibPM::UpdateMarks()
       size_t changed_count = 0;
 
       rpmdbMatchIterator MI;
-      
+
 #if RPM_VERSION >= 0x040100
       MI = rpmtsInitIterator(TS, (rpmTag)RPMDBI_LABEL, iter->file.c_str(), 0);
 #else

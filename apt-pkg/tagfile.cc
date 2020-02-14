@@ -3,10 +3,10 @@
 /* ######################################################################
 
    Fast scanner for RFC-822 type header information
-   
+
    This uses a rotating buffer to load the package information into.
    The scanner runs over it and isolates and indexes a single section.
-   
+
    ##################################################################### */
 									/*}}}*/
 // Include Files							/*{{{*/
@@ -21,7 +21,7 @@
 #include <apt-pkg/strutl.h>
 
 #include <apti18n.h>
-    
+
 #include <string>
 #include <stdio.h>
 #include <ctype.h>
@@ -42,7 +42,7 @@ pkgTagFile::pkgTagFile(FileFd *pFd,unsigned long Size) : Fd(*pFd), Size(Size)
       iOffset = 0;
       return;
    }
-   
+
    Buffer = new char[Size];
    Start = End = Buffer;
    Done = false;
@@ -67,7 +67,7 @@ bool pkgTagFile::Step(pkgTagSection &Tag)
    {
       if (Fill() == false)
 	 return false;
-      
+
       if (Tag.Scan(Start,End - Start) == false)
 	 return _error->Error(_("Unable to parse package file %s (1)"),
 			      Fd.Name().c_str());
@@ -87,11 +87,11 @@ bool pkgTagFile::Fill()
 {
    unsigned long EndSize = End - Start;
    unsigned long Actual = 0;
-   
+
    memmove(Buffer,Start,EndSize);
    Start = Buffer;
    End = Buffer + EndSize;
-   
+
    if (Done == false)
    {
       // See if only a bit of the file is left
@@ -101,14 +101,14 @@ bool pkgTagFile::Fill()
 	 Done = true;
       End += Actual;
    }
-   
+
    if (Done == true)
    {
       if (EndSize <= 3 && Actual == 0)
 	 return false;
       if (Size - (End - Buffer) < 4)
 	 return true;
-      
+
       // Append a double new line if one does not exist
       unsigned int LineCount = 0;
       for (const char *E = End - 1; E - End < 6 && (*E == '\n' || *E == '\r'); E--)
@@ -116,10 +116,10 @@ bool pkgTagFile::Fill()
 	    LineCount++;
       for (; LineCount < 2; LineCount++)
 	 *End++ = '\n';
-      
+
       return true;
    }
-   
+
    return true;
 }
 									/*}}}*/
@@ -144,20 +144,20 @@ bool pkgTagFile::Jump(pkgTagSection &Tag,unsigned long Offset)
    if (Fd.Seek(Offset) == false)
       return false;
    End = Start = Buffer;
-   
+
    if (Fill() == false)
       return false;
 
    if (Tag.Scan(Start,End - Start) == true)
       return true;
-   
+
    // This appends a double new line (for the real eof handling)
    if (Fill() == false)
       return false;
-   
+
    if (Tag.Scan(Start,End - Start) == false)
       return _error->Error(_("Unable to parse package file %s (2)"),Fd.Name().c_str());
-   
+
    return true;
 }
 									/*}}}*/
@@ -182,7 +182,7 @@ bool pkgTagSection::Scan(const char *Start,unsigned long MaxLength)
 
    if (Stop == 0)
       return false;
-   
+
    TagCount = 0;
    while (TagCount+1 < sizeof(Indexes)/sizeof(Indexes[0]) && Stop < End)
    {
@@ -194,10 +194,10 @@ bool pkgTagSection::Scan(const char *Start,unsigned long MaxLength)
       }
 
       Stop = (const char *)memchr(Stop,'\n',End - Stop);
-      
+
       if (Stop == 0)
 	 return false;
-      
+
       for (; Stop+1 < End && Stop[1] == '\r'; Stop++);
 
       // Double newline marks the end of the record
@@ -207,7 +207,7 @@ bool pkgTagSection::Scan(const char *Start,unsigned long MaxLength)
 	 for (; Stop < End && (Stop[0] == '\n' || Stop[0] == '\r'); Stop++);
 	 return true;
       }
-      
+
       Stop++;
    }
 
@@ -232,8 +232,8 @@ bool pkgTagSection::Find(const char *Tag,unsigned &Pos) const
    if (I == 0)
       return false;
    I--;
-   
-   for (unsigned int Counter = 0; Counter != TagCount; Counter++, 
+
+   for (unsigned int Counter = 0; Counter != TagCount; Counter++,
 	I = (I+1)%TagCount)
    {
       const char *St;
@@ -265,15 +265,15 @@ bool pkgTagSection::Find(const char *Tag,const char *&Start,
    if (I == 0)
       return false;
    I--;
-   
-   for (unsigned int Counter = 0; Counter != TagCount; Counter++, 
+
+   for (unsigned int Counter = 0; Counter != TagCount; Counter++,
 	I = (I+1)%TagCount)
    {
       const char *St;
       St = Section + Indexes[I];
       if (strncasecmp(Tag,St,Length) != 0)
 	 continue;
-      
+
       // Make sure the colon is in the right place
       const char *C = St + Length;
       for (; isspace(*C) != 0; C++);
@@ -285,13 +285,13 @@ bool pkgTagSection::Find(const char *Tag,const char *&Start,
       End = Section + Indexes[I+1];
       if (Start >= End)
 	 return _error->Error("Internal parsing error");
-      
+
       for (; (isspace(*Start) != 0 || *Start == ':') && Start < End; Start++);
       for (; isspace(End[-1]) != 0 && End > Start; End--);
-      
+
       return true;
    }
-   
+
    Start = End = 0;
    return false;
 }
@@ -305,7 +305,7 @@ string pkgTagSection::FindS(const char *Tag) const
    const char *End;
    if (Find(Tag,Start,End) == false)
       return string();
-   return string(Start,End);      
+   return string(Start,End);
 }
 									/*}}}*/
 // TagSection::FindI - Find an integer					/*{{{*/
@@ -324,7 +324,7 @@ signed int pkgTagSection::FindI(const char *Tag,signed long Default) const
       return Default;
    strncpy(S,Start,Stop-Start);
    S[Stop - Start] = 0;
-   
+
    char *End;
    signed long Result = strtol(S,&End,10);
    if (S == End)
@@ -348,7 +348,7 @@ unsigned long long pkgTagSection::FindULL(const char *Tag, unsigned long long co
       return Default;
    strncpy(S,Start,Stop-Start);
    S[Stop - Start] = 0;
-   
+
    char *End;
    unsigned long long Result = strtoull(S,&End,10);
    if (S == End)
@@ -366,9 +366,9 @@ bool pkgTagSection::FindFlag(const char *Tag,unsigned long &Flags,
    const char *Stop;
    if (Find(Tag,Start,Stop) == false)
       return true;
-   
+
    switch (StringToBool(string(Start,Stop)))
-   {     
+   {
       case 0:
       Flags &= ~Flag;
       return true;
@@ -437,14 +437,14 @@ static const char *iTFRewriteSourceOrder[] = {"Package",
                                       "Format",
                                       "Directory",
                                       "Files",
-                                      0};   
+                                      0};
 
 /* Two levels of initialization are used because gcc will set the symbol
-   size of an array to the length of the array, causing dynamic relinking 
+   size of an array to the length of the array, causing dynamic relinking
    errors. Doing this makes the symbol size constant */
 const char **TFRewritePackageOrder = iTFRewritePackageOrder;
 const char **TFRewriteSourceOrder = iTFRewriteSourceOrder;
-   
+
 bool TFRewrite(FILE *Output,pkgTagSection const &Tags,const char *Order[],
 	       TFRewriteData *Rewrite)
 {
@@ -458,12 +458,12 @@ bool TFRewrite(FILE *Output,pkgTagSection const &Tags,const char *Order[],
       if (Rewrite[J].NewTag == 0)
 	 Rewrite[J].NewTag = Rewrite[J].Tag;
    }
-   
+
    // Write all all of the tags, in order.
    for (unsigned int I = 0; Order[I] != 0; I++)
    {
       bool Rewritten = false;
-      
+
       // See if this is a field that needs to be rewritten
       for (unsigned int J = 0; Rewrite != 0 && Rewrite[J].Tag != 0; J++)
       {
@@ -477,12 +477,12 @@ bool TFRewrite(FILE *Output,pkgTagSection const &Tags,const char *Order[],
 	       else
 		  fprintf(Output,"%s: %s\n",Rewrite[J].NewTag,Rewrite[J].Rewrite);
 	    }
-	    
+
 	    Rewritten = true;
 	    break;
 	 }
-      }      
-	    
+      }
+
       // See if it is in the fragment
       unsigned Pos;
       if (Tags.Find(Order[I],Pos) == false)
@@ -491,13 +491,13 @@ bool TFRewrite(FILE *Output,pkgTagSection const &Tags,const char *Order[],
 
       if (Rewritten == true)
 	 continue;
-      
+
       /* Write out this element, taking a moment to rewrite the tag
          in case of changes of case. */
       const char *Start;
       const char *Stop;
       Tags.Get(Start,Stop,Pos);
-      
+
       if (fputs(Order[I],Output) < 0)
 	 return _error->Errno("fputs","IO Error to output");
       Start += strlen(Order[I]);
@@ -505,7 +505,7 @@ bool TFRewrite(FILE *Output,pkgTagSection const &Tags,const char *Order[],
 	 return _error->Errno("fwrite","IO Error to output");
       if (Stop[-1] != '\n')
 	 fprintf(Output,"\n");
-   }   
+   }
 
    // Now write all the old tags that were missed.
    for (unsigned int I = 0; I != Tags.Count(); I++)
@@ -533,37 +533,37 @@ bool TFRewrite(FILE *Output,pkgTagSection const &Tags,const char *Order[],
 	       else
 		  fprintf(Output,"%s: %s\n",Rewrite[J].NewTag,Rewrite[J].Rewrite);
 	    }
-	    
+
 	    Rewritten = true;
 	    break;
 	 }
-      }      
-      
+      }
+
       if (Rewritten == true)
 	 continue;
-      
+
       // Write out this element
       if (fwrite(Start,Stop - Start,1,Output) != 1)
 	 return _error->Errno("fwrite","IO Error to output");
       if (Stop[-1] != '\n')
 	 fprintf(Output,"\n");
    }
-   
+
    // Now write all the rewrites that were missed
    for (unsigned int J = 0; Rewrite != 0 && Rewrite[J].Tag != 0; J++)
    {
       if ((Visited[J] & 2) == 2)
 	 continue;
-      
+
       if (Rewrite[J].Rewrite != 0 && Rewrite[J].Rewrite[0] != 0)
       {
 	 if (isspace(Rewrite[J].Rewrite[0]))
 	    fprintf(Output,"%s:%s\n",Rewrite[J].NewTag,Rewrite[J].Rewrite);
 	 else
 	    fprintf(Output,"%s: %s\n",Rewrite[J].NewTag,Rewrite[J].Rewrite);
-      }      
+      }
    }
-      
+
    return true;
 }
 									/*}}}*/

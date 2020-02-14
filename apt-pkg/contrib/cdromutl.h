@@ -3,7 +3,7 @@
 /* ######################################################################
 
    CDROM Utilities - Some functions to manipulate CDROM mounts.
-   
+
    ##################################################################### */
 									/*}}}*/
 #ifndef PKGLIB_CDROMUTL_H
@@ -15,7 +15,7 @@ using std::string;
 
 #ifdef __GNUG__
 #pragma interface "apt-pkg/cdromutl.h"
-#endif 
+#endif
 
 bool MountCdrom(string Path);
 bool UnmountCdrom(string Path);

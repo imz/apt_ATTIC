@@ -1,17 +1,17 @@
 // Description								/*{{{*/
 // $Id: cacheiterators.h,v 1.18 2003/10/09 23:15:25 mdz Exp $
 /* ######################################################################
-   
+
    Cache Iterators - Iterators for navigating the cache structure
-   
+
    The iterators all provides ++,==,!=,->,* and end for their type.
    The end function can be used to tell if the list has been fully
    traversed.
-   
+
    Unlike STL iterators these contain helper functions to access the data
    that is being iterated over. This is because the data structures can't
    be formed in a manner that is intuitive to use and also mmapable.
-   
+
    For each variable in the target structure that would need a translation
    to be accessed correctly a translating function of the same name is
    present in the iterator. If applicable the translating function will
@@ -22,9 +22,9 @@
    structure passed to the constructor, which should be the structure
    that has the depends pointer as a member. The provide iterator has the
    same system.
-   
+
    This header is not user includable, please use apt-pkg/pkgcache.h
-   
+
    ##################################################################### */
 									/*}}}*/
 #ifndef PKGLIB_CACHEITERATORS_H
@@ -32,7 +32,7 @@
 
 #ifdef __GNUG__
 #pragma interface "apt-pkg/cacheiterators.h"
-#endif 
+#endif
 
 // Package Iterator
 class pkgCache::PkgIterator
@@ -43,18 +43,18 @@ class pkgCache::PkgIterator
    long HashIndex;
 
    protected:
-   
+
    // This constructor is the 'begin' constructor, never use it.
    inline PkgIterator(pkgCache &Owner) : Owner(&Owner), HashIndex(-1)
    {
       Pkg = Owner.PkgP;
       operator ++(0);
    };
-   
+
    public:
 
    enum OkState {NeedsNothing,NeedsUnpack,NeedsConfigure};
-      
+
    // Iteration
    void operator ++(int);
    inline void operator ++() {operator ++(0);};
@@ -63,7 +63,7 @@ class pkgCache::PkgIterator
    // Comparison
    inline bool operator ==(const PkgIterator &B) const {return Pkg == B.Pkg;};
    inline bool operator !=(const PkgIterator &B) const {return Pkg != B.Pkg;};
-			   
+
    // Accessors
    inline Package *operator ->() {return Pkg;};
    inline Package const *operator ->() const {return Pkg;};
@@ -71,7 +71,7 @@ class pkgCache::PkgIterator
    inline operator Package *() {return Pkg == Owner->PkgP?0:Pkg;};
    inline operator Package const *() const {return Pkg == Owner->PkgP?0:Pkg;};
    inline pkgCache *Cache() {return Owner;};
-   
+
    inline const char *Name() const {return Pkg->Name == 0?0:Owner->StrP + Pkg->Name;};
    inline const char *Section() const {return Pkg->Section == 0?0:Owner->StrP + Pkg->Section;};
    inline bool Purge() const {return Pkg->CurrentState == pkgCache::State::Purge ||
@@ -82,11 +82,11 @@ class pkgCache::PkgIterator
    inline PrvIterator ProvidesList() const;
    inline unsigned long Index() const {return Pkg - Owner->PkgP;};
    OkState State() const;
-   
+
    // Constructors
    inline PkgIterator(pkgCache &Owner,Package *Trg) : Pkg(Trg), Owner(&Owner),
-          HashIndex(0) 
-   { 
+          HashIndex(0)
+   {
       if (Pkg == 0)
 	 Pkg = Owner.PkgP;
    };
@@ -98,9 +98,9 @@ class pkgCache::VerIterator
 {
    Version *Ver;
    pkgCache *Owner;
-   
+
    void _dummy();
-   
+
    public:
 
    // Iteration
@@ -108,12 +108,12 @@ class pkgCache::VerIterator
    inline void operator ++() {operator ++(0);};
    inline bool end() const {return Ver == Owner->VerP?true:false;};
    inline void operator =(const VerIterator &B) {Ver = B.Ver; Owner = B.Owner;};
-   
+
    // Comparison
    inline bool operator ==(const VerIterator &B) const {return Ver == B.Ver;};
    inline bool operator !=(const VerIterator &B) const {return Ver != B.Ver;};
    int CompareVer(const VerIterator &B) const;
-   
+
    // Accessors
    inline Version *operator ->() {return Ver;};
    inline Version const *operator ->() const {return Ver;};
@@ -122,7 +122,7 @@ class pkgCache::VerIterator
    inline operator Version *() {return Ver == Owner->VerP?0:Ver;};
    inline operator Version const *() const {return Ver == Owner->VerP?0:Ver;};
    inline pkgCache *Cache() {return Owner;};
-      
+
    inline const char *VerStr() const {return Ver->VerStr == 0?0:Owner->StrP + Ver->VerStr;};
    inline const char *Section() const {return Ver->Section == 0?0:Owner->StrP + Ver->Section;};
    inline const char *Arch() const {return Ver->Arch == 0?0:Owner->StrP + Ver->Arch;};
@@ -134,14 +134,14 @@ class pkgCache::VerIterator
    bool Downloadable() const;
    inline const char *PriorityType() {return Owner->Priority(Ver->Priority);};
    string RelStr();
-   
+
    bool Automatic() const;
    VerFileIterator NewestFile() const;
 
-   inline VerIterator() : Ver(0), Owner(0) {};   
-   inline VerIterator(pkgCache &Owner,Version *Trg = 0) : Ver(Trg), 
-              Owner(&Owner) 
-   { 
+   inline VerIterator() : Ver(0), Owner(0) {};
+   inline VerIterator(pkgCache &Owner,Version *Trg = 0) : Ver(Trg),
+              Owner(&Owner)
+   {
       if (Ver == 0)
 	 Ver = Owner.VerP;
    };
@@ -153,9 +153,9 @@ class pkgCache::DepIterator
    Dependency *Dep;
    enum {DepVer, DepRev} Type;
    pkgCache *Owner;
-   
+
    void _dummy();
-   
+
    public:
 
    // Iteration
@@ -163,7 +163,7 @@ class pkgCache::DepIterator
 	(Type == DepVer?Dep->NextDepends:Dep->NextRevDepends);};
    inline void operator ++() {operator ++(0);};
    inline bool end() const {return Owner == 0 || Dep == Owner->DepP?true:false;};
-   
+
    // Comparison
    inline bool operator ==(const DepIterator &B) const {return Dep == B.Dep;};
    inline bool operator !=(const DepIterator &B) const {return Dep != B.Dep;};
@@ -176,7 +176,7 @@ class pkgCache::DepIterator
    inline operator Dependency *() {return Dep == Owner->DepP?0:Dep;};
    inline operator Dependency const *() const {return Dep == Owner->DepP?0:Dep;};
    inline pkgCache *Cache() {return Owner;};
-   
+
    inline const char *TargetVer() const {return Dep->Version == 0?0:Owner->StrP + Dep->Version;};
    inline PkgIterator TargetPkg() {return PkgIterator(*Owner,Owner->PkgP + Dep->Package);};
    inline PkgIterator SmartTargetPkg() {PkgIterator R(*Owner,0);SmartTargetPkg(R);return R;};
@@ -199,13 +199,13 @@ class pkgCache::DepIterator
 			}
 		}
    void GlobOr(DepIterator &Start,DepIterator &End);
-   Version **AllTargets();   
+   Version **AllTargets();
    bool SmartTargetPkg(PkgIterator &Result);
    inline const char *CompType() {return Owner->CompType(Dep->CompareOp);};
    inline const char *DepType() {return Owner->DepType(Dep->Type);};
-   
+
    inline DepIterator(pkgCache &Owner,Dependency *Trg,Version * = 0) :
-          Dep(Trg), Type(DepVer), Owner(&Owner) 
+          Dep(Trg), Type(DepVer), Owner(&Owner)
    {
       if (Dep == 0)
 	 Dep = Owner.DepP;
@@ -225,9 +225,9 @@ class pkgCache::PrvIterator
    Provides *Prv;
    enum {PrvVer, PrvPkg} Type;
    pkgCache *Owner;
-   
+
    void _dummy();
-   
+
    public:
 
    // Iteration
@@ -235,7 +235,7 @@ class pkgCache::PrvIterator
 	(Type == PrvVer?Prv->NextPkgProv:Prv->NextProvides);};
    inline void operator ++() {operator ++(0);};
    inline bool end() const {return Prv == Owner->ProvideP?true:false;};
-   
+
    // Comparison
    inline bool operator ==(const PrvIterator &B) const {return Prv == B.Prv;};
    inline bool operator !=(const PrvIterator &B) const {return Prv != B.Prv;};
@@ -259,12 +259,12 @@ class pkgCache::PrvIterator
    inline PrvIterator() : Prv(0), Type(PrvVer), Owner(0)  {};
 
    inline PrvIterator(pkgCache &Owner,Provides *Trg,Version *) :
-          Prv(Trg), Type(PrvVer), Owner(&Owner) 
+          Prv(Trg), Type(PrvVer), Owner(&Owner)
    {
       if (Prv == 0)
 	 Prv = Owner.ProvideP;
    };
-   inline PrvIterator(pkgCache &Owner,Provides *Trg,Package *) : 
+   inline PrvIterator(pkgCache &Owner,Provides *Trg,Package *) :
           Prv(Trg), Type(PrvPkg), Owner(&Owner)
    {
       if (Prv == 0)
@@ -272,7 +272,7 @@ class pkgCache::PrvIterator
    };
 };
 
-// Package file 
+// Package file
 class pkgCache::PkgFileIterator
 {
    pkgCache *Owner;
@@ -288,7 +288,7 @@ class pkgCache::PkgFileIterator
    // Comparison
    inline bool operator ==(const PkgFileIterator &B) const {return File == B.File;};
    inline bool operator !=(const PkgFileIterator &B) const {return File != B.File;};
-			   
+
    // Accessors
    inline PackageFile *operator ->() {return File;};
    inline PackageFile const *operator ->() const {return File;};
@@ -311,14 +311,14 @@ class pkgCache::PkgFileIterator
 
    bool IsOk();
    string RelStr();
-   
+
    // Constructors
    inline PkgFileIterator() : Owner(0), File(0) {};
    inline PkgFileIterator(pkgCache &Owner) : Owner(&Owner), File(Owner.PkgFileP) {};
    inline PkgFileIterator(pkgCache &Owner,PackageFile *Trg) : Owner(&Owner), File(Trg) {};
 };
 
-// Version File 
+// Version File
 class pkgCache::VerFileIterator
 {
    pkgCache *Owner;
@@ -334,7 +334,7 @@ class pkgCache::VerFileIterator
    // Comparison
    inline bool operator ==(const VerFileIterator &B) const {return FileP == B.FileP;};
    inline bool operator !=(const VerFileIterator &B) const {return FileP != B.FileP;};
-			   
+
    // Accessors
    inline VerFile *operator ->() {return FileP;};
    inline VerFile const *operator ->() const {return FileP;};
@@ -342,10 +342,10 @@ class pkgCache::VerFileIterator
    inline operator VerFile *() {return FileP == Owner->VerFileP?0:FileP;};
    inline operator VerFile const *() const {return FileP == Owner->VerFileP?0:FileP;};
    inline pkgCache *Cache() {return Owner;};
-  
+
    inline PkgFileIterator File() const {return PkgFileIterator(*Owner,FileP->File + Owner->PkgFileP);};
    inline unsigned long Index() const {return FileP - Owner->VerFileP;};
-      
+
    inline VerFileIterator() : Owner(0), FileP(0) {};
    inline VerFileIterator(pkgCache &Owner,VerFile *Trg) : Owner(&Owner), FileP(Trg) {};
 };

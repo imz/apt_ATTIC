@@ -3,7 +3,7 @@
 /* ######################################################################
 
    List of Sources
-   
+
    ##################################################################### */
 									/*}}}*/
 // Include Files							/*{{{*/
@@ -73,11 +73,11 @@ bool pkgSourceList::Type::FixupURI(string &URI) const
       return false;
 
    URI = SubstVar(URI,"$(ARCH)",_config->Find("APT::Architecture"));
-   
+
    // Make sure that the URI is / postfixed
    if (URI[URI.size() - 1] != '/')
       URI += '/';
-   
+
    return true;
 }
 									/*}}}*/
@@ -93,16 +93,16 @@ bool pkgSourceList::Type::ParseLine(vector<pkgIndexFile *> &List,
 {
    string URI;
    string Dist;
-   string Section;   
-   
+   string Section;
+
    if (ParseQuoteWord(Buffer,URI) == false)
       return _error->Error(_("Malformed line %lu in source list %s (URI)"),CurLine,File.c_str());
    if (ParseQuoteWord(Buffer,Dist) == false)
       return _error->Error(_("Malformed line %lu in source list %s (dist)"),CurLine,File.c_str());
-      
+
    if (FixupURI(URI) == false)
       return _error->Error(_("Malformed line %lu in source list %s (URI parse)"),CurLine,File.c_str());
-   
+
    // Check for an absolute dists specification.
    if (Dist.empty() == false && Dist[Dist.size() - 1] == '/')
    {
@@ -111,8 +111,8 @@ bool pkgSourceList::Type::ParseLine(vector<pkgIndexFile *> &List,
       Dist = SubstVar(Dist,"$(ARCH)",_config->Find("APT::Architecture"));
       return CreateItem(List,URI,Dist,Section,Vendor);
    }
-   
-   // CNC:2004-05-18 
+
+   // CNC:2004-05-18
    Dist = SubstVar(Dist,"$(ARCH)",_config->Find("APT::Architecture"));
    // PM:2006-02-06
    Dist = SubstVar(Dist,"$(VERSION)",_config->Find("APT::DistroVersion"));
@@ -120,14 +120,14 @@ bool pkgSourceList::Type::ParseLine(vector<pkgIndexFile *> &List,
    // Grab the rest of the dists
    if (ParseQuoteWord(Buffer,Section) == false)
       return _error->Error(_("Malformed line %lu in source list %s (dist parse)"),CurLine,File.c_str());
-   
+
    do
    {
       if (CreateItem(List,URI,Dist,Section,Vendor) == false)
 	 return false;
    }
    while (ParseQuoteWord(Buffer,Section) == true);
-   
+
    return true;
 }
 									/*}}}*/
@@ -151,14 +151,14 @@ pkgSourceList::~pkgSourceList()
 {
    for (const_iterator I = SrcList.begin(); I != SrcList.end(); I++)
       delete *I;
-   for (vector<Vendor *>::iterator I = VendorList.begin(); 
+   for (vector<Vendor *>::iterator I = VendorList.begin();
 	I != VendorList.end(); I++)
       delete *I;
 }
 									/*}}}*/
 // SourceList::ReadVendors - Read list of known package vendors		/*{{{*/
 // ---------------------------------------------------------------------
-/* This also scans a directory of vendor files similar to apt.conf.d 
+/* This also scans a directory of vendor files similar to apt.conf.d
    which can contain the usual suspects of distribution provided data.
    The APT config mechanism allows the user to override these in their
    configuration file. */
@@ -175,7 +175,7 @@ bool pkgSourceList::ReadVendors()
       if (ReadConfigFile(Cnf,CnfFile,true) == false)
 	 return false;
 
-   for (vector<Vendor *>::iterator I = VendorList.begin(); 
+   for (vector<Vendor *>::iterator I = VendorList.begin();
 	I != VendorList.end(); I++)
       delete *I;
    VendorList.erase(VendorList.begin(),VendorList.end());
@@ -188,8 +188,8 @@ bool pkgSourceList::ReadVendors()
       Vendor *Vendor = 0;
       string Group = Block.Find("Group");
       bool New = true;
-      
-      for (vector<pkgSourceList::Vendor *>::iterator I = VendorList.begin(); 
+
+      for (vector<pkgSourceList::Vendor *>::iterator I = VendorList.begin();
 	   I != VendorList.end(); I++)
       {
         if ((*I)->VendorID == Group)
@@ -221,15 +221,15 @@ bool pkgSourceList::ReadVendors()
       *p = 0;
       Vendor->FingerPrint.push_back(string(buffer));
       delete [] buffer;
-      
-      if (Vendor->FingerPrint.size() == 0 || 
+
+      if (Vendor->FingerPrint.size() == 0 ||
 	  Vendor->Description.empty() == true)
       {
          _error->Error(_("Vendor block %s is invalid"), Vendor->VendorID.c_str());
 	 delete Vendor;
 	 continue;
       }
-      
+
       if (New)
          VendorList.push_back(Vendor);
    }
@@ -242,23 +242,23 @@ bool pkgSourceList::ReadVendors()
    {
       Configuration Block(Top);
       Vendor *Vendor;
-      
+
       Vendor = new pkgSourceList::Vendor;
-      
+
       Vendor->VendorID = Top->Tag;
       Vendor->Description = Block.Find("Name");
 
       if (Vendor->Description.empty() == true)
       {
-         _error->Error(_("Vendor block %s is invalid"), 
+         _error->Error(_("Vendor block %s is invalid"),
 		       Vendor->VendorID.c_str());
 	 delete Vendor;
 	 continue;
       }
-      
+
       VendorList.push_back(Vendor);
    }
-   
+
    return !_error->PendingError();
 }
 									/*}}}*/
@@ -271,18 +271,18 @@ bool pkgSourceList::ReadMainList()
    bool Res = ReadVendors();
    if (Res == false)
       return false;
-   
+
    Reset();
    // CNC:2003-11-28 - Entries in sources.list have priority over
    //                  entries in sources.list.d.
    string Main = _config->FindFile("Dir::Etc::sourcelist");
    if (FileExists(Main) == true)
-      Res &= ReadAppend(Main);   
+      Res &= ReadAppend(Main);
 
    string Parts = _config->FindDir("Dir::Etc::sourceparts");
    if (FileExists(Parts) == true)
       Res &= ReadSourceDir(Parts);
-   
+
    return Res;
 }
 									/*}}}*/
@@ -318,7 +318,7 @@ bool pkgSourceList::ReadAppend(string File)
    ifstream F(File.c_str(),ios::in /*| ios::nocreate*/);
    if (!F != 0)
       return _error->Errno("ifstream::ifstream",_("Opening %s"),File.c_str());
-   
+
 #if 0 // Now Reset() does this.
    for (const_iterator I = SrcList.begin(); I != SrcList.end(); I++)
       delete *I;
@@ -337,20 +337,20 @@ bool pkgSourceList::ReadAppend(string File)
 	 return _error->Error(_("Line %u too long in source list %s."),
 			      CurLine,File.c_str());
 
-      
+
       char *I;
       // CNC:2003-02-20 - Do not break if '#' is inside [].
       for (I = Buffer; *I != 0 && *I != '#'; I++)
          if (*I == '[')
 	    for (I++; *I != 0 && *I != ']'; I++);
       *I = 0;
-      
+
       const char *C = _strstrip(Buffer);
-      
+
       // Comment or blank
       if (C[0] == '#' || C[0] == 0)
 	 continue;
-      	    
+
       // Grok it
       string LineType;
       if (ParseQuoteWord(C,LineType) == false)
@@ -359,22 +359,22 @@ bool pkgSourceList::ReadAppend(string File)
       Type *Parse = Type::GetType(LineType.c_str());
       if (Parse == 0)
 	 return _error->Error(_("Type '%s' is not known in on line %u in source list %s"),LineType.c_str(),CurLine,File.c_str());
-      
+
       // Authenticated repository
       Vendor const *Vndr = 0;
       if (C[0] == '[')
       {
 	 string VendorID;
-	 
+
 	 if (ParseQuoteWord(C,VendorID) == false)
 	     return _error->Error(_("Malformed line %u in source list %s (vendor id)"),CurLine,File.c_str());
 
 	 if (VendorID.length() < 2 || VendorID.end()[-1] != ']')
 	     return _error->Error(_("Malformed line %u in source list %s (vendor id)"),CurLine,File.c_str());
 	 VendorID = string(VendorID,1,VendorID.size()-2);
-	 
+
 	 for (vector<Vendor *>::iterator iter = VendorList.begin();
-	      iter != VendorList.end(); iter++) 
+	      iter != VendorList.end(); iter++)
 	 {
 	    if ((*iter)->VendorID == VendorID)
 	    {
@@ -387,7 +387,7 @@ bool pkgSourceList::ReadAppend(string File)
 	    return _error->Error(_("Unknown vendor ID '%s' in line %u of source list %s"),
 				 VendorID.c_str(),CurLine,File.c_str());
       }
-      
+
       if (Parse->ParseLine(SrcList,Vndr,C,CurLine,File) == false)
 	 return false;
    }
@@ -408,7 +408,7 @@ bool pkgSourceList::FindIndex(pkgCache::PkgFileIterator File,
 	 return true;
       }
    }
-   
+
    return false;
 }
 									/*}}}*/
@@ -447,7 +447,7 @@ bool pkgSourceList::ReadSourceDir(string Dir)
       return _error->Errno("opendir",_("Unable to read %s"),Dir.c_str());
 
    vector<string> List;
-   
+
    for (struct dirent *Ent = readdir(D); Ent != 0; Ent = readdir(D))
    {
       if (Ent->d_name[0] == '.')
@@ -456,7 +456,7 @@ bool pkgSourceList::ReadSourceDir(string Dir)
       // CNC:2003-12-02 Only accept .list files as valid sourceparts
       if (flExtension(Ent->d_name) != "list")
 	 continue;
-      
+
       // Skip bad file names ala run-parts
       const char *C = Ent->d_name;
       for (; *C != 0; C++)
@@ -465,17 +465,17 @@ bool pkgSourceList::ReadSourceDir(string Dir)
 	    break;
       if (*C != 0)
 	 continue;
-      
+
       // Make sure it is a file and not something else
       string File = flCombine(Dir,Ent->d_name);
       struct stat St;
       if (stat(File.c_str(),&St) != 0 || S_ISREG(St.st_mode) == 0)
 	 continue;
-      
-      List.push_back(File);      
-   }   
+
+      List.push_back(File);
+   }
    closedir(D);
-   
+
    sort(List.begin(),List.end());
 
    // Read the files

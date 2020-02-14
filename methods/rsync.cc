@@ -3,7 +3,7 @@
 /* ######################################################################
 
 RSYNC Aquire Method - This is the RSYNC aquire method for APT.
-   
+
 ##################################################################### */
 /*}}}*/
 // Include Files							/*{{{*/
@@ -285,7 +285,7 @@ void RsyncMethod::RsyncConnExec::ParseOutput(pkgAcqMethod *Owner, FetchResult &F
 		 delete tmpfn;
 	  }
    }
-  
+
    ptr = strstr(buf,SIZE);
    if (ptr) {
 	  ptr += strlen(SIZE);
@@ -302,7 +302,7 @@ void RsyncMethod::RsyncConnExec::ParseOutput(pkgAcqMethod *Owner, FetchResult &F
    }
 
    ptr = strstr(buf,DONE);
-   if (ptr) 
+   if (ptr)
 	  State = Done;
 
    ptr = strstr(buf,FAILED);
@@ -438,7 +438,7 @@ void RsyncMethod::RsyncConnExecExt::ParseOutput(pkgAcqMethod *Owner, FetchResult
 		 delete tmpfn;
 	  }
    }
-  
+
    ptr = strstr(buf,SIZE);
    if (ptr) {
 	  ptr += strlen(SIZE);
@@ -455,7 +455,7 @@ void RsyncMethod::RsyncConnExecExt::ParseOutput(pkgAcqMethod *Owner, FetchResult
    }
 
    ptr = strstr(buf,DONE);
-   if (ptr) 
+   if (ptr)
 	  State = Done;
 
    ptr = strstr(buf,FAILED);
@@ -505,7 +505,7 @@ bool RsyncMethod::Configuration(string Message)
 {
    if (pkgAcqMethod::Configuration(Message) == false)
 	  return false;
-   
+
    Debug = _config->FindB("Debug::rsync",false);
    Timeout = _config->FindI("Acquire::rsync::Timeout",0);
    RsyncProg = _config->Find("Acquire::rsync::program",RSYNC_PROGRAM);
@@ -539,7 +539,7 @@ bool RsyncMethod::Fetch(FetchItem *Itm)
    delete server;
    if ( _config->FindB("Acquire::rsync::apt-support",true) )
 	 server = new RsyncConnExecExt(Get,proxy,RsyncProg);
-   else 
+   else
 	 server = new RsyncConnExec(Get,proxy,RsyncProg);
 
    if ( server->Get(this,Res,File,Itm->DestFile.c_str()) ) {
@@ -564,8 +564,8 @@ bool RsyncMethod::Fetch(FetchItem *Itm)
 /*}}}*/
 
 int main(int argc,const char *argv[])
-{ 
+{
    RsyncMethod Mth;
-   
+
    return Mth.Run();
 }

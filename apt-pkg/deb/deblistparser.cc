@@ -1,11 +1,11 @@
 // Description								/*{{{*/
 // $Id: deblistparser.cc,v 1.29 2003/09/22 04:16:26 mdz Exp $
 /* ######################################################################
-   
+
    Package Cache Generator - Generator for the cache structure.
-   
-   This builds the cache structure from the abstract package list parser. 
-   
+
+   This builds the cache structure from the abstract package list parser.
+
    ##################################################################### */
 									/*}}}*/
 // Include Files							/*{{{*/
@@ -61,7 +61,7 @@ string debListParser::Package()
 // ListParser::Version - Return the version string			/*{{{*/
 // ---------------------------------------------------------------------
 /* This is to return the string describing the version in debian form,
-   epoch:upstream-release. If this returns the blank string then the 
+   epoch:upstream-release. If this returns the blank string then the
    entry is assumed to only describe package properties */
 string debListParser::Version()
 {
@@ -76,7 +76,7 @@ bool debListParser::NewVersion(pkgCache::VerIterator Ver)
    // Parse the section
    Ver->Section = UniqFindTagWrite("Section");
    Ver->Arch = UniqFindTagWrite("Architecture");
-   
+
    // Archive Size
    Ver->Size = Section.FindULL("Size");
    // Unpacked Size (in K)
@@ -87,7 +87,7 @@ bool debListParser::NewVersion(pkgCache::VerIterator Ver)
    const char *Start;
    const char *Stop;
    if (Section.Find("Priority",Start,Stop) == true)
-   {      
+   {
       if (GrabWord(string(Start,Stop-Start),PrioList,Ver->Priority) == false)
 	 Ver->Priority = pkgCache::State::Extra;
    }
@@ -108,16 +108,16 @@ bool debListParser::NewVersion(pkgCache::VerIterator Ver)
    // Obsolete.
    if (ParseDepends(Ver,"Optional",pkgCache::Dep::Suggests) == false)
       return false;
-   
+
    if (ParseProvides(Ver) == false)
       return false;
-   
+
    return true;
 }
 									/*}}}*/
 // ListParser::UsePackage - Update a package structure			/*{{{*/
 // ---------------------------------------------------------------------
-/* This is called to update the package with any new information 
+/* This is called to update the package with any new information
    that might be found in the section */
 bool debListParser::UsePackage(pkgCache::PkgIterator Pkg,
 			       pkgCache::VerIterator Ver)
@@ -131,7 +131,7 @@ bool debListParser::UsePackage(pkgCache::PkgIterator Pkg,
 
    if (strcmp(Pkg.Name(),"apt") == 0)
       Pkg->Flags |= pkgCache::Flag::Important;
-   
+
    if (ParseStatus(Pkg,Ver) == false)
       return false;
    return true;
@@ -157,7 +157,7 @@ unsigned short debListParser::VersionHash()
       const char *End;
       if (Section.Find(*I,Start,End) == false || End - Start >= (signed)sizeof(S))
 	 continue;
-      
+
       /* Strip out any spaces from the text, this undoes dpkgs reformatting
          of certain fields. dpkg also has the rather interesting notion of
          reformatting depends operators < -> <= */
@@ -174,7 +174,7 @@ unsigned short debListParser::VersionHash()
 
       Result = AddCRC16(Result,S,I - S);
    }
-   
+
    return Result;
 }
 									/*}}}*/
@@ -185,10 +185,10 @@ unsigned short debListParser::VersionHash()
    want = unknown, install, hold, deinstall, purge
    flag = ok, reinstreq, hold, hold-reinstreq
    status = not-installed, unpacked, half-configured,
-            half-installed, config-files, post-inst-failed, 
+            half-installed, config-files, post-inst-failed,
             removal-failed, installed
-   
-   Some of the above are obsolete (I think?) flag = hold-* and 
+
+   Some of the above are obsolete (I think?) flag = hold-* and
    status = post-inst-failed, removal-failed at least.
  */
 bool debListParser::ParseStatus(pkgCache::PkgIterator Pkg,
@@ -198,7 +198,7 @@ bool debListParser::ParseStatus(pkgCache::PkgIterator Pkg,
    const char *Stop;
    if (Section.Find("Status",Start,Stop) == false)
       return true;
-   
+
    // Isolate the first word
    const char *I = Start;
    for(; I < Stop && *I != ' '; I++);
@@ -253,7 +253,7 @@ bool debListParser::ParseStatus(pkgCache::PkgIterator Pkg,
 
    /* A Status line marks the package as indicating the current
       version as well. Only if it is actually installed.. Otherwise
-      the interesting dpkg handling of the status file creates bogus 
+      the interesting dpkg handling of the status file creates bogus
       entries. */
    if (!(Pkg->CurrentState == pkgCache::State::NotInstalled ||
 	 Pkg->CurrentState == pkgCache::State::ConfigFiles))
@@ -263,7 +263,7 @@ bool debListParser::ParseStatus(pkgCache::PkgIterator Pkg,
       else
 	 Pkg->CurrentVer = Ver.Index();
    }
-   
+
    return true;
 }
 
@@ -280,18 +280,18 @@ const char *debListParser::ConvertRelation(const char *I,unsigned int &Op)
 	 Op = pkgCache::Dep::LessEq;
 	 break;
       }
-      
+
       if (*I == '<')
       {
 	 I++;
 	 Op = pkgCache::Dep::Less;
 	 break;
       }
-      
+
       // < is the same as <= and << is really Cs < for some reason
       Op = pkgCache::Dep::LessEq;
       break;
-      
+
       case '>':
       I++;
       if (*I == '=')
@@ -300,23 +300,23 @@ const char *debListParser::ConvertRelation(const char *I,unsigned int &Op)
 	 Op = pkgCache::Dep::GreaterEq;
 	 break;
       }
-      
+
       if (*I == '>')
       {
 	 I++;
 	 Op = pkgCache::Dep::Greater;
 	 break;
       }
-      
+
       // > is the same as >= and >> is really Cs > for some reason
       Op = pkgCache::Dep::GreaterEq;
       break;
-      
+
       case '=':
       Op = pkgCache::Dep::Equals;
       I++;
       break;
-      
+
       // HACK around bad package definitions
       default:
       Op = pkgCache::Dep::Equals;
@@ -336,25 +336,25 @@ const char *debListParser::ParseDepends(const char *Start,const char *Stop,
 {
    // Strip off leading space
    for (;Start != Stop && isspace(*Start) != 0; Start++);
-   
+
    // Parse off the package name
    const char *I = Start;
    for (;I != Stop && isspace(*I) == 0 && *I != '(' && *I != ')' &&
 	*I != ',' && *I != '|'; I++);
-   
+
    // Malformed, no '('
    if (I != Stop && *I == ')')
       return 0;
 
    if (I == Start)
       return 0;
-   
+
    // Stash the package name
    Package.assign(Start,I - Start);
-   
+
    // Skip white space to the '('
    for (;I != Stop && isspace(*I) != 0 ; I++);
-   
+
    // Parse a version
    if (I != Stop && *I == '(')
    {
@@ -363,18 +363,18 @@ const char *debListParser::ParseDepends(const char *Start,const char *Stop,
       if (I + 3 >= Stop)
 	 return 0;
       I = ConvertRelation(I,Op);
-      
+
       // Skip whitespace
       for (;I != Stop && isspace(*I) != 0; I++);
       Start = I;
       for (;I != Stop && *I != ')'; I++);
       if (I == Stop || Start == I)
-	 return 0;     
-      
+	 return 0;
+
       // Skip trailing whitespace
       const char *End = I;
       for (; End > Start && isspace(End[-1]); End--);
-      
+
       Ver = string(Start,End-Start);
       I++;
    }
@@ -383,7 +383,7 @@ const char *debListParser::ParseDepends(const char *Start,const char *Stop,
       Ver = string();
       Op = pkgCache::Dep::NoOp;
    }
-   
+
    // Skip whitespace
    for (;I != Stop && isspace(*I) != 0; I++);
 
@@ -397,18 +397,18 @@ const char *debListParser::ParseDepends(const char *Start,const char *Stop,
 	 // malformed
          I++;
          if (I == Stop)
-	    return 0; 
-	 
+	    return 0;
+
          const char *End = I;
          bool Found = false;
       	 bool NegArch = false;
-         while (I != Stop) 
+         while (I != Stop)
 	 {
             // look for whitespace or ending ']'
-	    while (End != Stop && !isspace(*End) && *End != ']') 
+	    while (End != Stop && !isspace(*End) && *End != ']')
 	       End++;
-	 
-	    if (End == Stop) 
+
+	    if (End == Stop)
 	       return 0;
 
 	    if (*I == '!')
@@ -419,37 +419,37 @@ const char *debListParser::ParseDepends(const char *Start,const char *Stop,
 
 	    if (stringcmp(arch,I,End) == 0)
 	       Found = true;
-	    
+
 	    if (*End++ == ']') {
 	       I = End;
 	       break;
 	    }
-	    
+
 	    I = End;
 	    for (;I != Stop && isspace(*I) != 0; I++);
          }
 
 	 if (NegArch)
 	    Found = !Found;
-	 
+
          if (Found == false)
 	    Package = ""; /* not for this arch */
       }
-      
+
       // Skip whitespace
       for (;I != Stop && isspace(*I) != 0; I++);
    }
 
    if (I != Stop && *I == '|')
       Op |= pkgCache::Dep::Or;
-   
+
    if (I == Stop || *I == ',' || *I == '|')
    {
       if (I != Stop)
 	 for (I++; I != Stop && isspace(*I) != 0; I++);
       return I;
    }
-   
+
    return 0;
 }
 									/*}}}*/
@@ -464,7 +464,7 @@ bool debListParser::ParseDepends(pkgCache::VerIterator Ver,
    const char *Stop;
    if (Section.Find(Tag,Start,Stop) == false)
       return true;
-   
+
    string Package;
    string Version;
    unsigned int Op;
@@ -474,7 +474,7 @@ bool debListParser::ParseDepends(pkgCache::VerIterator Ver,
       Start = ParseDepends(Start,Stop,Package,Version,Op);
       if (Start == 0)
 	 return _error->Error("Problem parsing dependency %s",Tag);
-      
+
       if (NewDepends(Ver,Package,Version,Op,Type) == false)
 	 return false;
       if (Start == Stop)
@@ -492,7 +492,7 @@ bool debListParser::ParseProvides(pkgCache::VerIterator Ver)
    const char *Stop;
    if (Section.Find("Provides",Start,Stop) == false)
       return true;
-   
+
    string Package;
    string Version;
    unsigned int Op;
@@ -511,7 +511,7 @@ bool debListParser::ParseProvides(pkgCache::VerIterator Ver)
       if (Start == Stop)
 	 break;
    }
-   
+
    return true;
 }
 									/*}}}*/
@@ -538,7 +538,7 @@ bool debListParser::Step()
 {
    iOffset = Tags.Offset();
    while (Tags.Step(Section) == true)
-   {      
+   {
       /* See if this is the correct Architecture, if it isn't then we
          drop the whole section. A missing arch tag only happens (in theory)
          inside the Status file, so that is a positive return */
@@ -554,7 +554,7 @@ bool debListParser::Step()
 	 return true;
 
       iOffset = Tags.Offset();
-   }   
+   }
    return false;
 }
 									/*}}}*/
@@ -583,11 +583,11 @@ bool debListParser::LoadReleaseInfo(pkgCache::PkgFileIterator FileI,
       FileI->Label = WriteUniqString(Start,Stop - Start);
    if (Section.Find("Architecture",Start,Stop) == true)
       FileI->Architecture = WriteUniqString(Start,Stop - Start);
-   
+
    if (Section.FindFlag("NotAutomatic",FileI->Flags,
 			pkgCache::Flag::NotAutomatic) == false)
       _error->Warning("Bad NotAutomatic flag");
-   
+
    return !_error->PendingError();
 }
 									/*}}}*/
@@ -599,7 +599,7 @@ unsigned char debListParser::GetPrio(string Str)
    unsigned char Out;
    if (GrabWord(Str,PrioList,Out) == false)
       Out = pkgCache::State::Extra;
-   
+
    return Out;
 }
 									/*}}}*/

@@ -29,7 +29,7 @@ class CircleBuf
    unsigned long StrPos;
    unsigned long MaxGet;
    struct timeval Start;
-   
+
    unsigned long LeftRead()
    {
       unsigned long Sz = Size - (InP - OutP);
@@ -47,21 +47,21 @@ class CircleBuf
       return Sz;
    }
    void FillOut();
-   
+
    public:
-   
+
    Hashes *Hash;
-   
+
    // Read data in
    bool Read(const std::unique_ptr<MethodFd> &Fd);
    bool Read(string Data);
-   
+
    // Write data out
    bool Write(const std::unique_ptr<MethodFd> &Fd);
    bool WriteTillEl(string &Data,bool Single = false);
-   
+
    // Control the write limit
-   void Limit(long Max) {if (Max == -1) MaxGet = 0-1; else MaxGet = OutP + Max;}   
+   void Limit(long Max) {if (Max == -1) MaxGet = 0-1; else MaxGet = OutP + Max;}
    bool IsLimit() {return MaxGet == OutP;};
    void Print() {cout << MaxGet << ',' << OutP << endl;};
 
@@ -84,7 +84,7 @@ struct ServerState
    unsigned int Minor;
    unsigned int Result;
    char Code[MAXLEN];
-   
+
    // These are some statistics from the last parsed header lines
    unsigned long Size;
    signed long StartPos;
@@ -94,18 +94,18 @@ struct ServerState
    enum {Header, Data} State;
    bool Persistent;
    string Location;
-   
+
    // This is a Persistent attribute of the server itself.
    bool Pipeline;
-   
+
    HttpMethod *Owner;
-   
+
    // This is the connection itself. Output is data FROM the server
    CircleBuf In;
    CircleBuf Out;
    std::unique_ptr<MethodFd> ServerFd;
    URI ServerName;
-  
+
    bool HeaderLine(string Line);
    bool Comp(URI Other) {return Other.Host == ServerName.Host && Other.Port == ServerName.Port;};
    void Reset() {Major = 0; Minor = 0; Result = 0; Size = 0; StartPos = 0;
@@ -113,10 +113,10 @@ struct ServerState
                  Pipeline = true; };
    int RunHeaders();
    bool RunData();
-   
+
    bool Open();
    bool Close();
-   
+
    ServerState(URI Srv,HttpMethod *Owner);
    ~ServerState() {Close();};
 };
@@ -138,7 +138,7 @@ class HttpMethod : public pkgAcqMethod
 
    virtual bool Fetch(FetchItem *);
    virtual bool Configuration(string Message);
-   
+
    // In the event of a fatal signal this file will be closed and timestamped.
    static string FailFile;
    static int FailFd;
@@ -147,16 +147,16 @@ class HttpMethod : public pkgAcqMethod
 
    string NextURI;
    vector<AuthRec> AuthList;
-   
+
    public:
    friend class ServerState;
 
    FileFd *File;
    ServerState *Server;
-   
+
    int Loop();
-   
-   HttpMethod() : pkgAcqMethod("1.2",Pipeline | SendConfig) 
+
+   HttpMethod() : pkgAcqMethod("1.2",Pipeline | SendConfig)
    {
       File = 0;
       Server = 0;

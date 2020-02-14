@@ -4,7 +4,7 @@
 
    Copy URI - This method takes a uri like a file: uri and copies it
    to the destination file.
-   
+
    ##################################################################### */
 									/*}}}*/
 // Include Files							/*{{{*/
@@ -26,9 +26,9 @@
 class CopyMethod : public pkgAcqMethod
 {
    virtual bool Fetch(FetchItem *Itm);
-   
+
    public:
-   
+
    CopyMethod() : pkgAcqMethod("1.0",SingleInstance) {};
 };
 
@@ -50,9 +50,9 @@ bool CopyMethod::Fetch(FetchItem *Itm)
    Res.Size = Buf.st_size;
    Res.Filename = Itm->DestFile;
    Res.LastModified = Buf.st_mtime;
-   Res.IMSHit = false;      
+   Res.IMSHit = false;
    URIStart(Res);
-   
+
    // See if the file exists
    FileFd From(File,FileFd::ReadOnly);
    FileFd To(Itm->DestFile,FileFd::WriteEmpty);
@@ -62,7 +62,7 @@ bool CopyMethod::Fetch(FetchItem *Itm)
       To.OpFail();
       return false;
    }
-   
+
    // Copy the file
    if (CopyFile(From,To) == false)
    {
@@ -72,7 +72,7 @@ bool CopyMethod::Fetch(FetchItem *Itm)
 
    From.Close();
    To.Close();
-   
+
    // Transfer the modification times
    struct utimbuf TimeBuf;
    TimeBuf.actime = Buf.st_atime;
@@ -82,7 +82,7 @@ bool CopyMethod::Fetch(FetchItem *Itm)
       To.OpFail();
       return _error->Errno("utime",_("Failed to set modification time"));
    }
-   
+
    URIDone(Res);
    return true;
 }

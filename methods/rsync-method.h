@@ -108,7 +108,7 @@ class RsyncMethod : public pkgAcqMethod
 	  { URIStart(FRes); }
 
   public:
-   
+
    RsyncMethod();
 };
 
