@@ -18,7 +18,7 @@
 #endif
 
 #include "config.h"
-   									/*}}}*/
+									/*}}}*/
 #include <apt-pkg/error.h>
 
 #include <iostream>

@@ -277,7 +277,7 @@ bool AcqTextStatus::MediaChange(string Media,string Drive)
 		   "and press enter\n"),
 	    Media.c_str(),Drive.c_str());
    if (_config->FindB("simple-output"))
-   	cout << "apt-get:media-change:" << Drive << ":" << Media << std::endl;
+	cout << "apt-get:media-change:" << Drive << ":" << Media << std::endl;
 
    char C = 0;
    while (C != '\n' && C != '\r')
