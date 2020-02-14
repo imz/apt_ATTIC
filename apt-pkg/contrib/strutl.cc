@@ -702,34 +702,6 @@ static int MonthConv(char *Month)
    }
 }
 									/*}}}*/
-// timegm - Internal timegm function if gnu is not available		/*{{{*/
-// ---------------------------------------------------------------------
-/* Ripped this evil little function from wget - I prefer the use of
-   GNU timegm if possible as this technique will have interesting problems
-   with leap seconds, timezones and other.
-
-   Converts struct tm to time_t, assuming the data in tm is UTC rather
-   than local timezone (mktime assumes the latter).
-
-   Contributed by Roger Beeman <beeman@cisco.com>, with the help of
-   Mark Baushke <mdb@cisco.com> and the rest of the Gurus at CISCO. */
-
-/* Turned it into an autoconf check, because GNU is not the only thing which
-   can provide timegm. -- 2002-09-22, Joel Baker */
-
-#ifndef HAVE_TIMEGM // Now with autoconf!
-static time_t timegm(struct tm *t)
-{
-   time_t tl, tb;
-
-   tl = mktime (t);
-   if (tl == -1)
-      return -1;
-   tb = mktime (gmtime (&tl));
-   return (tl <= tb ? (tl + (tl - tb)) : (tl - (tb - tl)));
-}
-#endif
-									/*}}}*/
 // StrToTime - Converts a string into a time_t				/*{{{*/
 // ---------------------------------------------------------------------
 /* This handles all 3 populare time formats including RFC 1123, RFC 1036
