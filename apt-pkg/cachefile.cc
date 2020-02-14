@@ -1,13 +1,13 @@
 // Description								/*{{{*/
 // $Id: cachefile.cc,v 1.2 2002/07/25 18:07:18 niemeyer Exp $
 /* ######################################################################
-   
+
    CacheFile - Simple wrapper class for opening, generating and whatnot
-   
+
    This class implements a simple 2 line mechanism to open various sorts
    of caches. It can operate as root, as not root, show progress and so on,
    it transparently handles everything necessary.
-   
+
    ##################################################################### */
 									/*}}}*/
 // Include Files							/*{{{*/
@@ -33,7 +33,7 @@
 #include <apt-pkg/configuration.h>
 #include <apt-pkg/strutl.h>
 #include <apt-pkg/version.h>
-    
+
 #include <apti18n.h>
 									/*}}}*/
 
@@ -54,7 +54,7 @@ pkgCacheFile::~pkgCacheFile()
    delete Cache;
    delete Map;
    _system->UnLock(true);
-}   
+}
 									/*}}}*/
 // CacheFile::BuildCaches - Open and build the cache files		/*{{{*/
 // ---------------------------------------------------------------------
@@ -68,13 +68,13 @@ bool pkgCacheFile::BuildCaches(OpProgress &Progress,bool WithLock)
    // CNC:2002-07-06
    if (WithLock == false)
       _system->LockRead();
-   
+
    if (_config->FindB("Debug::NoLocking",false) == true)
       WithLock = false;
-      
+
    if (_error->PendingError() == true)
       return false;
-   
+
    // Read the source list
    pkgSourceList List;
    if (List.ReadMainList() == false)
@@ -103,24 +103,24 @@ bool pkgCacheFile::Open(OpProgress &Progress,bool WithLock)
 {
    if (BuildCaches(Progress,WithLock) == false)
       return false;
-   
+
    // The policy engine
    Policy = new pkgPolicy(Cache);
    if (_error->PendingError() == true)
       return false;
    if (ReadPinFile(*Policy) == false || ReadPinDir(*Policy) == false)
       return false;
-   
+
    // Create the dependency cache
    DCache = new pkgDepCache(Cache,Policy);
    if (_error->PendingError() == true)
       return false;
-   
+
    DCache->Init(&Progress);
    Progress.Done();
    if (_error->PendingError() == true)
       return false;
-   
+
    return true;
 }
 									/*}}}*/
@@ -159,10 +159,10 @@ int CacheFile::NameComp(const void *a,const void *b)
    {
       return (*(pkgCache::Package **)a - *(pkgCache::Package **)b);
    }
-   
+
    const pkgCache::Package &A = **(pkgCache::Package **)a;
    const pkgCache::Package &B = **(pkgCache::Package **)b;
-   
+
    return strcmp(SortCache->StrP + A.Name,SortCache->StrP + B.Name);
 }
 									/*}}}*/
@@ -285,7 +285,7 @@ bool CacheFile::CanCommit() const
 
 // ShowList - Show a list						/*{{{*/
 // ---------------------------------------------------------------------
-/* This prints out a string of space separated words with a title and 
+/* This prints out a string of space separated words with a title and
    a two space indent line wraped to the current screen width. */
 bool ShowList(std::ostream &out, const std::string &Title, std::string List, const std::string &VersionsList, size_t l_ScreenWidth)
 {
@@ -363,14 +363,14 @@ bool ShowList(std::ostream &out, const std::string &Title, std::string List, con
 // ShowBroken - Debugging aide						/*{{{*/
 // ---------------------------------------------------------------------
 /* This prints out the names of all the packages that are broken along
-   with the name of each each broken dependency and a quite version 
+   with the name of each each broken dependency and a quite version
    description.
-   
+
    The output looks like:
  The following packages have unmet dependencies:
      exim: Depends: libc6 (>= 2.1.94) but 2.1.3-10 is to be installed
            Depends: libldap2 (>= 2.0.2-2) but it is not going to be installed
-           Depends: libsasl7 but it is not going to be installed   
+           Depends: libsasl7 but it is not going to be installed
  */
 void ShowBroken(ostream &out, CacheFile &Cache, bool Now)
 {
@@ -422,7 +422,7 @@ void ShowBroken(ostream &out, CacheFile &Cache, bool Now)
          pkgCache::DepIterator Start;
          pkgCache::DepIterator End;
          D.GlobOr(Start, End);
-         
+
          // CNC:2003-02-22 - IsImportantDep() currently calls IsCritical(), so
          //		     these two are currently doing the same thing. Check
          //		     comments in IsImportantDep() definition.
@@ -477,11 +477,11 @@ void ShowBroken(ostream &out, CacheFile &Cache, bool Now)
             {
                out << ' ' << End.DepType() << ": ";
             }
-            
+
             FirstOr = false;
-            
+
             out << Start.TargetPkg().Name();
-            
+
             // Show a quick summary of the version requirements
             if (Start.TargetVer() != 0)
             {
@@ -489,7 +489,7 @@ void ShowBroken(ostream &out, CacheFile &Cache, bool Now)
             }
 
             /* Show a summary of the target package if possible. In the case
-               of virtual packages we show nothing */	 
+               of virtual packages we show nothing */
             pkgCache::PkgIterator Targ = Start.TargetPkg();
             if (Targ->ProvidesList == 0)
             {
@@ -587,7 +587,7 @@ void ShowDel(std::ostream &out, std::ostream &l_c3out, CacheFile &Cache, pkgDepC
      to what the user asked */
    std::stringstream List, RepList; // CNC:2002-07-25
    std::stringstream VersionsList;
-   
+
    for (unsigned J = 0; J < Cache->Head().PackageCount; ++J)
    {
       pkgCache::PkgIterator I(Cache, Cache.List[J]);
@@ -615,7 +615,7 @@ void ShowDel(std::ostream &out, std::ostream &l_c3out, CacheFile &Cache, pkgDepC
                }
             }
          }
-         
+
          if (Obsoleted)
          {
             RepList << I.Name() << " (by " << by.str() << ")  ";
@@ -631,12 +631,12 @@ void ShowDel(std::ostream &out, std::ostream &l_c3out, CacheFile &Cache, pkgDepC
                List << I.Name() << " ";
             }
          }
-         
+
          // CNC:2004-03-09
          VersionsList << I.CurrentVer().VerStr() << "\n";
       }
    }
-   
+
    // CNC:2002-07-25
    if (RepList.tellp() > 0)
    {
@@ -662,7 +662,7 @@ void ShowKept(std::ostream &out, std::ostream &l_c3out, CacheFile &Cache, pkgDep
    std::stringstream VersionsList;
 
    for (unsigned J = 0; J < Cache->Head().PackageCount; ++J)
-   {    
+   {
       pkgCache::PkgIterator I(Cache, Cache.List[J]);
 
       if (State == NULL)
@@ -812,7 +812,7 @@ bool ShowHold(std::ostream &out, std::ostream &l_c3out, CacheFile &Cache, pkgDep
 // ShowEssential - Show an essential package warning			/*{{{*/
 // ---------------------------------------------------------------------
 /* This prints out a warning message that is not to be ignored. It shows
-   all essential packages and their dependents that are to be removed. 
+   all essential packages and their dependents that are to be removed.
    It is insanely risky to remove the dependents of an essential package! */
 bool ShowEssential(std::ostream &out, std::ostream &l_c3out, CacheFile &Cache, pkgDepCache::State *State, size_t l_ScreenWidth)
 {
@@ -945,7 +945,7 @@ void Stats(std::ostream &out, std::ostream &l_c3out, pkgDepCache &Dep, pkgDepCac
    unsigned long Replace = 0;
    unsigned long Remove = 0;
    unsigned long Keep = 0;
-   
+
    for (pkgCache::PkgIterator I = Dep.PkgBegin(); not I.end(); ++I)
    {
       if (Dep[I].NewInstall()
@@ -979,7 +979,7 @@ void Stats(std::ostream &out, std::ostream &l_c3out, pkgDepCache &Dep, pkgDepCac
             }
          }
       }
-      
+
       // CNC:2002-07-29
       if (Dep[I].Delete()
          && ((State == NULL) || (!((*State)[I].Delete()))))
@@ -1019,10 +1019,10 @@ void Stats(std::ostream &out, std::ostream &l_c3out, pkgDepCache &Dep, pkgDepCac
    l_c3out << "apt-get:status:re-install:" << ReInstall << std::endl;
    l_c3out << "apt-get:status:replace:" << Replace << std::endl;
    l_c3out << "apt-get:status:remove:" << Remove << std::endl;
-   
+
    ioprintf(out,_("%lu upgraded, %lu newly installed, "),
       Upgrade,Install);
-   
+
    if (ReInstall != 0)
    {
       ioprintf(out,_("%lu reinstalled, "),ReInstall);
@@ -1038,7 +1038,7 @@ void Stats(std::ostream &out, std::ostream &l_c3out, pkgDepCache &Dep, pkgDepCac
    {
       ioprintf(out,_("%lu replaced, "),Replace);
    }
-   
+
    // CNC:2002-07-29
    if (State == NULL)
    {

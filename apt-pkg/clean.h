@@ -3,7 +3,7 @@
 /* ######################################################################
 
    Clean - Clean out downloaded directories
-   
+
    ##################################################################### */
 									/*}}}*/
 #ifndef APTPKG_CLEAN_H
@@ -11,18 +11,18 @@
 
 #ifdef __GNUG__
 #pragma interface "apt-pkg/clean.h"
-#endif 
+#endif
 
 #include <apt-pkg/pkgcache.h>
 
 class pkgArchiveCleaner
 {
    protected:
-   
+
    virtual void Erase(const char * /*File*/,string /*Pkg*/,string /*Ver*/,struct stat & /*St*/) {};
 
-   public:   
-   
+   public:
+
    bool Go(string Dir,pkgCache &Cache);
 };
 

@@ -132,9 +132,9 @@ string RPMFileHandler::Directory()
 
    rpmtdFreeData(td);
    rpmtdFree(td);
-   
+
    return res;
-} 
+}
 
 unsigned long RPMFileHandler::FileSize()
 {
@@ -152,7 +152,7 @@ unsigned long RPMFileHandler::FileSize()
 
    rpmtdFreeData(td);
    rpmtdFree(td);
-   
+
    return res;
 }
 
@@ -170,9 +170,9 @@ string RPMFileHandler::MD5Sum()
 
    rpmtdFreeData(td);
    rpmtdFree(td);
-   
+
    return res;
-} 
+}
 
 bool RPMSingleFileHandler::Skip()
 {
@@ -276,9 +276,9 @@ const char *RPMDirHandler::nextFileName()
 	 continue;
 
       sFileName = name;
-      
+
       return name;
-   } 
+   }
    return NULL;
 }
 
@@ -384,7 +384,7 @@ RPMDBHandler::RPMDBHandler(bool WriteLock)
    RpmIter = NULL;
 #endif
    string Dir = _config->Find("RPM::RootDir");
-   
+
    rpmReadConfigFiles(NULL, NULL);
    ID = DataPath(false);
 
@@ -539,7 +539,7 @@ void RPMDBHandler::Rewind()
 #if RPM_VERSION >= 0x040000
    if (RpmIter == NULL)
       return;
-   rpmdbFreeIterator(RpmIter);   
+   rpmdbFreeIterator(RpmIter);
    RpmIter = rpmxxInitIterator(Handler, RPMDBI_PACKAGES, NULL, 0);
 #else
    if (HeaderP != NULL)

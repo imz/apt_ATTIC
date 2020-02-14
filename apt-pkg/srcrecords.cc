@@ -1,18 +1,18 @@
 // Description								/*{{{*/
 // $Id: srcrecords.cc,v 1.2 2003/01/29 18:43:48 niemeyer Exp $
 /* ######################################################################
-   
+
    Source Package Records - Allows access to source package records
-   
+
    Parses and allows access to the list of source records and searching by
    source name on that list.
-   
+
    ##################################################################### */
 									/*}}}*/
 // Include Files							/*{{{*/
 #ifdef __GNUG__
 #pragma implementation "apt-pkg/srcrecords.h"
-#endif 
+#endif
 
 #include <config.h>
 
@@ -20,8 +20,8 @@
 #include <apt-pkg/error.h>
 #include <apt-pkg/sourcelist.h>
 #include <apt-pkg/strutl.h>
-    
-#include <apti18n.h>    
+
+#include <apti18n.h>
 									/*}}}*/
 
 // SrcRecords::pkgSrcRecords - Constructor				/*{{{*/
@@ -31,7 +31,7 @@ pkgSrcRecords::pkgSrcRecords(pkgSourceList &List) : Files(0), Current(0)
 {
    Files = new Parser *[List.end() - List.begin() + 1];
    memset(Files,0,sizeof(*Files)*(List.end() - List.begin() + 1));
-   
+
    unsigned int Count = 0;
    pkgSourceList::const_iterator I = List.begin();
    for (; I != List.end(); I++)
@@ -43,14 +43,14 @@ pkgSrcRecords::pkgSrcRecords(pkgSourceList &List) : Files(0), Current(0)
 	 Count++;
    }
    Files[Count] = 0;
-   
+
    // Doesn't work without any source index files
    if (Count == 0)
    {
       _error->Error(_("You must put some 'source' URIs"
 		    " in your sources.list"));
       return;
-   }   
+   }
 
    Restart();
 }
@@ -77,7 +77,7 @@ bool pkgSrcRecords::Restart()
    Current = Files;
    for (Parser **I = Files; *I != 0; I++)
       (*I)->Restart();
-   
+
    return true;
 }
 									/*}}}*/
@@ -90,7 +90,7 @@ pkgSrcRecords::Parser *pkgSrcRecords::Find(const char *Package,bool SrcOnly)
 {
    if (*Current == 0)
       return 0;
-   
+
    while (true)
    {
       // DEBUG:
@@ -104,7 +104,7 @@ pkgSrcRecords::Parser *pkgSrcRecords::Find(const char *Package,bool SrcOnly)
 	 if (*Current == 0)
 	    return 0;
       }
-      
+
       // IO error somehow
       if (_error->PendingError() == true)
 	 return 0;
@@ -112,7 +112,7 @@ pkgSrcRecords::Parser *pkgSrcRecords::Find(const char *Package,bool SrcOnly)
       // Source name hit
       if ((*Current)->FileName() == Package)
 	 return *Current;
-      
+
 
       // CNC:2003-11-21
       // Check for a files hit
@@ -124,10 +124,10 @@ pkgSrcRecords::Parser *pkgSrcRecords::Find(const char *Package,bool SrcOnly)
 	       return *Current;
 	 }
       }
-      
+
       if (SrcOnly == true)
 	 continue;
-      
+
       // Check for a binary hit
       const char **I = (*Current)->Binaries();
       for (; I != 0 && *I != 0; I++)
@@ -141,13 +141,13 @@ pkgSrcRecords::Parser *pkgSrcRecords::Find(const char *Package,bool SrcOnly)
 /* */
 const char *pkgSrcRecords::Parser::BuildDepType(unsigned char Type)
 {
-   const char *fields[] = {"Build-Depends", 
+   const char *fields[] = {"Build-Depends",
                            "Build-Depends-Indep",
 			   "Build-Conflicts",
 			   "Build-Conflicts-Indep"};
-   if (Type < 4) 
-      return fields[Type]; 
-   else 
+   if (Type < 4)
+      return fields[Type];
+   else
       return "";
 }
 									/*}}}*/

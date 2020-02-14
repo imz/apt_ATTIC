@@ -3,8 +3,8 @@
 /* ######################################################################
 
    rpm Package Manager - Provide an interface to rpm
-   
-   ##################################################################### 
+
+   #####################################################################
  */
 									/*}}}*/
 #ifndef PKGLIB_rpmPM_H
@@ -18,7 +18,7 @@
 #include <rpm/rpmcli.h>
 #endif
 									/*}}}*/
-typedef Header rpmHeader; 
+typedef Header rpmHeader;
 
 #ifdef __GNUG__
 #pragma interface "apt-pkg/rpmpm.h"
@@ -42,26 +42,26 @@ class pkgRPMPM : public pkgPackageManager
       Item(Ops Op,PkgIterator Pkg,string File = "")
 	 : Op(Op), File(File), Pkg(Pkg) {};
       Item() {};
-      
+
    };
    vector<Item> List;
 
    // Helpers
    bool RunScripts(const char *Cnf);
    bool RunScriptsWithPkgs(const char *Cnf);
-   
+
    // The Actuall installation implementation
    virtual bool Install(PkgIterator Pkg,string File);
    virtual bool Configure(PkgIterator Pkg);
    virtual bool Remove(PkgIterator Pkg,bool Purge = false);
-    
+
    virtual bool Process(const std::vector<apt_item> &install,
 		const std::vector<apt_item> &upgrade,
 		const std::vector<apt_item> &uninstall) {return false;};
-   
+
    virtual bool Go();
    virtual void Reset();
-   
+
    public:
 
    pkgRPMPM(pkgDepCache *Cache);

@@ -3,10 +3,10 @@
 /* ######################################################################
 
    Hashes - Simple wrapper around the hash functions
-   
+
    This is just used to make building the methods simpler, this is the
    only interface required..
-   
+
    ##################################################################### */
 									/*}}}*/
 // Include Files							/*{{{*/
@@ -17,9 +17,9 @@
 #include <config.h>
 
 #include <apt-pkg/hashes.h>
-    
-#include <unistd.h>    
-#include <system.h>    
+
+#include <unistd.h>
+#include <system.h>
 									/*}}}*/
 
 // Hashes::AddFD - Add the contents of the FD				/*{{{*/

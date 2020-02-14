@@ -1,9 +1,9 @@
 // Description								/*{{{*/
 /* ######################################################################
-   
+
    RPM Package Records - Parser for RPM package records
-     
-   ##################################################################### 
+
+   #####################################################################
  */
 									/*}}}*/
 // Include Files							/*{{{*/
@@ -153,7 +153,7 @@ string rpmRecordParser::LongDesc()
    for (x = str, len = 0; *x; x++, len++)
       if (*x == '\n')
 	 len++;
-   
+
    ret = (char*)malloc(len+1);
    if (ret == NULL)
       return "out of mem";
@@ -170,10 +170,10 @@ string rpmRecordParser::LongDesc()
    // Remove spaces and newlines from end of string
    for (y--; y > ret && (*y == ' ' || *y == '\n'); y--)
       *y = 0;
-   
+
    string Ret = string(ret);
    free(ret);
-   
+
    return Ret;
 }
 									/*}}}*/
@@ -224,7 +224,7 @@ void rpmRecordParser::BufCat(const char *text)
 void rpmRecordParser::BufCat(const char *begin, const char *end)
 {
    unsigned len = end - begin;
-    
+
    while (BufUsed + len + 1 >= BufSize)
    {
       size_t new_size = BufSize + 512;
@@ -257,7 +257,7 @@ void rpmRecordParser::BufCatDep(const char *pkg,
    char *ptr = buf;
 
    BufCat(pkg);
-   if (*version) 
+   if (*version)
    {
       int c = 0;
       *ptr++ = ' ';
@@ -267,12 +267,12 @@ void rpmRecordParser::BufCatDep(const char *pkg,
 	 *ptr++ = '<';
 	 c = '<';
       }
-      if (flags & RPMSENSE_GREATER) 
+      if (flags & RPMSENSE_GREATER)
       {
 	 *ptr++ = '>';
 	 c = '>';
       }
-      if (flags & RPMSENSE_EQUAL) 
+      if (flags & RPMSENSE_EQUAL)
       {
 	 *ptr++ = '=';
       }/* else {
@@ -313,7 +313,7 @@ void rpmRecordParser::BufCatDescr(const char *descr)
 
 // RecordParser::GetRec - The record in raw text, in std Debian format	/*{{{*/
 // ---------------------------------------------------------------------
-void rpmRecordParser::GetRec(const char *&Start,const char *&Stop) 
+void rpmRecordParser::GetRec(const char *&Start,const char *&Stop)
 {
    // FIXME: This method is leaking memory from headerGetEntry().
    rpm_tagtype_t type, type2, type3;
@@ -327,7 +327,7 @@ void rpmRecordParser::GetRec(const char *&Start,const char *&Stop)
    BufUsed = 0;
 
    assert(HeaderP != NULL);
-   
+
    headerGetEntry(HeaderP, RPMTAG_NAME, &type, (void **)&str, &count);
    BufCatTag("Package: ", str);
 
@@ -343,7 +343,7 @@ void rpmRecordParser::GetRec(const char *&Start,const char *&Stop)
    if (!str)
        headerGetEntry(HeaderP, RPMTAG_VENDOR, &type, (void **)&str, &count);
    BufCatTag("\nMaintainer: ", str);
-   
+
    BufCat("\nVersion: ");
    headerGetEntry(HeaderP, RPMTAG_VERSION, &type, (void **)&str, &count);
    if (headerGetEntry(HeaderP, RPMTAG_EPOCH, &type, (void **)&numv, &count)==1)
@@ -370,16 +370,16 @@ void rpmRecordParser::GetRec(const char *&Start,const char *&Stop)
 
    headerGetEntry(HeaderP, RPMTAG_REQUIREVERSION, &type2, (void **)&strv2, &count);
    headerGetEntry(HeaderP, RPMTAG_REQUIREFLAGS, &type3, (void **)&numv, &count);
-   
+
    if (count > 0)
    {
       int i, j;
 
-      for (j = i = 0; i < count; i++) 
+      for (j = i = 0; i < count; i++)
       {
 	 if ((numv[i] & RPMSENSE_PREREQ))
 	 {
-	    if (j == 0) 
+	    if (j == 0)
 		BufCat("\nPre-Depends: ");
 	    else
 		BufCat(", ");
@@ -388,9 +388,9 @@ void rpmRecordParser::GetRec(const char *&Start,const char *&Stop)
 	 }
       }
 
-      for (j = 0, i = 0; i < count; i++) 
+      for (j = 0, i = 0; i < count; i++)
       {
-	 if (!(numv[i] & RPMSENSE_PREREQ)) 
+	 if (!(numv[i] & RPMSENSE_PREREQ))
 	 {
 	    if (j == 0)
 		BufCat("\nDepends: ");
@@ -401,17 +401,17 @@ void rpmRecordParser::GetRec(const char *&Start,const char *&Stop)
 	 }
       }
    }
-   
+
    headerGetEntry(HeaderP, RPMTAG_CONFLICTNAME, &type, (void **)&strv, &count);
    assert(type == RPM_STRING_ARRAY_TYPE || count == 0);
 
    headerGetEntry(HeaderP, RPMTAG_CONFLICTVERSION, &type2, (void **)&strv2, &count);
    headerGetEntry(HeaderP, RPMTAG_CONFLICTFLAGS, &type3, (void **)&numv, &count);
-   
-   if (count > 0) 
+
+   if (count > 0)
    {
       BufCat("\nConflicts: ");
-      for (int i = 0; i < count; i++) 
+      for (int i = 0; i < count; i++)
       {
 	 if (i > 0)
 	     BufCat(", ");
@@ -424,11 +424,11 @@ void rpmRecordParser::GetRec(const char *&Start,const char *&Stop)
 
    headerGetEntry(HeaderP, RPMTAG_PROVIDEVERSION, &type2, (void **)&strv2, &count);
    headerGetEntry(HeaderP, RPMTAG_PROVIDEFLAGS, &type3, (void **)&numv, &count);
-   
-   if (count > 0) 
+
+   if (count > 0)
    {
       BufCat("\nProvides: ");
-      for (int i = 0; i < count; i++) 
+      for (int i = 0; i < count; i++)
       {
 	 if (i > 0)
 	     BufCat(", ");
@@ -443,7 +443,7 @@ void rpmRecordParser::GetRec(const char *&Start,const char *&Stop)
    headerGetEntry(HeaderP, RPMTAG_OBSOLETEFLAGS, &type3, (void **)&numv, &count);
    if (count > 0) {
       BufCat("\nObsoletes: ");
-      for (int i = 0; i < count; i++) 
+      for (int i = 0; i < count; i++)
       {
 	 if (i > 0)
 	     BufCat(", ");
@@ -453,7 +453,7 @@ void rpmRecordParser::GetRec(const char *&Start,const char *&Stop)
 
    headerGetEntry(HeaderP, RPMTAG_ARCH, &type, (void **)&str, &count);
    BufCatTag("\nArchitecture: ", str);
-   
+
    snprintf(buf, sizeof(buf), "%lu", Handler->FileSize());
    BufCatTag("\nSize: ", buf);
 
@@ -478,7 +478,7 @@ void rpmRecordParser::GetRec(const char *&Start,const char *&Stop)
       free(str);
 
    BufCat("\n");
-   
+
    Start = Buffer;
    Stop = Buffer + BufUsed;
 }

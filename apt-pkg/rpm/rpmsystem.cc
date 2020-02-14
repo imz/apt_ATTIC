@@ -5,8 +5,8 @@
    System - Abstraction for running on different systems.
 
    RPM version of the system stuff
-   
-   ##################################################################### 
+
+   #####################################################################
  */
 									/*}}}*/
 // Include Files							/*{{{*/
@@ -30,7 +30,7 @@
 #include <apt-pkg/rpmpackagedata.h>
 
 #include <apti18n.h>
-    
+
 #include <sys/types.h>
 #include <unistd.h>
 #include <stdlib.h>
@@ -364,17 +364,17 @@ static void gatherFileDependencies(map<string,int> &filedeps, Header header)
    //char **verl;
    //int *flagl;
    int res;
-   
+
    res = headerGetEntry(header, RPMTAG_REQUIRENAME, &type,
 			(void **)&namel, &count);
    /*
-   res = headerGetEntry(header, RPMTAG_REQUIREVERSION, &type, 
+   res = headerGetEntry(header, RPMTAG_REQUIREVERSION, &type,
 			(void **)&verl, &count);
    res = headerGetEntry(header, RPMTAG_REQUIREFLAGS, &type,
 			(void **)&flagl, &count);
    */
-   
-   while (count--) 
+
+   while (count--)
    {
       if (*namel[count] == '/')
 	 filedeps[string(namel[count])] = 1;
@@ -403,7 +403,7 @@ bool rpmSystem::FindIndex(pkgCache::PkgFileIterator File,
       Found = StatusFile;
       return true;
    }
-   
+
    return false;
 }
 									/*}}}*/
@@ -419,7 +419,7 @@ bool rpmSystem::ProcessCache(pkgDepCache &Cache,pkgProblemResolver &Fix)
       // Ignore virtual packages
       if (I->VersionList == 0)
 	 continue;
-	 
+
       // Do package holding
       if (I->CurrentVer != 0)
       {

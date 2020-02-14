@@ -1,10 +1,10 @@
 // Description								/*{{{*/
 // $Id: debsrcrecords.h,v 1.2 2002/07/25 18:07:18 niemeyer Exp $
 /* ######################################################################
-   
+
    Debian Source Package Records - Parser implementation for Debian style
                                    source indexes
-   
+
    ##################################################################### */
 									/*}}}*/
 #ifndef PKGLIB_DEBSRCRECORDS_H
@@ -12,7 +12,7 @@
 
 #ifdef __GNUG__
 #pragma interface "apt-pkg/debsrcrecords.h"
-#endif 
+#endif
 
 #include <apt-pkg/srcrecords.h>
 #include <apt-pkg/tagfile.h>
@@ -26,7 +26,7 @@ class debSrcRecordParser : public pkgSrcRecords::Parser
    char Buffer[10000];
    char *StaticBinList[400];
    unsigned long iOffset;
-   
+
    public:
 
    virtual bool Restart() {return Tags.Jump(Sect,0);};
@@ -44,7 +44,7 @@ class debSrcRecordParser : public pkgSrcRecords::Parser
    virtual const char **Binaries();
    virtual bool BuildDepends(vector<BuildDepRec> &BuildDeps, bool ArchOnly);
    virtual unsigned long Offset() {return iOffset;};
-   virtual string AsStr() 
+   virtual string AsStr()
    {
       const char *Start=0,*Stop=0;
       Sect.GetSection(Start,Stop);
@@ -53,7 +53,7 @@ class debSrcRecordParser : public pkgSrcRecords::Parser
    virtual bool Files(vector<pkgSrcRecords::File> &F);
 
    debSrcRecordParser(string File,pkgIndexFile const *Index) :
-                   Parser(Index),      
+                   Parser(Index),
                    Fd(File,FileFd::ReadOnly),
                    Tags(&Fd,sizeof(Buffer)) {};
 };
