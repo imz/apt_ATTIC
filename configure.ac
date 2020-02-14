@@ -184,15 +184,6 @@ AH_TEMPLATE(HAVE_TIMEGM, [Define to 1 if timegm is available])
 AC_CHECK_FUNC(timegm,AC_DEFINE(HAVE_TIMEGM))
 AC_SUBST(HAVE_TIMEGM)
 
-dnl HP-UX needs -d_XOPEN_SOURCE_EXTENDED for h_errno
-AC_MSG_CHECKING(for h_errno)
-AC_EGREP_HEADER(h_errno, netdb.h, [AC_MSG_RESULT(normal)],
-   [CPPFLAGS="$CPPFLAGS -D_XOPEN_SOURCE_EXTENDED"
-    AC_EGREP_HEADER(h_errno, netdb.h,
-       [AC_MSG_RESULT(needs _XOPEN_SOURCE_EXTENDED)],
-       [AC_MSG_ERROR("not found.")])
-   ])
-
 dnl Check for debiandoc
 dnl AC_PATH_PROG(DEBIANDOC_HTML,debiandoc2html)
 dnl AC_PATH_PROG(DEBIANDOC_TEXT,debiandoc2text)
