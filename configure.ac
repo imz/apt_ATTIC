@@ -191,7 +191,6 @@ else
 fi
 AM_CONDITIONAL(COMPILE_MANPAGES, test -n "$DOCBOOK2MAN" -a "$enable_docs" != "no")
 
-AM_GNU_GETTEXT_VERSION([0.11.4])
 AM_GNU_GETTEXT([external])
 
 rc_GLIBC_VER
@@ -205,5 +204,4 @@ AC_OUTPUT([
 	  methods/Makefile
 	  cmdline/Makefile
 	  doc/Makefile
-	  po/Makefile.in
 	  ])
