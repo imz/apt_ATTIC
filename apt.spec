@@ -29,9 +29,6 @@ Conflicts: update-kernel < 0.9.14-alt1
 # of allow-duplicated packages, which changed (due to appending buildtime).
 Conflicts: apt-scripts-nvidia < 0.5.0-alt1
 
-# for autopoint.
-BuildPreReq: cvs
-
 # for apt-pipe.
 BuildPreReq: setproctitle-devel
 
@@ -173,6 +170,7 @@ sed -i 's, > /dev/null 2>&1,,' buildlib/tools.m4
 # Add trivial arch translation.
 printf '%_target_cpu\t%_target_cpu' >> buildlib/archtable
 
+gettextize --force --quiet --no-changelog --symlink
 %autoreconf
 %add_optflags -DAPTRPM_ID=\\\"%name-%{?epoch:%epoch:}%version-%release%{?disttag::%disttag}.%_target_cpu\\\"
 %ifarch %e2k
