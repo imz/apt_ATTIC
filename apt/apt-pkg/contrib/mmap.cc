@@ -43,7 +43,7 @@
 // ---------------------------------------------------------------------
 /* */
 MMap::MMap(FileFd &F,unsigned long Flags) : Flags(Flags), iSize(0),
-                     Base(0)
+                     Base(nullptr)
 {
    if ((Flags & NoImmMap) != NoImmMap)
       Map(F);
@@ -53,7 +53,7 @@ MMap::MMap(FileFd &F,unsigned long Flags) : Flags(Flags), iSize(0),
 // ---------------------------------------------------------------------
 /* */
 MMap::MMap(unsigned long Flags) : Flags(Flags), iSize(0),
-                     Base(0)
+                     Base(nullptr)
 {
 }
 									/*}}}*/
@@ -85,7 +85,7 @@ bool MMap::Map(FileFd &Fd)
 
    // Map it.
    Base = mmap(0,iSize,Prot,Map,Fd.Fd(),0);
-   if (Base == (void *)-1)
+   if (Base == MAP_FAILED)
       return _error->Errno("mmap",_("Couldn't make mmap of %lu bytes"),iSize);
 
    return true;
@@ -271,7 +271,7 @@ unsigned long DynamicMMap::Allocate(unsigned long ItemSize)
 unsigned long DynamicMMap::WriteString(const char *String,
 				       unsigned long Len)
 {
-   if (Len == (unsigned long)-1)
+   if (Len == std::numeric_limits<decltype(Len)>::max())
       Len = strlen(String);
 
    unsigned long Result = iSize;
