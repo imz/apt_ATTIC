@@ -112,8 +112,9 @@ std::optional<unsigned long> pkgCacheGenerator::WriteStringInMap(const char *Str
    return Map.WriteString(String);
 }
 									/*}}}*/
-std::optional<unsigned long> pkgCacheGenerator::AllocateInMap(unsigned long size) {/*{{{*/
-   return Map.Allocate(size);
+template<typename T>
+std::optional<unsigned long> pkgCacheGenerator::AllocateInMap() {/*{{{*/
+   return Map.Allocate<T>();
 }
 									/*}}}*/
 // CacheGenerator::MergeList - Merge the package list			/*{{{*/
@@ -376,7 +377,7 @@ bool pkgCacheGenerator::NewPackage(pkgCache::PkgIterator &Pkg, const string &Nam
 #endif
        
    // Get a structure
-   const auto Package = AllocateInMap(sizeof(pkgCache::Package));
+   const auto Package = AllocateInMap<pkgCache::Package>();
    const auto idxName = WriteStringInMap(Name);
    if ((!Package) || (!idxName))
       return false;
@@ -429,7 +430,7 @@ bool pkgCacheGenerator::NewFileVer(pkgCache::VerIterator &Ver,
       return true;
    
    // Get a structure
-   const auto VerFile = AllocateInMap(sizeof(pkgCache::VerFile));
+   const auto VerFile = AllocateInMap<pkgCache::VerFile>();
    if (!VerFile)
       return false;
    
@@ -460,7 +461,7 @@ std::optional<unsigned long> pkgCacheGenerator::NewVersion(pkgCache::VerIterator
 					    unsigned long Next)
 {
    // Get a structure
-   const auto Version = AllocateInMap(sizeof(pkgCache::Version));
+   const auto Version = AllocateInMap<pkgCache::Version>();
    const auto idxVerStr = WriteStringInMap(VerStr);
    if ((!Version) || (!idxVerStr))
       return std::nullopt;
@@ -487,7 +488,7 @@ bool pkgCacheGenerator::ListParser::NewDepends(pkgCache::VerIterator &Ver,
    pkgCache &Cache = Owner->Cache;
    
    // Get a structure
-   const auto Dependency = Owner->AllocateInMap(sizeof(pkgCache::Dependency));
+   const auto Dependency = Owner->AllocateInMap<pkgCache::Dependency>();
    if (!Dependency)
       return false;
    
@@ -574,7 +575,7 @@ bool pkgCacheGenerator::ListParser::NewProvides(pkgCache::VerIterator &Ver,
       }
    }
    // Get a structure
-   const auto Provides = Owner->AllocateInMap(sizeof(pkgCache::Provides));
+   const auto Provides = Owner->AllocateInMap<pkgCache::Provides>();
    if (!Provides)
       return false;
    /* Note:
@@ -618,7 +619,7 @@ bool pkgCacheGenerator::SelectFile(const string &File, const string &Site,
 				   unsigned long Flags)
 {
    // Get some space for the structure
-   const auto idxFile = AllocateInMap(sizeof(*CurrentFile));
+   const auto idxFile = AllocateInMap<decltype(*CurrentFile)>();
    const auto idxFileName = WriteStringInMap(File);
    const auto idxSite = WriteUniqString(Site);
    const auto idxIndexType = WriteUniqString(Index.GetType()->Label);
@@ -676,7 +677,7 @@ std::optional<unsigned long> pkgCacheGenerator::WriteUniqString(const char *S,
    }
    
    // Get a structure
-   const auto Item = AllocateInMap(sizeof(pkgCache::StringItem));
+   const auto Item = AllocateInMap<pkgCache::StringItem>();
    const auto idxString = WriteStringInMap(S, Size);
    if ((!Item) || (!idxString))
       return std::nullopt;

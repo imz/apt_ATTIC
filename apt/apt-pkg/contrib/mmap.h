@@ -94,7 +94,8 @@ class DynamicMMap : public MMap
 
    // Allocation
    std::optional<unsigned long> RawAllocate(unsigned long Size,unsigned long Aln = 0);
-   std::optional<unsigned long> Allocate(unsigned long ItemSize);
+   template<typename T>
+   std::optional<unsigned long> Allocate();
    std::optional<unsigned long> WriteString(const char *String,unsigned long Len = std::numeric_limits<unsigned long>::max());
    inline std::optional<unsigned long> WriteString(const string &S) {return WriteString(S.c_str(),S.length());};
    void UsePools(Pool &P,unsigned int Count) {Pools = &P; PoolCount = Count;};
@@ -107,17 +108,16 @@ class DynamicMMap : public MMap
 /* Templates */
 
 #include <apt-pkg/error.h>
-#include <cassert>
 
 // DynamicMMap::Allocate - Pooled aligned allocation			/*{{{*/
 // ---------------------------------------------------------------------
 /* This allocates an Item of size ItemSize so that it is aligned to its
    size in the file. */
-std::optional<unsigned long> DynamicMMap::Allocate(unsigned long ItemSize)
+template<typename T>
+std::optional<unsigned long> DynamicMMap::Allocate()
 {
-   assert(ItemSize != 0); /* Actually, we are always called with sizeof(...)
-                             compile-time non-zero constant as the argument.
-                          */
+   constexpr unsigned long ItemSize = sizeof(T);
+   static_assert(ItemSize != 0, "ItemSize == 0");
 
    // Look for a matching pool entry
    Pool *I;

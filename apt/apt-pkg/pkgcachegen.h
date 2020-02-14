@@ -39,7 +39,8 @@ class pkgCacheGenerator
    std::optional<unsigned long> WriteStringInMap(const std::string &String) { return WriteStringInMap(String.c_str(), String.length()); };
    std::optional<unsigned long> WriteStringInMap(const char *String);
    std::optional<unsigned long> WriteStringInMap(const char *String, unsigned long Len);
-   std::optional<unsigned long> AllocateInMap(unsigned long size);
+   template<typename T>
+   std::optional<unsigned long> AllocateInMap();
 
    public:
    
