@@ -4,7 +4,7 @@
 
    System - RPM version of the  System Class
 
-   ##################################################################### 
+   #####################################################################
  */
 									/*}}}*/
 #ifndef PKGLIB_RPMSYSTEM_H
@@ -29,20 +29,20 @@ class rpmSystem : public pkgSystem
    int LockCount;
    RPMDBHandler *RpmDB;
    rpmDatabaseIndex *StatusFile;
-   
+
 #ifdef OLD_FILEDEPS
    map<string,int> FileDeps; // file dependencies
 #endif
 
    bool processIndexFile(rpmIndexFile *Handler,OpProgress &Progress);
-   
+
    public:
 
 #ifdef OLD_FILEDEPS
    bool IsFileDep(string File);
 #endif
    RPMDBHandler *GetDBHandler();
-   
+
    virtual bool LockRead();
    virtual bool Lock();
    virtual bool UnLock(bool NoErrors = false);

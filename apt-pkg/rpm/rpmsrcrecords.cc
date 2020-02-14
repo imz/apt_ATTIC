@@ -1,16 +1,16 @@
 // Description								/*{{{*/
 // $Id: rpmsrcrecords.cc,v 1.9 2003/01/29 15:19:02 niemeyer Exp $
 /* ######################################################################
-   
+
    SRPM Records - Parser implementation for RPM style source indexes
-      
-   ##################################################################### 
+
+   #####################################################################
  */
 									/*}}}*/
 // Include Files							/*{{{*/
 #ifdef __GNUG__
 #pragma implementation "apt-pkg/rpmsrcrecords.h"
-#endif 
+#endif
 
 #include <config.h>
 
@@ -87,9 +87,9 @@ const char **rpmSrcRecordParser::Binaries()
 bool rpmSrcRecordParser::Files(vector<pkgSrcRecords::File> &List)
 {
    assert(HeaderP != NULL);
-    
+
    List.clear();
-   
+
    pkgSrcRecords::File F;
 
    F.MD5Hash = Handler->MD5Sum();
@@ -98,7 +98,7 @@ bool rpmSrcRecordParser::Files(vector<pkgSrcRecords::File> &List)
    F.Type = "srpm";
 
    List.push_back(F);
-   
+
    return true;
 }
 									/*}}}*/
@@ -109,7 +109,7 @@ bool rpmSrcRecordParser::Restart()
    return true;
 }
 
-bool rpmSrcRecordParser::Step() 
+bool rpmSrcRecordParser::Step()
 {
    if (Handler->Skip() == false)
        return false;
@@ -157,7 +157,7 @@ string rpmSrcRecordParser::Version() const
    rpm_tagtype_t type;
    rpm_count_t count;
    int rc;
-   
+
    rc = headerGetEntry(HeaderP, RPMTAG_VERSION,
 		       &type, (void **)&version, &count);
    if (rc != 1)
@@ -176,18 +176,18 @@ string rpmSrcRecordParser::Version() const
    rc = headerGetEntry(HeaderP, RPMTAG_EPOCH,
 			   &type, (void **)&epoch, &count);
    string ret;
-   if (rc == 1 && count > 0) 
+   if (rc == 1 && count > 0)
    {
       char buf[32];
       sprintf(buf, "%i", *epoch);
       ret = string(buf)+":"+string(version)+"-"+string(release);
    }
-   else 
+   else
       ret = string(version)+"-"+string(release);
-   
+
    return ret;
 }
-    
+
 
 // RecordParser::Maintainer - Return the maintainer email		/*{{{*/
 // ---------------------------------------------------------------------
@@ -232,7 +232,7 @@ string rpmSrcRecordParser::Changelog() const
    return rval;
 }
 
-unsigned long rpmSrcRecordParser::Offset() 
+unsigned long rpmSrcRecordParser::Offset()
 {
     return Handler->Offset();
 }
@@ -246,7 +246,7 @@ void rpmSrcRecordParser::BufCat(const char *text)
 void rpmSrcRecordParser::BufCat(const char *begin, const char *end)
 {
    unsigned len = end - begin;
-    
+
    while (BufUsed + len + 1 >= BufSize)
    {
       size_t new_size = BufSize + 512;
@@ -279,7 +279,7 @@ void rpmSrcRecordParser::BufCatDep(const char *pkg,
    char *ptr = (char*)buf;
 
    BufCat(pkg);
-   if (*version) 
+   if (*version)
    {
       int c = 0;
       *ptr++ = ' ';
@@ -289,12 +289,12 @@ void rpmSrcRecordParser::BufCatDep(const char *pkg,
 	 *ptr++ = '<';
 	 c = '<';
       }
-      if (flags & RPMSENSE_GREATER) 
+      if (flags & RPMSENSE_GREATER)
       {
 	 *ptr++ = '>';
 	 c = '>';
       }
-      if (flags & RPMSENSE_EQUAL) 
+      if (flags & RPMSENSE_EQUAL)
       {
 	 *ptr++ = '=';
       }/* else {
@@ -334,7 +334,7 @@ void rpmSrcRecordParser::BufCatDescr(const char *descr)
 
 // SrcRecordParser::AsStr - The record in raw text
 // -----------------------------------------------
-string rpmSrcRecordParser::AsStr() 
+string rpmSrcRecordParser::AsStr()
 {
    // FIXME: This method is leaking memory from headerGetEntry().
    rpm_tagtype_t type, type2, type3;
@@ -347,7 +347,7 @@ string rpmSrcRecordParser::AsStr()
    char buf[32];
 
    BufUsed = 0;
-   
+
    headerGetEntry(HeaderP, RPMTAG_NAME, &type, (void **)&str, &count);
    BufCatTag("Package: ", str);
 
@@ -363,7 +363,7 @@ string rpmSrcRecordParser::AsStr()
    if (!str)
        headerGetEntry(HeaderP, RPMTAG_VENDOR, &type, (void **)&str, &count);
    BufCatTag("\nMaintainer: ", str);
-   
+
    BufCat("\nVersion: ");
    headerGetEntry(HeaderP, RPMTAG_VERSION, &type, (void **)&str, &count);
    if (headerGetEntry(HeaderP, RPMTAG_EPOCH, &type, (void **)&numv, &count)==1)
@@ -379,16 +379,16 @@ string rpmSrcRecordParser::AsStr()
 
    headerGetEntry(HeaderP, RPMTAG_REQUIREVERSION, &type2, (void **)&strv2, &count);
    headerGetEntry(HeaderP, RPMTAG_REQUIREFLAGS, &type3, (void **)&numv, &count);
-   
+
    if (count > 0)
    {
       int i, j;
 
-      for (j = i = 0; i < count; i++) 
+      for (j = i = 0; i < count; i++)
       {
 	 if ((numv[i] & RPMSENSE_PREREQ))
 	 {
-	    if (j == 0) 
+	    if (j == 0)
 		BufCat("\nPre-Depends: ");
 	    else
 		BufCat(", ");
@@ -397,9 +397,9 @@ string rpmSrcRecordParser::AsStr()
 	 }
       }
 
-      for (j = 0, i = 0; i < count; i++) 
+      for (j = 0, i = 0; i < count; i++)
       {
-	 if (!(numv[i] & RPMSENSE_PREREQ)) 
+	 if (!(numv[i] & RPMSENSE_PREREQ))
 	 {
 	    if (j == 0)
 		BufCat("\nDepends: ");
@@ -410,17 +410,17 @@ string rpmSrcRecordParser::AsStr()
 	 }
       }
    }
-   
+
    headerGetEntry(HeaderP, RPMTAG_CONFLICTNAME, &type, (void **)&strv, &count);
    assert(type == RPM_STRING_ARRAY_TYPE || count == 0);
 
    headerGetEntry(HeaderP, RPMTAG_CONFLICTVERSION, &type2, (void **)&strv2, &count);
    headerGetEntry(HeaderP, RPMTAG_CONFLICTFLAGS, &type3, (void **)&numv, &count);
-   
-   if (count > 0) 
+
+   if (count > 0)
    {
       BufCat("\nConflicts: ");
-      for (int i = 0; i < count; i++) 
+      for (int i = 0; i < count; i++)
       {
 	 if (i > 0)
 	     BufCat(", ");
@@ -455,7 +455,7 @@ string rpmSrcRecordParser::AsStr()
       free(str);
 
    BufCat("\n");
-   
+
    return string(Buffer, BufUsed);
 }
 
@@ -487,16 +487,16 @@ bool rpmSrcRecordParser::BuildDepends(vector<pkgSrcRecords::Parser::BuildDepRec>
       rpm_tagtype_t type;
       rpm_count_t count;
 
-      res = headerGetEntry(HeaderP, RpmTypeTag[0+Type*3], &type, 
+      res = headerGetEntry(HeaderP, RpmTypeTag[0+Type*3], &type,
 			 (void **)&namel, &count);
       if (res != 1)
 	 return true;
-      res = headerGetEntry(HeaderP, RpmTypeTag[1+Type*3], &type, 
+      res = headerGetEntry(HeaderP, RpmTypeTag[1+Type*3], &type,
 			 (void **)&verl, &count);
       res = headerGetEntry(HeaderP, RpmTypeTag[2+Type*3], &type,
 			 (void **)&flagl, &count);
-      
-      for (int i = 0; i < count; i++) 
+
+      for (int i = 0; i < count; i++)
       {
 #if RPM_VERSION >= 0x040404 && 0
          if (namel[i][0] == 'g' && strncmp(namel[i], "getconf", 7) == 0)
@@ -511,7 +511,7 @@ bool rpmSrcRecordParser::BuildDepends(vector<pkgSrcRecords::Parser::BuildDepRec>
             if (res) continue;
          }
 #endif
-	 if (strncmp(namel[i], "rpmlib", 6) == 0) 
+	 if (strncmp(namel[i], "rpmlib", 6) == 0)
 	 {
 #if HAVE_RPMCHECKRPMLIBPROVIDES && RPM_VERSION >= 0x040d00 /* 4.13.0 (ALT specific) */
 	    int res = rpmCheckRpmlibProvides(namel[i], verl?verl[i]:NULL,
@@ -536,30 +536,30 @@ bool rpmSrcRecordParser::BuildDepends(vector<pkgSrcRecords::Parser::BuildDepRec>
 	    if (res) continue;
 	 }
 
-	 if (verl) 
+	 if (verl)
 	 {
-	    if (!*verl[i]) 
+	    if (!*verl[i])
 	       rec.Op = pkgCache::Dep::NoOp;
-	    else 
+	    else
 	    {
-	       if (flagl[i] & RPMSENSE_LESS) 
+	       if (flagl[i] & RPMSENSE_LESS)
 	       {
 		  if (flagl[i] & RPMSENSE_EQUAL)
 		      rec.Op = pkgCache::Dep::LessEq;
 		  else
 		      rec.Op = pkgCache::Dep::Less;
-	       } 
-	       else if (flagl[i] & RPMSENSE_GREATER) 
+	       }
+	       else if (flagl[i] & RPMSENSE_GREATER)
 	       {
 		  if (flagl[i] & RPMSENSE_EQUAL)
 		      rec.Op = pkgCache::Dep::GreaterEq;
 		  else
 		      rec.Op = pkgCache::Dep::Greater;
-	       } 
-	       else if (flagl[i] & RPMSENSE_EQUAL) 
+	       }
+	       else if (flagl[i] & RPMSENSE_EQUAL)
 		  rec.Op = pkgCache::Dep::Equals;
 	    }
-	    
+
 	    rec.Version = verl[i];
 	 }
 	 else

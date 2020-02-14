@@ -63,7 +63,7 @@ static int do_listen()
 {
 	int servsock;
 	struct sockaddr_un sockaddr;
-	
+
 	if ((servsock = socket(AF_LOCAL, SOCK_STREAM, 0)) < 0)
 		return -1;
 
@@ -82,7 +82,7 @@ static ssize_t recv_query(int sock, void *buf, size_t bufsize, int *fd)
 	struct msghdr msg;
 	struct iovec iov[1];
 	ssize_t	received = 0;
-	
+
 	union {
 		struct cmsghdr cm;
 		char control[CMSG_SPACE(sizeof(int))];
@@ -130,7 +130,7 @@ static int send_reply(int sock, char *buf, ssize_t bufsize, int fd)
 	*av = "";
 
 	argz_extract(buf, bufsize, ++av);
-	
+
 	ac = i = aptpipe_main(ac, (const char **)--av);
 	fflush(stdout);
 	fflush(stderr);
@@ -210,7 +210,7 @@ static int daemonize()
 		if (fds[1] < 0)
 			exit(1);
 	}
-	
+
 	if ((fd = open("/dev/null", O_RDWR)) < 0)
 		exit(1);
 
@@ -220,7 +220,7 @@ static int daemonize()
 
 	/* closeall */
 	i = sysconf (_SC_OPEN_MAX);
-	for (fd = 3; fd < i; fd++) 
+	for (fd = 3; fd < i; fd++)
 		if (fd != fds[1])
 			close (fd);
 
@@ -335,7 +335,7 @@ static ssize_t send_query(int fd, int ac, char *av[])
 	iov->iov_base = &i;
 	iov->iov_len = 1;
 	msg.msg_iovlen = 1;
-	
+
 	msg.msg_control = control_un.control;
 	msg.msg_controllen = sizeof(control_un.control);
 

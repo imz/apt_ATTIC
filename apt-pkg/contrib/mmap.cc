@@ -1,7 +1,7 @@
 // Description								/*{{{*/
 // $Id: mmap.cc,v 1.1 2002/07/23 17:54:51 niemeyer Exp $
 /* ######################################################################
-   
+
    MMap Class - Provides 'real' mmap or a faked mmap using read().
 
    MMap cover class.
@@ -11,18 +11,18 @@
    void *. We can't safely do anything here that would be portable, so
    libc6 generates warnings -- which should be errors, g++ isn't properly
    strict.
-   
+
    The configure test notes that some OS's have broken private mmap's
    so on those OS's we can't use mmap. This means we have to use
    configure to test mmap and can't rely on the POSIX
    _POSIX_MAPPED_FILES test.
-   
+
    ##################################################################### */
 									/*}}}*/
 // Include Files							/*{{{*/
 #ifdef __GNUG__
 #pragma implementation "apt-pkg/mmap.h"
-#endif 
+#endif
 
 #include <config.h>
 
@@ -71,7 +71,7 @@ MMap::~MMap()
 bool MMap::Map(FileFd &Fd)
 {
    iSize = Fd.Size();
-   
+
    // Set the permissions.
    int Prot = PROT_READ;
    int Map = MAP_SHARED;
@@ -79,10 +79,10 @@ bool MMap::Map(FileFd &Fd)
       Prot |= PROT_WRITE;
    if ((Flags & Public) != Public)
       Map = MAP_PRIVATE;
-   
+
    if (iSize == 0)
       return _error->Error(_("Can't mmap an empty file"));
-   
+
    // Map it.
    Base = mmap(0,iSize,Prot,Map,Fd.Fd(),0);
    if (Base == (void *)-1)
@@ -98,13 +98,13 @@ bool MMap::Close(bool DoSync)
 {
    if ((Flags & UnMapped) == UnMapped || Base == 0 || iSize == 0)
       return true;
-   
+
    if (DoSync == true)
       Sync();
-   
+
    if (munmap((char *)Base,iSize) != 0)
       _error->Warning("Unable to munmap");
-   
+
    iSize = 0;
    Base = 0;
    return true;
@@ -112,18 +112,18 @@ bool MMap::Close(bool DoSync)
 									/*}}}*/
 // MMap::Sync - Syncronize the map with the disk			/*{{{*/
 // ---------------------------------------------------------------------
-/* This is done in syncronous mode - the docs indicate that this will 
+/* This is done in syncronous mode - the docs indicate that this will
    not return till all IO is complete */
 bool MMap::Sync()
-{   
+{
    if ((Flags & UnMapped) == UnMapped)
       return true;
-   
-#ifdef _POSIX_SYNCHRONIZED_IO   
+
+#ifdef _POSIX_SYNCHRONIZED_IO
    if ((Flags & ReadOnly) != ReadOnly)
       if (msync((char *)Base,iSize,MS_SYNC) != 0)
 	 return _error->Errno("msync","Unable to write mmap");
-#endif   
+#endif
    return true;
 }
 									/*}}}*/
@@ -134,13 +134,13 @@ bool MMap::Sync(unsigned long Start,unsigned long Stop)
 {
    if ((Flags & UnMapped) == UnMapped)
       return true;
-   
+
 #ifdef _POSIX_SYNCHRONIZED_IO
    unsigned long PSize = sysconf(_SC_PAGESIZE);
    if ((Flags & ReadOnly) != ReadOnly)
       if (msync((char *)Base+(int)(Start/PSize)*PSize,Stop - Start,MS_SYNC) != 0)
 	 return _error->Errno("msync","Unable to write mmap");
-#endif   
+#endif
    return true;
 }
 									/*}}}*/
@@ -148,12 +148,12 @@ bool MMap::Sync(unsigned long Start,unsigned long Stop)
 // DynamicMMap::DynamicMMap - Constructor				/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-DynamicMMap::DynamicMMap(FileFd &F,unsigned long Flags,unsigned long WorkSpace) : 
+DynamicMMap::DynamicMMap(FileFd &F,unsigned long Flags,unsigned long WorkSpace) :
              MMap(F,Flags | NoImmMap), Fd(&F), WorkSpace(WorkSpace)
 {
    if (_error->PendingError() == true)
       return;
-   
+
    unsigned long EndOfFile = Fd->Size();
    if (EndOfFile > WorkSpace)
       WorkSpace = EndOfFile;
@@ -163,7 +163,7 @@ DynamicMMap::DynamicMMap(FileFd &F,unsigned long Flags,unsigned long WorkSpace) 
       char C = 0;
       Fd->Write(&C,sizeof(C));
    }
-   
+
    Map(F);
    iSize = EndOfFile;
 }
@@ -176,7 +176,7 @@ DynamicMMap::DynamicMMap(unsigned long Flags,unsigned long WorkSpace) :
 {
    if (_error->PendingError() == true)
       return;
-   
+
    Base = new unsigned char[WorkSpace];
    memset(Base,0,WorkSpace);
    iSize = 0;
@@ -192,12 +192,12 @@ DynamicMMap::~DynamicMMap()
       delete [] (unsigned char *)Base;
       return;
    }
-   
+
    unsigned long EndOfFile = iSize;
    iSize = WorkSpace;
    Close(false);
    ftruncate(Fd->Fd(),EndOfFile);
-}  
+}
 									/*}}}*/
 // DynamicMMap::RawAllocate - Allocate a raw chunk of unaligned space	/*{{{*/
 // ---------------------------------------------------------------------
@@ -207,9 +207,9 @@ unsigned long DynamicMMap::RawAllocate(unsigned long Size,unsigned long Aln)
    unsigned long Result = iSize;
    if (Aln != 0)
       Result += Aln - (iSize%Aln);
-   
+
    iSize = Result + Size;
-   
+
    // Just in case error check
    if (Result + Size > WorkSpace)
    {
@@ -225,7 +225,7 @@ unsigned long DynamicMMap::RawAllocate(unsigned long Size,unsigned long Aln)
 /* This allocates an Item of size ItemSize so that it is aligned to its
    size in the file. */
 unsigned long DynamicMMap::Allocate(unsigned long ItemSize)
-{   
+{
    // Look for a matching pool entry
    Pool *I;
    Pool *Empty = 0;
@@ -246,22 +246,22 @@ unsigned long DynamicMMap::Allocate(unsigned long ItemSize)
 	 _error->Error("Ran out of allocation pools");
 	 return 0;
       }
-      
+
       I = Empty;
       I->ItemSize = ItemSize;
       I->Count = 0;
    }
-   
+
    // Out of space, allocate some more
    if (I->Count == 0)
    {
       I->Count = 20*1024/ItemSize;
       I->Start = RawAllocate(I->Count*ItemSize,ItemSize);
-   }   
+   }
 
    I->Count--;
    unsigned long Result = I->Start;
-   I->Start += ItemSize;  
+   I->Start += ItemSize;
    return Result/ItemSize;
 }
 									/*}}}*/
@@ -277,8 +277,8 @@ unsigned long DynamicMMap::WriteString(const char *String,
    {
       _error->Error("Dynamic MMap ran out of room");
       return 0;
-   }   
-   
+   }
+
    if (Len == (unsigned long)-1)
       Len = strlen(String);
    iSize += Len + 1;
