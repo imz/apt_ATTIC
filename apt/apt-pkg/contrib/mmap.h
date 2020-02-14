@@ -29,6 +29,8 @@
 #endif
 
 #include <string>
+#include <limits>
+
 #include <apt-pkg/fileutl.h>
 
 using std::string;
@@ -64,7 +66,7 @@ class MMap
    bool Sync(unsigned long Start,unsigned long Stop);
 
    MMap(FileFd &F,unsigned long Flags);
-   MMap(unsigned long Flags);
+   explicit MMap(unsigned long Flags);
    virtual ~MMap();
 };
 
@@ -92,7 +94,7 @@ class DynamicMMap : public MMap
    // Allocation
    unsigned long RawAllocate(unsigned long Size,unsigned long Aln = 0);
    unsigned long Allocate(unsigned long ItemSize);
-   unsigned long WriteString(const char *String,unsigned long Len = (unsigned long)-1);
+   unsigned long WriteString(const char *String,unsigned long Len = std::numeric_limits<unsigned long>::max());
    inline unsigned long WriteString(const string &S) {return WriteString(S.c_str(),S.length());};
    void UsePools(Pool &P,unsigned int Count) {Pools = &P; PoolCount = Count;};
 
