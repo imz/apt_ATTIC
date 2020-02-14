@@ -484,28 +484,28 @@ void pkgAcqIndexRel::Done(string Message,unsigned long Size,string MD5,
 	    return;
 	 }
 
- 	 bool found = false;
- 	 for (vector<string>::const_iterator I = Repository->FingerPrint.begin();
- 	      I != Repository->FingerPrint.end(); I++)
- 	 {
- 	    // Match fingerprint of Release file
- 	    if ((*I) == FingerPrint)
- 	    {
- 	       found = true;
- 	       break;
- 	    }
- 	 }
+	 bool found = false;
+	 for (vector<string>::const_iterator I = Repository->FingerPrint.begin();
+	      I != Repository->FingerPrint.end(); I++)
+	 {
+	    // Match fingerprint of Release file
+	    if ((*I) == FingerPrint)
+	    {
+	       found = true;
+	       break;
+	    }
+	 }
 
- 	 if (!found)
- 	 {
- 	    Status = StatError;
- 	    ErrorText = _("Signature fingerprint of Release file does not match (expected ");
- 	    for (vector<string>::const_iterator I = Repository->FingerPrint.begin();
- 		 I != Repository->FingerPrint.end(); I++)
- 	      ErrorText += "\n"+(*I);
- 	    ErrorText += _(", got ")+FingerPrint+")";
-  	    return;
-  	 }
+	 if (!found)
+	 {
+	    Status = StatError;
+	    ErrorText = _("Signature fingerprint of Release file does not match (expected ");
+	    for (vector<string>::const_iterator I = Repository->FingerPrint.begin();
+		 I != Repository->FingerPrint.end(); I++)
+	      ErrorText += "\n"+(*I);
+	    ErrorText += _(", got ")+FingerPrint+")";
+	    return;
+	 }
 
       }
 
@@ -692,7 +692,7 @@ pkgAcqArchive::pkgAcqArchive(pkgAcquire *Owner,pkgSourceList *Sources,
       // Generate the final file name as: package_version_arch.foo
       StoreFilename = QuoteString(Version.ParentPkg().Name(),"_:") + '_' +
 	              QuoteString(Version.VerStr(),"_:") + '_' +
-     	              QuoteString(Version.Arch(),"_:.") +
+	              QuoteString(Version.Arch(),"_:.") +
 	              "." + flExtension(Parse.FileName());
    }
 
@@ -850,7 +850,7 @@ void pkgAcqArchive::Done(string Message,unsigned long Size,string Md5Hash,
 	if (_config->FindB("Debug::pkgAcquire::Auth", false)) {
 	    cerr << "md5 mismatch: " << Md5Hash << "!=" << MD5 << endl;
 	}
- 	 Status = StatError;
+	 Status = StatError;
 	 ErrorText = _("MD5Sum mismatch");
 	 Rename(DestFile,DestFile + ".FAILED");
 	 return;

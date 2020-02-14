@@ -49,7 +49,7 @@
 #include "acqprogress.h"
 
 // CNC:2003-02-14 - apti18n.h includes libintl.h which includes locale.h,
-// 		    as reported by Radu Greab.
+//		    as reported by Radu Greab.
 //#include <locale.h>
 #include <langinfo.h>
 #include <fstream>
@@ -920,11 +920,11 @@ printVerList(const char *msg, const std::list<pkgCache::VerIterator> &list)
 // CNC:2003-11-11
 bool TryToChangeVer(pkgCache::PkgIterator &Pkg,pkgDepCache &Cache,
 		    pkgProblemResolver &Fix,
- 		    int VerOp,const char *VerTag,bool IsRel)
+		    int VerOp,const char *VerTag,bool IsRel)
 {
    // CNC:2003-11-05
    pkgVersionMatch Match(VerTag,(IsRel == true?pkgVersionMatch::Release :
- 				 pkgVersionMatch::Version),VerOp);
+				 pkgVersionMatch::Version),VerOp);
 
    std::list<pkgCache::VerIterator> found = Match.FindAll(Pkg);
    //printVerList("found", found);
@@ -2283,7 +2283,7 @@ bool DoBuildDep(CommandLine &CmdL)
       // Process the build-dependencies
       vector<pkgSrcRecords::Parser::BuildDepRec> BuildDeps;
       if (Last->BuildDepends(BuildDeps, _config->FindB("APT::Get::Arch-Only",false)) == false)
-      	return _error->Error(_("Unable to get build-dependency information for %s"),Src.c_str());
+	return _error->Error(_("Unable to get build-dependency information for %s"),Src.c_str());
 
       // Also ensure that build-essential packages are present
       Configuration::Item const *Opts = _config->Tree("APT::Build-Essential");
@@ -2875,9 +2875,9 @@ int main(int argc,const char *argv[])
    // Setup the output streams
    if (_config->FindB("simple-output"))
    {
-   	c0out.rdbuf(devnull.rdbuf());
- 	c1out.rdbuf(devnull.rdbuf());
- 	c2out.rdbuf(devnull.rdbuf());
+	c0out.rdbuf(devnull.rdbuf());
+	c1out.rdbuf(devnull.rdbuf());
+	c2out.rdbuf(devnull.rdbuf());
 	c3out.rdbuf(cout.rdbuf());
    }
    else
