@@ -7,16 +7,14 @@ Summary(ru_RU.UTF-8): Debian APT - Усовершенствованное сре
 License: GPL
 Group: System/Configuration/Packaging
 URL: http://apt-rpm.org
-
-Source0: %name-%version.tar
+Vcs: git://git.altlinux.org/gears/a/apt.git
+Source0: %name-%version-%release.tar
 Source1: apt.conf
 Source2: genbasedir
 Source3: README.rsync
 Source4: apt.ru.po
 Source5: apt.be.po
 Source6: ChangeLog-rpm.old
-
-Patch: apt-%version-%release.patch
 
 Requires: libapt = %EVR
 Requires: rpm >= 4.13.0.1-alt2, /etc/apt/pkgpriorities, apt-conf
@@ -194,10 +192,7 @@ This package contains method 'https' for APT.
 # }}}
 
 %prep
-%setup
-%patch -p1
-
-find -type f -name \*.orig -delete
+%setup -n %name-%version-%release
 
 # Ensure system-wide lua5 in use.
 rm -rf lua
