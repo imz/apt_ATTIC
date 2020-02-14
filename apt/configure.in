@@ -257,7 +257,6 @@ AC_OUTPUT([
 	  apt-pkg/Makefile
 	  methods/Makefile
 	  cmdline/Makefile
-	  tools/Makefile
 	  doc/Makefile
 	  po/Makefile.in
 	  ])
