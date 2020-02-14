@@ -222,6 +222,7 @@ done
 unset RPM_PYTHON
 
 %set_verify_elf_method strict
+%define _unpackaged_files_terminate_build 1
 
 %files -f %name.lang
 %_bindir/apt-*
