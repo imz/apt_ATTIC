@@ -44,7 +44,8 @@ BuildRequires: libgnutls-devel
 %package -n libapt
 Summary: APT's core libraries
 Group: System/Libraries
-PreReq: librpm7 >= 4.13.0.1-alt2
+# RPMTAG_AUTOINSTALLED is supported since 4.13.0.1-alt2.
+Requires: librpm7 >= 4.13.0.1-alt2
 
 %package -n libapt-devel
 Summary: Development files and documentation for APT's core libs
