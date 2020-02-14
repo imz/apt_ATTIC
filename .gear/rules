@@ -1,6 +1,5 @@
 copy: *.conf
 copy: *.old
-copy: *.po
 copy: *.rsync
 copy: genbasedir
 tar: apt name=@name@-@version@-@release@
