@@ -74,7 +74,7 @@ static int AptLua_pkgcomp(lua_State *L);
 #define CACHE_KEY "ChunkCache"
 
 Lua::Lua()
-      : DepCache(0), Cache(0), CacheControl(0), Fix(0), DontFix(0)
+      : Cache(0), DepCache(0), CacheControl(0), Fix(0), DontFix(0)
 {
    _config->CndSet("Dir::Bin::scripts", "/usr/share/apt/scripts");
 
