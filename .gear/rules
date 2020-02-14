@@ -1,4 +1,1 @@
-copy: *.conf
-copy: *.old
-copy: *.rsync
-tar: apt name=@name@-@version@-@release@
+tar: . name=@name@-@version@-@release@
