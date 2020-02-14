@@ -194,9 +194,6 @@ This package contains method 'https' for APT.
 %prep
 %setup -n %name-%version-%release
 
-# Ensure system-wide lua5 in use.
-rm -rf lua
-
 install -pm644 %SOURCE3 %SOURCE6 .
 install -pm644 %SOURCE4 po/ru.po
 install -pm644 %SOURCE5 po/be.po
