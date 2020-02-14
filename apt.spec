@@ -41,7 +41,7 @@ BuildPreReq: setproctitle-devel
 # should be same version in rpm.spec
 BuildPreReq: liblua5.3-devel
 
-BuildRequires: bzlib-devel cvs docbook-utils gcc-c++ libreadline-devel librpm-devel setproctitle-devel zlib-devel
+BuildRequires: docbook-utils gcc-c++ libreadline-devel librpm-devel setproctitle-devel
 BuildRequires: libgnutls-devel
 
 %package -n libapt

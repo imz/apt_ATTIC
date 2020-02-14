@@ -89,12 +89,6 @@ else
    AC_CHECK_LIB([rpm],[rpmRangesOverlap],[
       AC_DEFINE([HAVE_RPMRANGESOVERLAP],[1],[Define to 1 if librpm rpmRangesOverlap is present])])
 
-   AC_CHECK_LIB(bz2,BZ2_bzopen, [],
-		[AC_MSG_ERROR([Can't find libbz2 library])])
-   AC_CHECK_LIB(z,gzopen, [],
-		[AC_MSG_ERROR([Can't find libz library])])
-   dnl AC_CHECK_HEADERS(db1/db.h)
-
    CPPFLAGS="$CPPFLAGS -I/usr/include/rpm"
    AC_CHECK_HEADER(rpm/rpmlib.h, [],
 		   [AC_MSG_ERROR([Can't find rpmlib.h])])
