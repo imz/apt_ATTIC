@@ -1384,5 +1384,3 @@ int main()
    HttpMethod Mth;
    return Mth.Loop();
 }
-
-

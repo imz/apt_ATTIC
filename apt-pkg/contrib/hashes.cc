@@ -41,4 +41,3 @@ bool Hashes::AddFD(int Fd,unsigned long Size)
    return true;
 }
 									/*}}}*/
-
