@@ -104,4 +104,65 @@ class DynamicMMap : public MMap
    virtual ~DynamicMMap();
 };
 
+/* Templates */
+
+#include <apt-pkg/error.h>
+#include <cassert>
+
+// DynamicMMap::Allocate - Pooled aligned allocation			/*{{{*/
+// ---------------------------------------------------------------------
+/* This allocates an Item of size ItemSize so that it is aligned to its
+   size in the file. */
+std::experimental::optional<unsigned long> DynamicMMap::Allocate(unsigned long ItemSize)
+{
+   assert(ItemSize != 0); /* Actually, we are always called with sizeof(...)
+                             compile-time non-zero constant as the argument.
+                          */
+
+   // Look for a matching pool entry
+   Pool *I;
+   Pool *Empty = 0;
+   for (I = Pools; I != Pools + PoolCount; I++)
+   {
+      if (I->ItemSize == 0)
+	 Empty = I;
+      if (I->ItemSize == ItemSize)
+	 break;
+   }
+
+   // No pool is allocated, use an unallocated one
+   if (I == Pools + PoolCount)
+   {
+      // Woops, we ran out, the calling code should allocate more.
+      if (Empty == 0)
+      {
+	 _error->Error("Ran out of allocation pools");
+	 return std::experimental::nullopt;
+      }
+
+      I = Empty;
+      I->ItemSize = ItemSize;
+      I->Count = 0;
+   }
+
+   // Out of space, allocate some more
+   if (I->Count == 0)
+   {
+      I->Count = 20*1024/ItemSize;
+      auto idxResult = RawAllocate(I->Count*ItemSize,ItemSize);
+
+      // Has the allocation failed?
+      if (!idxResult)
+         return std::experimental::nullopt;
+
+      I->Start = *idxResult;
+   }
+
+   I->Count--;
+   unsigned long Result = I->Start;
+   I->Start += ItemSize;
+   return Result/ItemSize;
+}
+									/*}}}*/
+
 #endif
