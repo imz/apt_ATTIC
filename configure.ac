@@ -198,16 +198,6 @@ AH_TEMPLATE(HAVE_TIMEGM, [Define to 1 if timegm is available])
 AC_CHECK_FUNC(timegm,AC_DEFINE(HAVE_TIMEGM))
 AC_SUBST(HAVE_TIMEGM)
 
-dnl HP-UX sux..
-AH_TEMPLATE(NEED_SOCKLEN_T_DEFINE, [Define to 1 if socket_t is missing])
-AC_MSG_CHECKING(for missing socklen_t)
-AC_EGREP_HEADER(socklen_t, sys/socket.h,[AC_MSG_RESULT(no)],[
-	AC_DEFINE(NEED_SOCKLEN_T_DEFINE)
-	NEED_SOCKLEN_T_DEFINE=yes
-        AC_MSG_RESULT(missing.)])
-AC_SUBST(NEED_SOCKLEN_T_DEFINE)
-AM_CONDITIONAL(NEED_NETDB_H, test "$NEED_SOCKLEN_T_DEFINE" = "yes")
-
 dnl HP-UX needs -d_XOPEN_SOURCE_EXTENDED for h_errno
 AC_MSG_CHECKING(for h_errno)
 AC_EGREP_HEADER(h_errno, netdb.h, [AC_MSG_RESULT(normal)],
