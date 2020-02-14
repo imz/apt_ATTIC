@@ -179,11 +179,6 @@ AC_CHECK_SIZEOF(int)
 AC_CHECK_SIZEOF(short)
 AC_CHECK_SIZEOF(long)
 
-dnl We should use the real timegm function if we have it.
-AH_TEMPLATE(HAVE_TIMEGM, [Define to 1 if timegm is available])
-AC_CHECK_FUNC(timegm,AC_DEFINE(HAVE_TIMEGM))
-AC_SUBST(HAVE_TIMEGM)
-
 dnl Check for debiandoc
 dnl AC_PATH_PROG(DEBIANDOC_HTML,debiandoc2html)
 dnl AC_PATH_PROG(DEBIANDOC_TEXT,debiandoc2text)
