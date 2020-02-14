@@ -108,7 +108,7 @@ libapt_pkg_la_SOURCES = \
 	versionmatch.cc \
 	versionmatch.h
 
-PRIVATEHEADERS = contrib/system.h
+PRIVATEHEADERS = contrib/system.h rpm/rpmshowprogress.h
 
 includedir=${prefix}/include/apt-pkg
 include_HEADERS = $(filter-out \
