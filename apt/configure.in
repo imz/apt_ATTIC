@@ -251,18 +251,9 @@ rc_LIBSTDCPP_VER
 rc_CXX11ABI
 dnl ah_GCC3DEP
 
-dnl Fix up intl/Makefile to point to the right config.h
-AC_CONFIG_COMMANDS([fixintl],[
-	sed -e 's,\.\./config.h,$(top_builddir)/include/config.h,g' \
-	    -e 's,^\(INCLUDES = .*\)$,\1 -I$(top_builddir)/include,g' \
-	    intl/Makefile > intl/Makefile.tmp
-	mv -f intl/Makefile{.tmp,}
-])
-
 AC_OUTPUT([
 	  Makefile
 	  buildlib/Makefile
-	  intl/Makefile 
 	  apt-pkg/Makefile
 	  methods/Makefile
 	  cmdline/Makefile
