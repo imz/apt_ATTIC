@@ -45,7 +45,7 @@ static void sighandler(int sig)
 
 static void set_sighandler(int flags)
 {
- 	struct sigaction sa;
+	struct sigaction sa;
 
 	sa.sa_handler = sighandler;
 	sigemptyset(&sa.sa_mask);

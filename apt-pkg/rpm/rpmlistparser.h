@@ -37,7 +37,7 @@ class rpmListParser : public pkgCacheGenerator::ListParser
 
 #ifdef WITH_HASH_MAP
    typedef hash_map<const char*,bool,
-   		    hash<const char*>,cstr_eq_pred> SeenPackagesType;
+		    hash<const char*>,cstr_eq_pred> SeenPackagesType;
 #else
    typedef map<const char*,bool,cstr_lt_pred> SeenPackagesType;
 #endif
@@ -73,10 +73,10 @@ class rpmListParser : public pkgCacheGenerator::ListParser
    virtual unsigned long Flags();
 
    virtual bool OrderedOffset()
-   	{return Handler->OrderedOffset();};
+	{return Handler->OrderedOffset();};
 
    virtual bool IsDatabase()
-   	{return Handler->IsDatabase();};
+	{return Handler->IsDatabase();};
 
    virtual bool CollectFileProvides(pkgCache &Cache,
 				    pkgCache::VerIterator Ver);
