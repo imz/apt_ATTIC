@@ -5,7 +5,7 @@ AC_INIT([apt],[0.5.15lorg2])
 dnl Check the archs, we want the target type.
 AC_CONFIG_AUX_DIR([buildlib])
 AC_CANONICAL_HOST
-AC_CONFIG_SRCDIR([configure.in])
+AC_CONFIG_SRCDIR([configure.ac])
 AM_INIT_AUTOMAKE([foreign subdir-objects dist-bzip2 1.7])
 AM_MAINTAINER_MODE
 
