@@ -65,7 +65,3 @@ methods/gzip.cc
 methods/http.cc
 methods/rfc2553emu.cc
 methods/rsh.cc
-
-tools/cached_md5.cc
-tools/genpkglist.cc
-tools/gensrclist.cc

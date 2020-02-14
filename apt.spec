@@ -10,7 +10,6 @@ URL: http://apt-rpm.org
 Vcs: git://git.altlinux.org/gears/a/apt.git
 Source0: %name-%version-%release.tar
 Source1: apt.conf
-Source2: genbasedir
 Source3: README.rsync
 Source6: ChangeLog-rpm.old
 
@@ -64,13 +63,6 @@ Summary: Development static library for APT's libs
 Summary(ru_RU.UTF-8): Статическая библиотека APT для разработчиков, использующих библиотеки APT
 Group: Development/C
 Requires: libapt-devel = %EVR, librpm-devel-static >= 4.13.0.1-alt2
-
-%package utils
-Summary: Utilities to create APT repositories (the indices)
-Summary(ru_RU.UTF-8): Утилиты для построения APT-репозиториев (индексов)
-Group: Development/Other
-Requires: %name = %EVR, mktemp >= 1:1.3.1, getopt
-Requires: gnupg, sed
 
 %package rsync
 Summary: rsync method support for APT
@@ -126,15 +118,6 @@ package manipulation library, modified for RPM.
 
 %risk_usage_en
 
-%description utils
-This package contains the utility programs that can prepare a repository of
-RPMS binary and source packages for future access by APT (by generating
-the indices): genbasedir, genpkglist, gensrclist.
-
-It relates to 'apt' package analoguously to how 'rpm' relates to 'rpm-build' package.
-
-%risk_usage_en
-
 %description rsync
 This package contains method 'rsync' for APT.
 
@@ -165,15 +148,6 @@ This package contains method 'https' for APT.
 использующих библиотеки управления пакетами из
 комплекта APT. В отличие от оригинальной версии для Debian, этот пакет
 содержит поддержку для формата RPM.
-
-%risk_usage
-
-%description utils -l ru_RU.UTF-8
-В этом пакете находятся программы-утилиты, которые могут репозиторий
-бинарных и исходных пакетов RPM приготовить для доступа с помощью APT
-(сгенерировать индексы): genbasedir, genpkglist, gensrclist.
-
-Он относится к пакету 'apt' аналогично тому, как 'rpm'к 'rpm-build'.
 
 %risk_usage
 
@@ -225,7 +199,6 @@ mkdir -p %buildroot%_cachedir/%name/{archives/partial,gen{pkg,src}list}
 
 %makeinstall includedir=%buildroot%_includedir/apt-pkg
 
-install -pm755 %SOURCE2 %buildroot%_bindir/
 install -pm644 %SOURCE1 %buildroot%_sysconfdir/%name/
 
 # This is still needed.
