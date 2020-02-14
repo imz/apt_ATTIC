@@ -18,10 +18,6 @@ Source6: ChangeLog-rpm.old
 
 Patch: apt-%version-%release.patch
 
-# Normally not applied, but useful.
-# still useful?
-Patch101: apt-0.5.4cnc9-alt-getsrc-debug.patch
-
 Requires: libapt = %EVR
 Requires: rpm >= 4.13.0.1-alt2, /etc/apt/pkgpriorities, apt-conf
 # We need (lib)rpm which finds pkgs by labels in N-E:V-R@T format:
@@ -205,9 +201,6 @@ find -type f -name \*.orig -delete
 
 # Ensure system-wide lua5 in use.
 rm -rf lua
-
-# Turn it on only if you want to see the debugging messages:
-#%%patch101 -p1 -b .getsrc-debug
 
 install -pm644 %SOURCE3 %SOURCE6 .
 install -pm644 %SOURCE4 po/ru.po
