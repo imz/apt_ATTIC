@@ -151,5 +151,3 @@ const char *pkgSrcRecords::Parser::BuildDepType(unsigned char Type)
       return "";
 }
 									/*}}}*/
-
-
