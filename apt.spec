@@ -9,9 +9,6 @@ Group: System/Configuration/Packaging
 URL: http://apt-rpm.org
 Vcs: git://git.altlinux.org/gears/a/apt.git
 Source0: %name-%version-%release.tar
-Source1: apt.conf
-Source3: README.rsync
-Source6: ChangeLog-rpm.old
 
 Requires: libapt = %EVR
 Requires: rpm >= 4.13.0.1-alt2, /etc/apt/pkgpriorities, apt-conf
@@ -166,8 +163,6 @@ This package contains method 'https' for APT.
 %prep
 %setup -n %name-%version-%release
 
-install -pm644 %SOURCE3 %SOURCE6 .
-
 %build
 # Fix url.
 sed -i 's,/usr/share/common-licenses/GPL,/usr/share/license/GPL,' COPYING
@@ -199,7 +194,7 @@ mkdir -p %buildroot%_cachedir/%name/{archives/partial,gen{pkg,src}list}
 
 %makeinstall includedir=%buildroot%_includedir/apt-pkg
 
-install -pm644 %SOURCE1 %buildroot%_sysconfdir/%name/
+install -pm644 apt.conf %buildroot%_sysconfdir/%name/
 
 # This is still needed.
 ln -sf rsh %buildroot%_libdir/%name/methods/ssh
