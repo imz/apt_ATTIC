@@ -318,7 +318,7 @@ std::optional<unsigned long> DynamicMMap::WriteString(const char *String,
 
    const auto Result = RawAllocate(Len+1,0);
 
-   if (!Result)
+   if (!validData() || !Result)
       return std::nullopt;
 
    char * const dest = static_cast<char *>(Base) + *Result;
