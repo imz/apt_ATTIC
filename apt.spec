@@ -210,15 +210,6 @@ printf '%_target_cpu\t%_target_cpu' >> buildlib/archtable
 gettextize --force --quiet --no-changelog --symlink
 %autoreconf
 
-%add_optflags -DAPTRPM_ID=\\\"%name-%{?epoch:%epoch:}%version-%release%{?disttag::%disttag}.%_target_cpu\\\"
-
-# To avoid some errors on API change:
-%add_optflags -Werror=overloaded-virtual
-# A style enforcement: always use the keyword, which helps to avoid API misuse
-%add_optflags -Werror=suggest-override
-# Prohibit implicit copy assignment operators or constructors
-# if some special resource management is possibly needed:
-%add_optflags -Werror=deprecated-copy -Werror=deprecated-copy-dtor
 %ifarch %e2k
 %remove_optflags -Wno-error
 %add_optflags -std=gnu++11
@@ -226,7 +217,9 @@ gettextize --force --quiet --no-changelog --symlink
 %add_optflags -Wno-error=attributes
 %endif
 
-%configure --includedir=%_includedir/apt-pkg %{subst_enable static}
+%configure --includedir=%_includedir/apt-pkg --enable-Werror %{subst_enable static}
+echo '#define APTRPM_ID "%name-%{?epoch:%epoch:}%version-%release%{?disttag::%disttag}.%_target_cpu"' \
+	>> include/config.h
 
 # Probably this obsolete now?
 find -type f -print0 |
