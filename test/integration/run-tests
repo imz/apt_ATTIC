@@ -27,6 +27,10 @@ export APT_TEST_DEFAULT_ARCH="${APT_TEST_DEFAULT_ARCH-}"
 # If empty, no --target option will be passed when building pkgs.
 export APT_TEST_TARGET="${APT_TEST_TARGET-}"
 
+# The GPG key to apply rpm --import, so that all the tests are run with such db.
+# If empty, no GPG key is imported into the db.
+export APT_TEST_GPGPUBKEY="${APT_TEST_GPGPUBKEY-}"
+
 # setupenvironment()'s parameters: if non-empty, they override the APT config.
 export METHODSDIR="${METHODSDIR-}" # could override Dir::Bin::methods
 
