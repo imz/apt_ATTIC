@@ -206,6 +206,8 @@ gettextize --force --quiet --no-changelog --symlink
 
 # To avoid some errors on API change:
 %add_optflags -Werror=overloaded-virtual
+# A style enforcement: always use the keyword, which helps to avoid API misuse
+%add_optflags -Werror=suggest-override
 %ifarch %e2k
 %remove_optflags -Wno-error
 %add_optflags -std=gnu++11
