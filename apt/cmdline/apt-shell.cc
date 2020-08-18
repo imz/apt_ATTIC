@@ -325,20 +325,20 @@ bool InstallPackages(CacheFile &Cache,bool ShwKept,bool Ask = true,
 	 return _error->Error("Internal Error, Ordering didn't finish");
       return true;
    }
-   
+
    // Create the text record parser
    pkgRecords Recs(Cache);
-   if (_error->PendingError() == true)
+   if (_error->PendingError())
       return false;
-   
+
    // Lock the archive directory
    FileFd Lock;
    if (_config->FindB("Debug::NoLocking",false) == false &&
        _config->FindB("APT::Get::Print-URIs") == false)
    {
       Lock.Fd(GetLock(_config->FindDir("Dir::Cache::Archives") + "lock"));
-      if (_error->PendingError() == true)
-	 return _error->Error(_("Unable to lock the download directory"));
+      if (_error->PendingError())
+         return _error->Error(_("Unable to lock the download directory"));
    }
    
    // Create the download object
@@ -382,7 +382,7 @@ bool InstallPackages(CacheFile &Cache,bool ShwKept,bool Ask = true,
       ioprintf(c1out,_("After unpacking %sB disk space will be freed.\n"),
 	       SizeToStr(-1*Cache->UsrSize()).c_str());
 
-   if (_error->PendingError() == true)
+   if (_error->PendingError())
       return false;
 
    /* Check for enough free space, but only if we are actually going to
@@ -1070,11 +1070,11 @@ bool DoUpdate(CommandLine &CmdL)
 
    // Lock the list directory
    FileFd Lock;
-   if (_config->FindB("Debug::NoLocking",false) == false)
+   if (!_config->FindB("Debug::NoLocking",false))
    {
       Lock.Fd(GetLock(_config->FindDir("Dir::State::Lists") + "lock"));
-      if (_error->PendingError() == true)
-	 return _error->Error(_("Unable to lock the list directory"));
+      if (_error->PendingError())
+         return _error->Error(_("Unable to lock the list directory"));
    }
 
 // CNC:2003-03-19
@@ -1083,7 +1083,7 @@ bool DoUpdate(CommandLine &CmdL)
    _lua->RunScripts("Scripts::AptGet::Update::Pre");
    _lua->ResetCaches();
 #endif
-   
+
    // Create the download object
    AcqTextStatus Stat(ScreenWidth,_config->FindI("quiet",0));
    pkgAcquire Fetcher(&Stat);
@@ -1091,9 +1091,9 @@ bool DoUpdate(CommandLine &CmdL)
    // CNC:2002-07-03
    bool Failed = false;
    // Populate it with release file URIs
-   if (List.GetReleases(&Fetcher) == false)
+   if (!List.GetReleases(&Fetcher))
       return false;
-   if (_config->FindB("APT::Get::Print-URIs") == false)
+   if (!_config->FindB("APT::Get::Print-URIs"))
    {
       Fetcher.Run();
       for (pkgAcquire::ItemIterator I = Fetcher.ItemsBegin(); I != Fetcher.ItemsEnd(); I++)
@@ -1106,21 +1106,21 @@ bool DoUpdate(CommandLine &CmdL)
       if (Failed == true)
 	 _error->Warning(_("Release files for some repositories could not be retrieved or authenticated. Such repositories are being ignored."));
    }
-   
+
    // Populate it with the source selection
-   if (List.GetIndexes(&Fetcher) == false)
+   if (!List.GetIndexes(&Fetcher))
 	 return false;
-   
+
    // Just print out the uris an exit if the --print-uris flag was used
-   if (_config->FindB("APT::Get::Print-URIs") == true)
+   if (_config->FindB("APT::Get::Print-URIs"))
    {
       pkgAcquire::UriIterator I = Fetcher.UriBegin();
       for (; I != Fetcher.UriEnd(); I++)
-	 cout << '\'' << I->URI << "' " << flNotDir(I->Owner->DestFile) << ' ' << 
+	 cout << '\'' << I->URI << "' " << flNotDir(I->Owner->DestFile) << ' ' <<
 	       I->Owner->FileSize << ' ' << I->Owner->MD5Sum() << endl;
       return true;
    }
-   
+
    // Run it
    if (Fetcher.Run() == pkgAcquire::Failed)
       return false;
@@ -1131,12 +1131,12 @@ bool DoUpdate(CommandLine &CmdL)
 	 continue;
 
       (*I)->Finished();
-      
+
       fprintf(stderr,_("Failed to fetch %s  %s\n"),(*I)->DescURI().c_str(),
 	      (*I)->ErrorText.c_str());
       Failed = true;
    }
-   
+
    // Clean out any old list files
    if (_config->FindB("APT::Get::List-Cleanup",true) == true)
    {
@@ -1333,7 +1333,7 @@ bool DoInstall(CommandLine &CmdL)
 	 if (S[0] == '/')
 	 {
 	    pkgRecords Recs(Cache);
-	    if (_error->PendingError() == true)
+	    if (_error->PendingError())
 	       return false;
 	    pkgCache::PkgIterator Pkg = (*Cache).PkgBegin();
 	    for (; Pkg.end() == false; Pkg++)
@@ -1709,8 +1709,8 @@ bool DoClean(CommandLine &CmdL)
    if (_config->FindB("Debug::NoLocking",false) == false)
    {
       Lock.Fd(GetLock(_config->FindDir("Dir::Cache::Archives") + "lock"));
-      if (_error->PendingError() == true)
-	 return _error->Error(_("Unable to lock the download directory"));
+      if (_error->PendingError())
+         return _error->Error(_("Unable to lock the download directory"));
    }
    
    pkgAcquire Fetcher;
@@ -1745,8 +1745,8 @@ bool DoAutoClean(CommandLine &CmdL)
    if (_config->FindB("Debug::NoLocking",false) == false)
    {
       Lock.Fd(GetLock(_config->FindDir("Dir::Cache::Archives") + "lock"));
-      if (_error->PendingError() == true)
-	 return _error->Error(_("Unable to lock the download directory"));
+      if (_error->PendingError())
+         return _error->Error(_("Unable to lock the download directory"));
    }
    
    CacheFile &Cache = *GCache;
@@ -1810,7 +1810,7 @@ bool DoBuildDep(CommandLine &CmdL)
    // Create the text record parsers
    pkgRecords Recs(Cache);
    pkgSrcRecords SrcRecs(List);
-   if (_error->PendingError() == true)
+   if (_error->PendingError())
       return false;
 
    // Create the download object
@@ -2795,11 +2795,11 @@ bool DisplayRecord(pkgCache::VerIterator V)
    pkgCache::PkgFileIterator I = Vf.File();
    if (I.IsOk() == false)
       return _error->Error(_("Package file %s is out of sync."),I.FileName());
-   
+
    FileFd PkgF(I.FileName(),FileFd::ReadOnly);
-   if (_error->PendingError() == true)
+   if (_error->PendingError())
       return false;
-   
+
    // Read the record and then write it out again.
    unsigned char *Buffer = new unsigned char[GCache->HeaderP->MaxVerFileSize+1];
    Buffer[V.FileList()->Size] = '\n';
@@ -2858,7 +2858,7 @@ bool Search(CommandLine &CmdL)
    
    // Create the text record parser
    pkgRecords Recs(Cache);
-   if (_error->PendingError() == true)
+   if (_error->PendingError())
    {
       for (unsigned I = 0; I != NumPatterns; I++)
 	 regfree(&Patterns[I]);
@@ -3086,8 +3086,8 @@ bool DoList(CommandLine &CmdL)
       }
    } else if (ShowSummary == true) {
       pkgRecords Recs(Cache);
-      if (_error->PendingError() == true)
-	 return false;
+      if (_error->PendingError())
+         return false;
       for (unsigned int K = 0; K != NumMatches; K++) {
 	 pkgCache::PkgIterator Pkg(Cache,Cache.List[Matches[K]]);
 	 pkgRecords::Parser &Parse = Recs.Lookup(Pkg.VersionList().FileList());
@@ -4230,9 +4230,9 @@ int main(int argc,const char *argv[])
       }
 #endif
 
-      if (_error->PendingError() == false)
-	 CmdL.DispatchArg(Cmds);
-      
+      if (!_error->PendingError())
+         CmdL.DispatchArg(Cmds);
+
       free(line);
       if (!_config->FindB("quit"))
       {
