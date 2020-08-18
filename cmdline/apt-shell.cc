@@ -1070,11 +1070,11 @@ bool DoUpdate(CommandLine &CmdL)
 
    // Lock the list directory
    FileFd Lock;
-   if (_config->FindB("Debug::NoLocking",false) == false)
+   if (!_config->FindB("Debug::NoLocking", false))
    {
       Lock.Fd(GetLock(_config->FindDir("Dir::State::Lists") + "lock"));
-      if (_error->PendingError() == true)
-	 return _error->Error(_("Unable to lock the list directory"));
+      if (_error->PendingError())
+         return _error->Error(_("Unable to lock the list directory"));
    }
 
 // CNC:2003-03-19
@@ -1091,7 +1091,7 @@ bool DoUpdate(CommandLine &CmdL)
    // CNC:2002-07-03
    bool Failed = false;
    // Populate it with release file URIs
-   if (List.GetReleases(&Fetcher) == false)
+   if (!List.GetReleases(&Fetcher))
       return false;
    if (_config->FindB("APT::Get::Print-URIs") == false)
    {
@@ -1103,13 +1103,13 @@ bool DoUpdate(CommandLine &CmdL)
 	 (*I)->Finished();
 	 Failed = true;
       }
-      if (Failed == true)
+      if (Failed)
 	 _error->Warning(_("Release files for some repositories could not be retrieved or authenticated. Such repositories are being ignored."));
    }
 
    // Populate it with the source selection
-   if (List.GetIndexes(&Fetcher) == false)
-	 return false;
+   if (!List.GetIndexes(&Fetcher))
+      return false;
 
    // Just print out the uris and exit if the --print-uris flag was used
    if (_config->FindB("APT::Get::Print-URIs") == true)
@@ -1138,11 +1138,13 @@ bool DoUpdate(CommandLine &CmdL)
    }
 
    // Clean out any old list files
-   if (_config->FindB("APT::Get::List-Cleanup",true) == true)
+   if (_config->FindB("APT::Get::List-Cleanup", true))
    {
-      if (Fetcher.Clean(_config->FindDir("Dir::State::lists")) == false ||
-	  Fetcher.Clean(_config->FindDir("Dir::State::lists") + "partial/") == false)
-	 return false;
+      if (!Fetcher.Clean(_config->FindDir("Dir::State::lists")) ||
+          !Fetcher.Clean(_config->FindDir("Dir::State::lists") + "partial/"))
+      {
+         return false;
+      }
    }
 
    {
@@ -1157,7 +1159,7 @@ bool DoUpdate(CommandLine &CmdL)
 #endif
 
    // CNC:2004-04-19
-   if (Failed == false && _config->FindB("APT::Get::Archive-Cleanup",false) == true)
+   if (!Failed && _config->FindB("APT::Get::Archive-Cleanup", false))
    {
       UpdateLogCleaner Cleaner;
       Cleaner.Go(_config->FindDir("Dir::Cache::archives"), *GCache);
@@ -1165,7 +1167,7 @@ bool DoUpdate(CommandLine &CmdL)
 	         *GCache);
    }
 
-   if (Failed == true)
+   if (Failed)
       return _error->Error(_("Some index files failed to download, they have been ignored, or old ones used instead."));
 
    return true;
