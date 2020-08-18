@@ -43,7 +43,7 @@
 #include <apt-pkg/cachefile.h>
 #include <apt-pkg/sptr.h>
 #include <apt-pkg/versionmatch.h>
-    
+
 #include <apti18n.h>
 
 #include "acqprogress.h"
@@ -66,7 +66,7 @@
 
 // CNC:2003-03-18
 #include <apt-pkg/luaiface.h>
-    
+
 									/*}}}*/
 
 using namespace std;
@@ -595,7 +595,7 @@ bool TryToInstall(pkgCache::PkgIterator Pkg,pkgDepCache &Cache,
          pkgCache::PkgIterator PrvPkg = pkgCache::PkgIterator(*Pkg.Cache(), PList[p]);
          pkgCache::PrvIterator Prv = Pkg.ProvidesList();
          for (; Prv.end() == false && Prv.OwnerPkg() != PrvPkg; Prv++)
-           ;
+            ;
 	 // Check if it's a different version of a package already
 	 // considered as a good solution.
 	 bool AlreadySeen = false;
@@ -666,7 +666,8 @@ bool TryToInstall(pkgCache::PkgIterator Pkg,pkgDepCache &Cache,
 	 _lua->SetGlobal("selected");
 	 _lua->RunScripts("Scripts::AptGet::Install::SelectPackage");
 	 pkgCache::Package *selected = _lua->GetGlobalPkg("selected");
-	 if (selected) {
+         if (selected)
+         {
 	    GoodSolutions.clear();
 	    GoodSolutions.push_back(selected);
 	 }
@@ -798,7 +799,7 @@ bool TryToInstall(pkgCache::PkgIterator Pkg,pkgDepCache &Cache,
 	       continue;
 	    Seen[Dep.ParentPkg()->ID] = true;
 	    List += string(Dep.ParentPkg().Name()) + " ";
-        //VersionsList += string(Dep.ParentPkg().CurVersion) + "\n"; ???
+            //VersionsList += string(Dep.ParentPkg().CurVersion) + "\n"; ???
 	 }	    
 	 if (!List.empty()) c3out<<"apt-get:however-replace-list:"<<List<<endl;
 	 ShowList(c1out,_("However the following packages replace it:"),List,VersionsList,ScreenWidth);
@@ -1114,22 +1115,12 @@ class UpdateLogCleaner : public pkgArchiveCleaner
    virtual void Erase(const char *File,const string &Pkg,const string &Ver,struct stat &St) override
    {
       c1out << "Del " << Pkg << " " << Ver << " [" << SizeToStr(St.st_size) << "B]" << endl;
-      unlink(File);      
-   };
+      unlink(File);
+   }
 };
 
 bool DoUpdate(CommandLine &CmdL)
 {
-// CNC:2003-03-27
-#if 0
-   if (CmdL.FileSize() != 1)
-      return _error->Error(_("The update command takes no arguments"));
-
-   // Get the source list
-   pkgSourceList List;
-   if (List.ReadMainList() == false)
-      return false;
-#else
    bool Partial = false;
    pkgSourceList List;
 
@@ -1154,7 +1145,6 @@ bool DoUpdate(CommandLine &CmdL)
    }
    else if (List.ReadMainList() == false)
       return false;
-#endif
 
    // Lock the list directory
    FileFd Lock;
@@ -1164,7 +1154,7 @@ bool DoUpdate(CommandLine &CmdL)
       if (_error->PendingError() == true)
 	 return _error->Error(_("Unable to lock the list directory"));
    }
-   
+
 // CNC:2003-03-19
 #ifdef WITH_LUA
    if (_lua->HasScripts("Scripts::AptGet::Update::Pre")) {
@@ -1559,7 +1549,7 @@ bool DoInstall(CommandLine &CmdL)
 	       return false;
 	 if (TryToInstall(Pkg,Cache,Fix,Remove,BrokenFix,ExpectedInst) == false)
 	    return false;
-      }      
+      }
    }
 
    if (doAutoRemove)
@@ -1603,7 +1593,7 @@ bool DoInstall(CommandLine &CmdL)
 
       return _error->Error(_("Unmet dependencies. Try 'apt-get --fix-broken install' with no packages (or specify a solution)."));
    }
-   
+
    // Call the scored problem resolver
    Fix.InstallProtect();
    if (Fix.Resolve(true) == false)
@@ -1905,7 +1895,7 @@ bool DoClean(CommandLine &CmdL)
 									/*}}}*/
 // DoAutoClean - Smartly remove downloaded archives			/*{{{*/
 // ---------------------------------------------------------------------
-/* This is similar to clean but it only purges things that cannot be 
+/* This is similar to clean but it only purges things that cannot be
    downloaded, that is old versions of cached packages. */
 class LogCleaner : public pkgArchiveCleaner
 {
@@ -1913,10 +1903,10 @@ class LogCleaner : public pkgArchiveCleaner
    virtual void Erase(const char *File,const string &Pkg,const string &Ver,struct stat &St) override
    {
       c1out << "Del " << Pkg << " " << Ver << " [" << SizeToStr(St.st_size) << "B]" << endl;
-      
+
       if (_config->FindB("APT::Get::Simulate") == false)
-	 unlink(File);      
-   };
+         unlink(File);
+   }
 };
 
 bool DoAutoClean(CommandLine &CmdL)
@@ -1933,9 +1923,9 @@ bool DoAutoClean(CommandLine &CmdL)
    CacheFile Cache(c1out);
    if (Cache.Open(true) == false)
       return false;
-   
+
    LogCleaner Cleaner;
-   
+
    return Cleaner.Go(_config->FindDir("Dir::Cache::archives"),*Cache) &&
       Cleaner.Go(_config->FindDir("Dir::Cache::archives") + "partial/",*Cache);
 }
