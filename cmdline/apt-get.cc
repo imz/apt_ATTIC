@@ -1175,6 +1175,7 @@ bool DoUpdate(CommandLine &CmdL)
       return false;
    if (_config->FindB("APT::Get::Print-URIs") == false)
    {
+
       Fetcher.Run();
       for (pkgAcquire::ItemIterator I = Fetcher.ItemsBegin(); I != Fetcher.ItemsEnd(); I++)
       {
@@ -1185,6 +1186,7 @@ bool DoUpdate(CommandLine &CmdL)
       }
       if (Failed)
 	 _error->Warning(_("Release files for some repositories could not be retrieved or authenticated. Such repositories are being ignored."));
+
    }
 
    // Populate it with the source selection
@@ -1194,20 +1196,21 @@ bool DoUpdate(CommandLine &CmdL)
    // Just print out the uris and exit if the --print-uris flag was used
    if (_config->FindB("APT::Get::Print-URIs") == true)
    {
+
       if (_config->FindB("APT::Get::PrintLocalFile"))
       {
          struct stat stb;
-         for (pkgAcquire::ItemIterator I = Fetcher.ItemsBegin(); I < Fetcher.ItemsEnd(); ++I)
+         for (pkgAcquire::ItemIterator I = Fetcher.ItemsBegin(); I != Fetcher.ItemsEnd(); ++I)
             if (((*I)->Local) && !stat((*I)->DestFile.c_str(), &stb))
                cout << (*I)->DestFile << endl;
-
-         return true;
+      }
+      else
+      {
+         for (pkgAcquire::UriIterator I = Fetcher.UriBegin(); I != Fetcher.UriEnd(); ++I)
+            cout << '\'' << I->URI << "' " << flNotDir(I->Owner->DestFile) << ' ' <<
+               I->Owner->FileSize << ' ' << I->Owner->MD5Sum() << endl;
       }
 
-      pkgAcquire::UriIterator I = Fetcher.UriBegin();
-      for (; I != Fetcher.UriEnd(); I++)
-	 cout << '\'' << I->URI << "' " << flNotDir(I->Owner->DestFile) << ' ' <<
-	       I->Owner->FileSize << ' ' << I->Owner->MD5Sum() << endl;
       return true;
    }
 
