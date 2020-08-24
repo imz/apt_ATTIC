@@ -479,7 +479,7 @@ testpkginstalled() {
 	local result=0
 
 	set +e
-	rpm --dbpath="$TMPWORKINGDIRECTORY/var/lib/rpm" -q "$@" &>/dev/null
+	rpm --dbpath="$TMPWORKINGDIRECTORY/var/lib/rpm" -q "$@" >/dev/null
 	result=$?
 	set -e
 
@@ -508,7 +508,7 @@ testpkgnotinstalled() {
 	local result=0
 
 	set +e
-	rpm --dbpath="$TMPWORKINGDIRECTORY/var/lib/rpm" -q "$@" &>/dev/null
+	rpm --dbpath="$TMPWORKINGDIRECTORY/var/lib/rpm" -q "$@" >&2 2>/dev/null
 	result=$?
 	set -e
 
