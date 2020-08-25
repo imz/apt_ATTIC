@@ -203,6 +203,7 @@ gettextize --force --quiet --no-changelog --symlink
 %autoreconf
 %add_optflags -DAPTRPM_ID=\\\"%name-%{?epoch:%epoch:}%version-%release%{?disttag::%disttag}.%_target_cpu\\\"
 %ifarch %e2k
+%remove_optflags -Wno-error
 %add_optflags -std=gnu++11
 %endif
 %configure --includedir=%_includedir/apt-pkg %{subst_enable static}
