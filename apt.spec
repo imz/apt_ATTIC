@@ -211,6 +211,8 @@ gettextize --force --quiet --no-changelog --symlink
 %ifarch %e2k
 %remove_optflags -Wno-error
 %add_optflags -std=gnu++11
+# [[fallthrough]] attribute is not yet known to lcc:
+%add_optflags -Wno-error=attributes
 %endif
 
 %configure --includedir=%_includedir/apt-pkg %{subst_enable static}
