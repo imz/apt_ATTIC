@@ -217,6 +217,7 @@ END
 
 getarchitecture() {
 	if [ -z "${1-}" ] || [ "$1" = 'native' ]; then
+		local ARCH # to be set by the following eval
 		eval `aptconfig shell ARCH APT::Architecture`
 		if [ -n "$ARCH" ]; then
 			echo $ARCH
