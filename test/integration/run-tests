@@ -19,12 +19,9 @@ DIR=$(readlink -f $(dirname $0))
 # If empty, it will be set to a best guessed value.
 export APT_TEST_DEFAULT_ARCH="${APT_TEST_DEFAULT_ARCH-}"
 
-# The arch used for the built packages, repos, etc.
-# (--target is set to the same value.)
-#
-# If empty, it will be set to an appropriate value
-# (i.e., $APT_TEST_DEFAULT_ARCH).
-export APT_TEST_USED_ARCH="${APT_TEST_USED_ARCH-}"
+# If non-empty, forces a custom --target value to be passed when building pkgs.
+# If empty, no --target option will be passed when building pkgs.
+export APT_TEST_TARGET="${APT_TEST_TARGET-}"
 
 # setupenvironment()'s parameters: if non-empty, they override the APT config.
 export METHODSDIR="${METHODSDIR-}" # could override Dir::Bin::methods
