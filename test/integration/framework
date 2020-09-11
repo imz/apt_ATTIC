@@ -234,8 +234,11 @@ if [ -z "$APT_TEST_DEFAULT_ARCH" ]; then
 fi
 
 # The arch used for the built packages, repos, etc.
-# (--target is set to the same value.)
-if [ -z "$APT_TEST_USED_ARCH" ]; then
+# (May be forced by $APT_TEST_TARGET together with --target.)
+if [ -n "$APT_TEST_TARGET" ]; then
+	# set by force
+	APT_TEST_USED_ARCH="$APT_TEST_TARGET"
+else
 	# just set it to an appropriate value, if not set by force
 	APT_TEST_USED_ARCH="$APT_TEST_DEFAULT_ARCH"
 fi
@@ -243,13 +246,18 @@ fi
 buildpackage() {
 	local NAME="$1"
 
+	local target_opt=
+	if [ -n "$APT_TEST_TARGET" ]; then
+		target_opt=--target="$APT_TEST_TARGET"
+	fi
+
 	msgmsg "Building package: ${NAME}"
 	HOME="$TMPWORKINGDIRECTORY" rpmbuild \
 		--define 'EVR %{?epoch:%epoch:}%{version}-%{release}' \
 		--define 'packager test@example.net' \
 		--define="_usr $TMPWORKINGDIRECTORY/usr" \
 		--root="$TMPWORKINGDIRECTORY" \
-		--target="$APT_TEST_USED_ARCH" \
+		$target_opt \
 		-ba "${TESTDIRECTORY}/specs/${NAME}.spec" \
 		1>/dev/null
 }
