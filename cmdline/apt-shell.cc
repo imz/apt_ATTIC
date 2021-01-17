@@ -804,8 +804,8 @@ bool TryToInstall(pkgCache::PkgIterator Pkg,pkgDepCache &Cache,
 
 	 string List;
 	 string VersionsList;
-	 SPtrArray<bool> Seen = new bool[Cache.Head().PackageCount];
-	 memset(Seen,0,Cache.Head().PackageCount*sizeof(*Seen));
+         // allocate and zero memory
+	 SPtrArray<bool> Seen = new bool[Cache.Head().PackageCount]();
 	 pkgCache::DepIterator Dep = Pkg.RevDependsList();
 	 for (; Dep.end() == false; Dep++)
 	 {
@@ -2146,8 +2146,8 @@ bool Depends(CommandLine &CmdL)
       return true;
 
    pkgCache &Cache = *GCache;
-   SPtrArray<unsigned> Colours = new unsigned[Cache.Head().PackageCount];
-   memset(Colours,0,sizeof(*Colours)*Cache.Head().PackageCount);
+   // allocate and zero memory
+   SPtrArray<unsigned> Colours = new unsigned[Cache.Head().PackageCount]();
 
    for (const char **I = CmdL.FileList + 1; *I != 0; I++)
    {
@@ -2244,8 +2244,8 @@ bool RDepends(CommandLine &CmdL)
       return true;
 
    pkgCache &Cache = *GCache;
-   SPtrArray<unsigned> Colours = new unsigned[Cache.Head().PackageCount];
-   memset(Colours,0,sizeof(*Colours)*Cache.Head().PackageCount);
+   // allocate and zero memory
+   SPtrArray<unsigned> Colours = new unsigned[Cache.Head().PackageCount]();
 
    for (const char **I = CmdL.FileList + 1; *I != 0; I++)
    {
@@ -2337,8 +2337,8 @@ bool WhatDepends(CommandLine &CmdL)
       return true;
 
    pkgCache &Cache = *GCache;
-   SPtrArray<unsigned> Colours = new unsigned[Cache.Head().PackageCount];
-   memset(Colours,0,sizeof(*Colours)*Cache.Head().PackageCount);
+   // allocate and zero memory
+   SPtrArray<unsigned> Colours = new unsigned[Cache.Head().PackageCount]();
 
    for (const char **I = CmdL.FileList + 1; *I != 0; I++)
    {
@@ -2369,9 +2369,9 @@ bool WhatDepends(CommandLine &CmdL)
 	 else
 	    cout << Pkg.Name() << "-" << Ver.VerStr() << endl;
 
+         // allocate and zero memory
 	 SPtrArray<unsigned> LocalColours =
-		     new unsigned[Cache.Head().PackageCount];
-	 memset(LocalColours,0,sizeof(*LocalColours)*Cache.Head().PackageCount);
+            new unsigned[Cache.Head().PackageCount]();
 
 	 // Display all dependencies directly on the package.
 	 for (pkgCache::DepIterator RD = Pkg.RevDependsList();
@@ -2772,8 +2772,8 @@ bool Search(CommandLine &CmdL)
       return _error->Error(_("You must give exactly one pattern"));
 
    // Compile the regex pattern
-   regex_t *Patterns = new regex_t[NumPatterns];
-   memset(Patterns,0,sizeof(*Patterns)*NumPatterns);
+   // allocate and zero memory
+   regex_t *Patterns = new regex_t[NumPatterns]();
    for (unsigned I = 0; I != NumPatterns; I++)
    {
       if (regcomp(&Patterns[I],CmdL.FileList[I+1],REG_EXTENDED | REG_ICASE |
@@ -2794,8 +2794,9 @@ bool Search(CommandLine &CmdL)
       return false;
    }
 
-   ExVerFile *VFList = new ExVerFile[Cache.HeaderP->PackageCount+1];
-   memset(VFList,0,sizeof(*VFList)*Cache.HeaderP->PackageCount+1);
+   // allocate and zero memory (for a struct with
+   // no user-provided constructors and only non-class members)
+   ExVerFile *VFList = new ExVerFile[Cache.HeaderP->PackageCount+1]();
 
    // Map versions that we want to write out onto the VerList array.
    for (pkgCache::PkgIterator P = Cache.PkgBegin(); P.end() == false; P++)
