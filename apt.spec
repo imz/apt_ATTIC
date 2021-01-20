@@ -246,6 +246,9 @@ gettextize --force --quiet --no-changelog --symlink
 %add_optflags -Werror=suggest-override
 # A style enforcement: list initializers in ctor in the order they actually work
 %add_optflags -Werror=reorder
+# Prohibit implicit copy assignment operators or constructors
+# if some special resource management is possibly needed:
+%add_optflags -Werror=deprecated-copy -Werror=deprecated-copy-dtor
 %ifarch %e2k
 %remove_optflags -Wno-error
 %add_optflags -std=gnu++11
