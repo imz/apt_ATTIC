@@ -133,11 +133,9 @@ std::unique_ptr<MMap> pkgCacheFile::MakeMap(OpProgress &Progress)
 
    const bool AllowMem = (!WithLock
                           || _config->FindB("Debug::NoLocking",false));
-   MMap * TmpMap = nullptr;
-   const bool Res = pkgMakeStatusCache(*SrcList,Progress,&TmpMap,AllowMem);
-   std::unique_ptr<MMap> Map(TmpMap);
+   std::unique_ptr<MMap> Map = pkgMakeStatusCache(*SrcList,Progress,AllowMem);
    Progress.Done();
-   if (Res == false)
+   if (Map == nullptr)
    {
       _error->Error(_("The package lists or status file could not be parsed or opened."));
       return nullptr;
