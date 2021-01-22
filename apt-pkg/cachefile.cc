@@ -159,7 +159,7 @@ std::unique_ptr<pkgCache> pkgCacheFile::MakePkgCache(OpProgress &Progress)
    if (!Map)
       return nullptr;
 
-   std::unique_ptr<pkgCache> Cache(new pkgCache(Map));
+   std::unique_ptr<pkgCache> Cache(new pkgCache(*Map));
    if (_error->PendingError() == true)
       return nullptr;
    return Cache;
