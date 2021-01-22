@@ -37,7 +37,7 @@
 // CacheFile::CacheFile - Constructor					/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-pkgCacheFile::pkgCacheFile() : Map(nullptr), Cache(nullptr), DCache(nullptr), SrcList(nullptr), Policy(nullptr)
+pkgCacheFile::pkgCacheFile() : Cache(nullptr), DCache(nullptr), SrcList(nullptr), Policy(nullptr)
 {
 }
 									/*}}}*/
@@ -73,9 +73,10 @@ bool pkgCacheFile::BuildCaches(OpProgress &Progress,bool WithLock)
       return false;
 
    // Read the caches
-   bool Res = pkgMakeStatusCache(*SrcList,Progress,&Map,!WithLock);
+   Map = pkgMakeStatusCache(*SrcList,Progress,!WithLock);
    Progress.Done();
-   if (Res == false)
+   // pkgCache ctor below dereferences Map, so we can't continue if it's null
+   if (Map == nullptr)
       return _error->Error(_("The package lists or status file could not be parsed or opened."));
 
    /* This sux, remove it someday */
@@ -138,11 +139,10 @@ void pkgCacheFile::Close()
    delete DCache;
    delete Policy;
    delete Cache;
-   delete Map;
+   Map.reset();
    delete SrcList;
    _system->UnLock(true);
 
-   Map = nullptr;
    DCache = nullptr;
    Policy = nullptr;
    Cache = nullptr;
