@@ -1,15 +1,26 @@
 #!/bin/bash -X
 # This code is to be sourced from other scripts.
-# set -e is assumed.
+# set -eu is assumed.
 
 EXIT_CODE=0
 
 # we all like colorful messages
-if [ "$MSGCOLOR" != 'NO' ]; then
+if [ "${MSGCOLOR-}" != 'NO' ]; then
 	if [ ! -t 1 ]; then # but check that we output to a terminal
 		export MSGCOLOR='NO'
 	fi
 fi
+
+CERROR=
+CWARNING=
+CMSG=
+CINFO=
+CDEBUG=
+CNORMAL=
+CDONE=
+CPASS=
+CFAIL=
+CCMD=
 
 if [ "$MSGCOLOR" != 'NO' ]; then
 	CERROR="\033[1;31m" # red
@@ -35,11 +46,15 @@ msgnmsg() { printf "${CMSG}$1${CNORMAL}"; }
 msgninfo() { printf "${CINFO}I: $1${CNORMAL}"; }
 msgndebug() { printf "${CDEBUG}D: $1${CNORMAL}"; }
 msgtest() {
-	while [ -n "$1" ]; do
+	while [ $# -gt 0 ]; do
 		printf "${CINFO}$1${CCMD} "
-		printf -- "$(echo "$2" | sed -e 's#^apt\([cgfs]\)#apt-\1#')${CINFO} "
 		shift
-		if [ -n "$1" ]; then shift; else break; fi
+		if [ $# -gt 0 ]; then
+			printf -- "$(echo "$1" | sed -e 's#^apt\([cgfs]\)#apt-\1#')${CINFO} "
+			shift
+		else
+			break
+		fi
 	done
 	printf "…${CNORMAL} "
 }
@@ -131,6 +146,7 @@ shellsetedetector() {
 	fi
 }
 
+CURRENTTRAP=
 addtrap() {
 	if [ "$1" = 'prefix' ]; then
 		CURRENTTRAP="$2 $CURRENTTRAP"
@@ -162,7 +178,7 @@ setupenvironment() {
 		echo 'Debug::NoLocking "true";'
 		echo "Dir::Etc::sourcelist \"${TMPWORKINGDIRECTORY}/rootdir/etc/apt/sources.list\";"
 
-		if [ -n "$METHODSDIR" ] ; then
+		if [ -n "${METHODSDIR-}" ] ; then
 			echo "Dir::Bin::methods \"$METHODSDIR\";"
 		fi
 	} > aptconfig.conf
@@ -201,7 +217,7 @@ END
 }
 
 getarchitecture() {
-	if [ "$1" = 'native' -o -z "$1" ]; then
+	if [ -z "${1-}" ] || [ "$1" = 'native' ]; then
 		eval `aptconfig shell ARCH APT::Architecture`
 		if [ -n "$ARCH" ]; then
 			echo $ARCH
@@ -481,7 +497,7 @@ testfailure() {
 generaterepository() {
 	local ORIG_DIR="$1"
 	local REPO_DIR="$2"
-	local REPO_DATE="$3"
+	local REPO_DATE="${3-}"
 
 	local label="${GB_REPO_LABEL:-apt-tests}"
 	local description="${GB_REPO_DESCRIPTION:-ALT Linux $label}"
