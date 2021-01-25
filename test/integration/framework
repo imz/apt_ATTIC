@@ -5,7 +5,7 @@
 EXIT_CODE=0
 
 # we all like colorful messages
-if [ "${MSGCOLOR-}" != 'NO' ]; then
+if [ "$MSGCOLOR" != 'NO' ]; then
 	if [ ! -t 1 ]; then # but check that we output to a terminal
 		export MSGCOLOR='NO'
 	fi
@@ -67,7 +67,6 @@ msgfail() {
 }
 
 # enable / disable Debugging
-MSGLEVEL=${MSGLEVEL:-3}
 if [ $MSGLEVEL -le 0 ]; then
 	msgdie() { true; }
 fi
@@ -178,7 +177,7 @@ setupenvironment() {
 		echo 'Debug::NoLocking "true";'
 		echo "Dir::Etc::sourcelist \"${TMPWORKINGDIRECTORY}/rootdir/etc/apt/sources.list\";"
 
-		if [ -n "${METHODSDIR-}" ] ; then
+		if [ -n "$METHODSDIR" ] ; then
 			echo "Dir::Bin::methods \"$METHODSDIR\";"
 		fi
 	} > aptconfig.conf
@@ -499,14 +498,41 @@ generaterepository() {
 	local REPO_DIR="$2"
 	local REPO_DATE="${3-}"
 
-	local label="${GB_REPO_LABEL:-apt-tests}"
-	local description="${GB_REPO_DESCRIPTION:-ALT Linux $label}"
+	local label="$GB_REPO_LABEL"
+	if [ -z "$label" ]; then
+		label="apt-tests"
+	fi
+	local description="$GB_REPO_DESCRIPTION"
+	if [ -z "$description" ]; then
+		description="ALT Linux $label"
+	fi
 	local date_s="$(date +%s)"
 	local arch="$(getarchitecture)"
 	local comps="${label}"
 
 	if [ -n "$REPO_DATE" ] ; then
 		date_s="$REPO_DATE"
+	fi
+
+	local archive="$GB_REPO_ARCHIVE"
+	if [ -z "$archive" ]; then
+		archive="$description"
+	fi
+	local codename="$GB_REPO_CODENAME"
+	if [ -z "$codename" ]; then
+		codename="$date_s"
+	fi
+	local origin="$GB_REPO_ORIGIN"
+	if [ -z "$origin" ]; then
+		origin="ALT Linux Team"
+	fi
+	local suite="$GB_REPO_SUITE"
+	if [ -z "$suite" ]; then
+		suite="$label"
+	fi
+	local version="$GB_REPO_VERSION"
+	if [ -z "$version" ]; then
+		version="$date_s"
 	fi
 
 	for dir in ${arch} noarch ; do
@@ -523,13 +549,13 @@ generaterepository() {
 			--cachedir="${TMPWORKINGDIRECTORY}/cache" \
 			--architecture="$dir" \
 			--architectures="$dir" \
-			--archive="${GB_REPO_ARCHIVE:-$description}" \
-			--codename="${GB_REPO_CODENAME:-$date_s}" \
-			--description="${GB_REPO_DESCRIPTION:-$description}" \
+			--archive="$archive" \
+			--codename="$codename" \
+			--description="$description" \
 			--label="$label" \
-			--origin="${GB_REPO_ORIGIN:-ALT Linux Team}" \
-			--suite="${GB_REPO_SUITE:-$label}" \
-			--version="${GB_REPO_VERSION:-$date_s}" \
+			--origin="$origin" \
+			--suite="$suite" \
+			--version="$version" \
 			--topdir="$REPO_DIR" \
 			--flat --no-oldhashfile --no-bz2 --no-xz --mapi \
 			$dir $comps
