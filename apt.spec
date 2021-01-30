@@ -210,7 +210,7 @@ find %buildroot%_includedir -type f -name '*.h' |while read f; do
 
 #include <stdint.h>
 #if __WORDSIZE == 32 && !defined(__USE_FILE_OFFSET64)
-# error "<${f#%buildroot%_includedir/}> cannot be used without -D_FILE_OFFSET_BITS==64"
+# error "<${f#%buildroot%_includedir/}> cannot be used without -D_FILE_OFFSET_BITS=64"
 #endif
 EOF
 done
