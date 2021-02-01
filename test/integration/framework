@@ -97,7 +97,8 @@ getaptconfig() {
         fi
 }
 runapt() {
-	msgdebug "Executing: ${CCMD}$*${CDEBUG} "
+	msgdebug "CWD: $PWD"
+	msgdebug "Executing: APT_CONFIG=$(getaptconfig) ${CCMD}$*${CDEBUG} "
 	local CMD="$1"
 	shift
 	APT_CONFIG="$(getaptconfig)" $CMD "$@"
