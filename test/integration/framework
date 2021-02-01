@@ -156,11 +156,18 @@ addtrap() {
 }
 
 setupenvironment() {
-	TMPWORKINGDIRECTORY=$(mktemp -d)
 	TESTDIRECTORY=$(readlink -f $(dirname $0))
+	addtrap '' # unconditionally set up our basic traps
+
+	if [ -n "$APT_TEST_WORKINGDIRECTORY" ]; then
+		TMPWORKINGDIRECTORY="$APT_TEST_WORKINGDIRECTORY"
+	else
+		TMPWORKINGDIRECTORY=$(mktemp -d)
+		addtrap "cd /; rm -rf $TMPWORKINGDIRECTORY;"
+	fi
+
 	msgninfo "Preparing environment for ${CCMD}$(basename $0)${CINFO} in ${TMPWORKINGDIRECTORY}… "
 
-	addtrap "cd /; rm -rf $TMPWORKINGDIRECTORY;"
 	cd $TMPWORKINGDIRECTORY
 	mkdir rootdir aptarchive keys
 	cd rootdir
