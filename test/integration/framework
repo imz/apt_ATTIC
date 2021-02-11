@@ -319,7 +319,7 @@ testregexmatch() {
 	if [[ "$(cat $RESULTFILE)" =~ $(cat $COMPAREFILE) ]] ; then
 		msgpass
 	else
-		checkdiff $COMPAREFILE $RESULTFILE
+		checkdiff $COMPAREFILE $RESULTFILE || true
 		msgfail
 	fi
 }
