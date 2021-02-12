@@ -4,6 +4,11 @@
 # (TODO: make sure that ALT's /bin/sh is enough;
 # use the lightweight /bin/sh in the actual test scripts.)
 
+# Under set -x, don't mess the trace with other commands' output (possibly
+# redirected), rather send it directly to the global stderr.
+exec 5>&2
+BASH_XTRACEFD=5
+
 EXIT_CODE=0
 
 # we all like colorful messages
