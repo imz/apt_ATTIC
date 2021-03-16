@@ -154,8 +154,7 @@ bool pkgCacheGenerator::MergeList(ListParser &List,
       string Version = List.Version();
       if (Version.empty() == true)
       {
-	 pkgCache::VerIterator Ver(Cache);
-	 if (List.UsePackage(Pkg,Ver) == false)
+	 if (List.UsePackage(Pkg,pkgCache::VerIterator(Cache)) == false)
 	    return _error->Error(_("Error occured while processing %s (UsePackage1)"),
 				 PackageName.c_str());
 	 continue;
@@ -465,7 +464,7 @@ unsigned long pkgCacheGenerator::NewVersion(pkgCache::VerIterator &Ver,
 // ---------------------------------------------------------------------
 /* This creates a dependency element in the tree. It is linked to the
    version and to the package that it is pointing to. */
-bool pkgCacheGenerator::ListParser::NewDepends(pkgCache::VerIterator &Ver,
+bool pkgCacheGenerator::ListParser::NewDepends(pkgCache::VerIterator Ver,
 					       const string &PackageName,
 					       const string &Version,
 					       unsigned int Op,
@@ -530,7 +529,7 @@ bool pkgCacheGenerator::ListParser::NewDepends(pkgCache::VerIterator &Ver,
 // ListParser::NewProvides - Create a Provides element			/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-bool pkgCacheGenerator::ListParser::NewProvides(pkgCache::VerIterator &Ver,
+bool pkgCacheGenerator::ListParser::NewProvides(pkgCache::VerIterator Ver,
 					        const string &PackageName,
 						const string &Version)
 {
