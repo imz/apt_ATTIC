@@ -30,7 +30,6 @@
 
 #include <string>
 #include <limits>
-#include <experimental/optional>
 
 #include <sys/mman.h>
 
@@ -101,10 +100,10 @@ class DynamicMMap : public MMap
    public:
 
    // Allocation
-   std::experimental::optional<unsigned long> RawAllocate(unsigned long long Size,unsigned long Aln = 0);
-   std::experimental::optional<unsigned long> Allocate(unsigned long ItemSize);
-   std::experimental::optional<unsigned long> WriteString(const char *String,unsigned long Len = std::numeric_limits<unsigned long>::max());
-   inline std::experimental::optional<unsigned long> WriteString(const string &S) {return WriteString(S.c_str(),S.length());};
+   unsigned long RawAllocate(unsigned long long Size,unsigned long Aln = 0);
+   unsigned long Allocate(unsigned long ItemSize);
+   unsigned long WriteString(const char *String,unsigned long Len = std::numeric_limits<unsigned long>::max());
+   inline unsigned long WriteString(const string &S) {return WriteString(S.c_str(),S.length());};
    void UsePools(Pool &P,unsigned int Count) {Pools = &P; PoolCount = Count;};
    
    DynamicMMap(FileFd &F,unsigned long Flags,unsigned long long WorkSpace = 2*1024*1024,
