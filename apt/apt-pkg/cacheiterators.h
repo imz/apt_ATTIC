@@ -80,7 +80,7 @@ class pkgCache::PkgIterator
    inline VerIterator CurrentVer() const;
    inline DepIterator RevDependsList() const;
    inline PrvIterator ProvidesList() const;
-   inline unsigned long long Index() const {return Pkg - Owner->PkgP;};
+   inline unsigned long Index() const {return Pkg - Owner->PkgP;};
    OkState State() const;
    
    // Constructors
@@ -130,7 +130,7 @@ class pkgCache::VerIterator
    inline DepIterator DependsList() const;
    inline PrvIterator ProvidesList() const;
    inline VerFileIterator FileList() const;
-   inline unsigned long long Index() const {return Ver - Owner->VerP;};
+   inline unsigned long Index() const {return Ver - Owner->VerP;};
    bool Downloadable() const;
    inline const char *PriorityType() {return Owner->Priority(Ver->Priority);};
    string RelStr();
@@ -183,7 +183,7 @@ class pkgCache::DepIterator
    inline VerIterator ParentVer() {return VerIterator(*Owner,Owner->VerP + Dep->ParentVer);};
    inline PkgIterator ParentPkg() {return PkgIterator(*Owner,Owner->PkgP + Owner->VerP[Dep->ParentVer].ParentPkg);};
    inline bool Reverse() {return Type == DepRev;};
-   inline unsigned long long Index() const {return Dep - Owner->DepP;};
+   inline unsigned long Index() const {return Dep - Owner->DepP;};
    // CNC:2003-02-17 - This is a very used function, so it's now
    //		       inlined here.
    inline bool IsCritical() const
@@ -254,7 +254,7 @@ class pkgCache::PrvIterator
    inline PkgIterator ParentPkg() const {return PkgIterator(*Owner,Owner->PkgP + Prv->ParentPkg);};
    inline VerIterator OwnerVer() const {return VerIterator(*Owner,Owner->VerP + Prv->Version);};
    inline PkgIterator OwnerPkg() const {return PkgIterator(*Owner,Owner->PkgP + Owner->VerP[Prv->Version].ParentPkg);};
-   inline unsigned long long Index() const {return Prv - Owner->ProvideP;};
+   inline unsigned long Index() const {return Prv - Owner->ProvideP;};
 
    inline PrvIterator() : Prv(0), Type(PrvVer), Owner(0)  {};
 
@@ -307,7 +307,7 @@ class pkgCache::PkgFileIterator
    inline const char *Architecture() const {return File->Architecture == 0?0:Owner->StrP + File->Architecture;};
    inline const char *IndexType() const {return File->IndexType == 0?0:Owner->StrP + File->IndexType;};
 
-   inline unsigned long long Index() const {return File - Owner->PkgFileP;};
+   inline unsigned long Index() const {return File - Owner->PkgFileP;};
 
    bool IsOk();
    string RelStr();
@@ -344,7 +344,7 @@ class pkgCache::VerFileIterator
    inline pkgCache *Cache() {return Owner;};
   
    inline PkgFileIterator File() const {return PkgFileIterator(*Owner,FileP->File + Owner->PkgFileP);};
-   inline unsigned long long Index() const {return FileP - Owner->VerFileP;};
+   inline unsigned long Index() const {return FileP - Owner->VerFileP;};
       
    inline VerFileIterator() : Owner(0), FileP(0) {};
    inline VerFileIterator(pkgCache &Owner,VerFile *Trg) : Owner(&Owner), FileP(Trg) {};

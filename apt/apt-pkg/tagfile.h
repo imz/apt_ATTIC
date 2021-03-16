@@ -49,8 +49,8 @@ class pkgTagSection
    unsigned long long FindULL(const char *Tag, unsigned long long const &Default = 0) const;
    bool FindFlag(const char *Tag,unsigned long &Flags,
 		 unsigned long Flag) const;
-   bool Scan(const char *Start,unsigned long long MaxLength);
-   inline unsigned long long size() const {return Stop - Section;};
+   bool Scan(const char *Start,unsigned long MaxLength);
+   inline unsigned long size() const {return Stop - Section;};
    void Trim();
    
    inline unsigned int Count() const {return TagCount;};
@@ -73,18 +73,18 @@ class pkgTagFile
    char *Start;
    char *End;
    bool Done;
-   unsigned long long iOffset;
-   unsigned long long Size;
+   unsigned long iOffset;
+   unsigned long Size;
    
    bool Fill();
    
    public:
 
    bool Step(pkgTagSection &Section);
-   inline unsigned long long Offset() {return iOffset;};
-   bool Jump(pkgTagSection &Tag,unsigned long long Offset);
+   inline unsigned long Offset() {return iOffset;};
+   bool Jump(pkgTagSection &Tag,unsigned long Offset);
 
-   pkgTagFile(FileFd *F,unsigned long long Size = 32*1024);
+   pkgTagFile(FileFd *F,unsigned long Size = 32*1024);
    ~pkgTagFile();
 };
 
