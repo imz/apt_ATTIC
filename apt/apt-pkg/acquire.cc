@@ -781,7 +781,7 @@ bool pkgAcquireStatus::Pulse(pkgAcquire *Owner)
    }
    
    // Compute the current completion
-   unsigned long long ResumeSize = 0;
+   unsigned long ResumeSize = 0;
    for (pkgAcquire::Worker *I = Owner->WorkersBegin(); I != 0;
 	I = Owner->WorkerStep(I))
       if (I->CurrentItem != 0 && I->CurrentItem->Owner->Complete == false)
@@ -868,7 +868,7 @@ void pkgAcquireStatus::Stop()
 // AcquireStatus::Fetched - Called when a byte set has been fetched	/*{{{*/
 // ---------------------------------------------------------------------
 /* This is used to get accurate final transfer rate reporting. */
-void pkgAcquireStatus::Fetched(unsigned long long Size,unsigned long long Resume)
+void pkgAcquireStatus::Fetched(unsigned long Size,unsigned long Resume)
 {   
    FetchedBytes += Size - Resume;
 }

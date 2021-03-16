@@ -51,7 +51,7 @@ class rpmDatabaseIndex : public rpmIndexFile
    
    // Interface for the Cache Generator
    virtual bool Exists() const override {return true;};
-   virtual unsigned long long Size() const override;
+   virtual unsigned long Size() const override;
    virtual bool HasPackages() const override {return true;};
    virtual bool Merge(pkgCacheGenerator &Gen,OpProgress &Prog) const override;
    virtual bool MergeFileProvides(pkgCacheGenerator &/*Gen*/,
@@ -89,7 +89,7 @@ class rpmListIndex : public rpmIndexFile
 
    // Interface for the Cache Generator
    virtual bool Exists() const override;
-   virtual unsigned long long Size() const override;
+   virtual unsigned long Size() const override;
 
    // Interface for acquire
    virtual string Describe(bool Short) const override;   
@@ -188,7 +188,7 @@ class rpmPkgDirIndex : public rpmPkgListIndex
    virtual const Type *GetType() const override;
    
    // Interface for the Cache Generator
-   virtual unsigned long long Size() const override;
+   virtual unsigned long Size() const override;
 
    rpmPkgDirIndex(const string &URI, const string &Dist, const string &Section,
 		   pkgRepository *Repository) :
@@ -215,7 +215,7 @@ class rpmSrcDirIndex : public rpmSrcListIndex
    virtual const Type *GetType() const override;
    
    // Interface for the Cache Generator
-   virtual unsigned long long Size() const override;
+   virtual unsigned long Size() const override;
 
    rpmSrcDirIndex(const string &URI, const string &Dist, const string &Section,
 		   pkgRepository *Repository) :

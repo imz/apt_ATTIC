@@ -308,7 +308,7 @@ bool Stats(CommandLine &Cmd)
       SizeToStr(Cache.Head().ProvidesCount*Cache.Head().ProvidesSz) << ')' << endl;
    
    // String list stats
-   unsigned long long Size = 0;
+   unsigned long Size = 0;
    unsigned long Count = 0;
    for (pkgCache::StringItem *I = Cache.StringItemP + Cache.Head().StringList;
         I!= Cache.StringItemP; I = Cache.StringItemP + I->NextItem)
@@ -495,7 +495,7 @@ bool DumpAvail(CommandLine &Cmd)
        	 file in read order. We apply 1 more optimization here, since often
        	 there will be < 1 byte gaps between records (for the \n) we read that
        	 into the next buffer and offset a bit.. */
-      unsigned long long Pos = 0;
+      unsigned long Pos = 0;
       for (; *J != 0; J++)
       {
 	 if ((*J)->File + Cache.PkgFileP != File)
@@ -504,7 +504,7 @@ bool DumpAvail(CommandLine &Cmd)
 	 const pkgCache::VerFile &VF = **J;
 
 	 // Read the record and then write it out again.
-	 unsigned long long Jitter = VF.Offset - Pos;
+	 unsigned long Jitter = VF.Offset - Pos;
 	 if (Jitter > 8)
 	 {
 	    if (PkgF.Seek(VF.Offset) == false)
@@ -1395,7 +1395,7 @@ bool DoAdd(CommandLine &CmdL)
    if (_error->PendingError() == true)
       return false;
 
-   unsigned long long Length = CmdL.FileSize() - 1;
+   unsigned long Length = CmdL.FileSize() - 1;
    for (const char **I = CmdL.FileList + 1; *I != 0; I++)
    {
       Progress.OverallProgress(I - CmdL.FileList,Length,1,"Generating cache");

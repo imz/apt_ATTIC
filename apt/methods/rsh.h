@@ -18,7 +18,7 @@
 class RSHConn
 {
    char Buffer[1024*10];
-   unsigned long long Len;
+   unsigned long Len;
    int WriteFd;
    int ReadFd;
    URI ServerName;
@@ -40,10 +40,10 @@ class RSHConn
    void Close();
 
    // Query
-   bool Size(const char *Path,unsigned long long &Size);
+   bool Size(const char *Path,unsigned long &Size);
    bool ModTime(const char *Path, time_t &Time);
-   bool Get(const char *Path,FileFd &To,unsigned long long Resume,
-            Hashes &Hash,bool &Missing, unsigned long long Size);
+   bool Get(const char *Path,FileFd &To,unsigned long Resume,
+            Hashes &Hash,bool &Missing, unsigned long Size);
 
    RSHConn(URI Srv);
    ~RSHConn();

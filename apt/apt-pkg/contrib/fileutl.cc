@@ -52,10 +52,10 @@ bool CopyFile(FileFd &From,FileFd &To)
    
    // Buffered copy between fds
    SPtrArray<unsigned char> Buf = new unsigned char[64000];
-   unsigned long long Size = From.Size();
+   unsigned long Size = From.Size();
    while (Size != 0)
    {
-      unsigned long long ToRead = Size;
+      unsigned long ToRead = Size;
       if (Size > 64000)
 	 ToRead = 64000;
       
@@ -445,7 +445,7 @@ FileFd::~FileFd()
 // ---------------------------------------------------------------------
 /* We are carefull to handle interruption by a signal while reading 
    gracefully. */
-bool FileFd::Read(void *To,unsigned long long Size,unsigned long long *Actual)
+bool FileFd::Read(void *To,unsigned long Size,unsigned long *Actual)
 {
    int Res;
    errno = 0;
@@ -481,13 +481,13 @@ bool FileFd::Read(void *To,unsigned long long Size,unsigned long long *Actual)
    }
    
    Flags |= Fail;
-   return _error->Error(_("read, still have %llu to read but none left"),Size);
+   return _error->Error(_("read, still have %lu to read but none left"),Size);
 }
 									/*}}}*/
 // FileFd::Write - Write to the file					/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-bool FileFd::Write(const void *From,unsigned long long Size)
+bool FileFd::Write(const void *From,unsigned long Size)
 {
    int Res;
    errno = 0;
@@ -511,18 +511,18 @@ bool FileFd::Write(const void *From,unsigned long long Size)
       return true;
    
    Flags |= Fail;
-   return _error->Error(_("write, still have %llu to write but couldn't"),Size);
+   return _error->Error(_("write, still have %lu to write but couldn't"),Size);
 }
 									/*}}}*/
 // FileFd::Seek - Seek in the file					/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-bool FileFd::Seek(unsigned long long To)
+bool FileFd::Seek(unsigned long To)
 {
-   if (lseek(iFd,To,SEEK_SET) != (signed long long)To)
+   if (lseek(iFd,To,SEEK_SET) != (signed)To)
    {
       Flags |= Fail;
-      return _error->Error("Unable to seek to %llu",To);
+      return _error->Error("Unable to seek to %lu",To);
    }
    
    return true;
@@ -531,12 +531,12 @@ bool FileFd::Seek(unsigned long long To)
 // FileFd::Skip - Seek in the file					/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-bool FileFd::Skip(unsigned long long Over)
+bool FileFd::Skip(unsigned long Over)
 {
    if (lseek(iFd,Over,SEEK_CUR) < 0)
    {
       Flags |= Fail;
-      return _error->Error("Unable to seek ahead %llu",Over);
+      return _error->Error("Unable to seek ahead %lu",Over);
    }
    
    return true;
@@ -545,12 +545,12 @@ bool FileFd::Skip(unsigned long long Over)
 // FileFd::Truncate - Truncate the file 				/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-bool FileFd::Truncate(unsigned long long To)
+bool FileFd::Truncate(unsigned long To)
 {
    if (ftruncate(iFd,To) != 0)
    {
       Flags |= Fail;
-      return _error->Error("Unable to truncate to %llu",To);
+      return _error->Error("Unable to truncate to %lu",To);
    }
    
    return true;
@@ -559,7 +559,7 @@ bool FileFd::Truncate(unsigned long long To)
 // FileFd::Tell - Current seek position					/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-unsigned long long FileFd::Tell()
+unsigned long FileFd::Tell()
 {
    off_t Res = lseek(iFd,0,SEEK_CUR);
    if (Res == (off_t)-1)
@@ -570,7 +570,7 @@ unsigned long long FileFd::Tell()
 // FileFd::Size - Return the size of the file				/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-unsigned long long FileFd::Size()
+unsigned long FileFd::Size()
 {
    struct stat Buf;
    if (fstat(iFd,&Buf) != 0)
