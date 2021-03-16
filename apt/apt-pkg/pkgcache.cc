@@ -26,6 +26,7 @@
 
 #include <config.h>
 
+#define PKGCACHE_FINDPKG_ABI
 #include <apt-pkg/pkgcache.h>
 #include <apt-pkg/version.h>
 #include <apt-pkg/error.h>
@@ -193,6 +194,12 @@ pkgCache::PkgIterator pkgCache::FindPkg(const string &Name)
 {
    return PkgIterator(*this,FindPackage(Name.c_str()));
 }
+#ifdef PKGCACHE_FINDPKG_ABI
+pkgCache::PkgIterator pkgCache::FindPkg(string Name)
+{
+   return PkgIterator(*this,FindPackage(Name.c_str()));
+}
+#endif
 									/*}}}*/
 
 // CNC:2003-02-17 - A slightly changed FindPkg(), hacked for performance.
