@@ -24,10 +24,6 @@
 
 #include <apt-pkg/pkgcache.h>
 
-#include <set>
-#include <functional>
-#include <utility>
-
 class pkgSourceList;
 class OpProgress;
 class MMap;
@@ -38,70 +34,16 @@ class pkgCacheGenerator
    private:
 
    pkgCache::StringItem *UniqHash[26];
-   map_ptrloc WriteStringInMap(const std::string &String) { return WriteStringInMap(String.c_str(), String.length()); };
-   map_ptrloc WriteStringInMap(const char *String);
-   map_ptrloc WriteStringInMap(const char *String, unsigned long Len);
-   map_ptrloc AllocateInMap(unsigned long size);
+   unsigned long WriteStringInMap(const std::string &String) { return WriteStringInMap(String.c_str(), String.length()); };
+   unsigned long WriteStringInMap(const char *String);
+   unsigned long WriteStringInMap(const char *String, unsigned long Len);
+   unsigned long AllocateInMap(unsigned long size);
 
    public:
    
    class ListParser;
    friend class ListParser;
-
-   template<typename Iter>
-   class Dynamic
-   {
-      Iter *I;
-
-   public:
-      static std::set<Iter*> toReMap;
-
-      Dynamic(Iter &It)
-         : I(&It)
-      {
-         toReMap.insert(I);
-      }
-
-      ~Dynamic()
-      {
-         toReMap.erase(I);
-      }
-   };
-
-   class DynamicFunction
-   {
-   public:
-      typedef std::function<void(const void *, const void *)> function;
-
-      static std::set<DynamicFunction*> toReMap;
-
-      explicit DynamicFunction(const function &l_function)
-         : m_function(l_function)
-      {
-         toReMap.insert(this);
-      }
-
-      explicit DynamicFunction(function &&l_function)
-         : m_function(std::move(l_function))
-      {
-         toReMap.insert(this);
-      }
-
-      ~DynamicFunction()
-      {
-         toReMap.erase(this);
-      }
-
-      void call(const void *oldMap, const void *newMap)
-      {
-         if (m_function)
-            m_function(oldMap, newMap);
-      }
-
-   private:
-      function m_function;
-   };
-
+   
    protected:
    
    DynamicMMap &Map;
@@ -138,9 +80,7 @@ class pkgCacheGenerator
 
    // CNC:2003-03-18
    inline void ResetFileDeps() {FoundFileDeps = false;};
-
-   void ReMap(void const * const oldMap, void const * const newMap);
-
+      
    pkgCacheGenerator(DynamicMMap *Map,OpProgress *Progress);
    ~pkgCacheGenerator();
 };

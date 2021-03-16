@@ -1386,7 +1386,7 @@ bool DoAdd(CommandLine &CmdL)
    if (_error->PendingError() == true)
       return false;
    
-   DynamicMMap Map(CacheF,MMap::Public | MMap::Moveable);
+   DynamicMMap Map(CacheF,MMap::Public);
    if (_error->PendingError() == true)
       return false;
 
