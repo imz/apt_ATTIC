@@ -55,7 +55,7 @@ class FileFd
    bool Truncate(unsigned long To);
    unsigned long Tell();
    unsigned long Size();
-   bool Open(const string &FileName,OpenMode Mode,unsigned long Perms = 0666);
+   bool Open(string FileName,OpenMode Mode,unsigned long Perms = 0666);
    bool Close();
    bool Sync();
    
@@ -69,7 +69,7 @@ class FileFd
    inline bool Eof() {return (Flags & HitEof) == HitEof;};
    inline string &Name() {return FileName;};
    
-   FileFd(const string &FileName,OpenMode Mode,unsigned long Perms = 0666) : iFd(-1), 
+   FileFd(string FileName,OpenMode Mode,unsigned long Perms = 0666) : iFd(-1), 
             Flags(0) 
    {
       Open(FileName,Mode,Perms);
@@ -80,8 +80,8 @@ class FileFd
 };
 
 bool CopyFile(FileFd &From,FileFd &To);
-int GetLock(const string &File,bool Errors = true);
-bool FileExists(const string &File);
+int GetLock(string File,bool Errors = true);
+bool FileExists(string File);
 string SafeGetCWD();
 void SetCloseExec(int Fd,bool Close);
 void SetNonBlock(int Fd,bool Block);
@@ -90,10 +90,10 @@ int ExecFork();
 bool ExecWait(int Pid,const char *Name,bool Reap = false);
 
 // File string manipulators
-string flNotDir(const string &File);
-string flNotFile(const string &File);
-string flNoLink(const string &File);
-string flExtension(const string &File);
-string flCombine(const string &Dir,const string &File);
+string flNotDir(string File);
+string flNotFile(string File);
+string flNoLink(string File);
+string flExtension(string File);
+string flCombine(string Dir,string File);
 
 #endif

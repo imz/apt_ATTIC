@@ -333,7 +333,7 @@ bool pkgCacheGenerator::MergeFileProvides(ListParser &List)
 // CacheGenerator::NewPackage - Add a new package			/*{{{*/
 // ---------------------------------------------------------------------
 /* This creates a new package structure and adds it to the hash table */
-bool pkgCacheGenerator::NewPackage(pkgCache::PkgIterator &Pkg, const string &Name)
+bool pkgCacheGenerator::NewPackage(pkgCache::PkgIterator &Pkg,string Name)
 {
 // CNC:2003-02-17 - Optimized.
 #if 0
@@ -426,7 +426,7 @@ bool pkgCacheGenerator::NewFileVer(pkgCache::VerIterator &Ver,
 // ---------------------------------------------------------------------
 /* This puts a version structure in the linked list */
 unsigned long pkgCacheGenerator::NewVersion(pkgCache::VerIterator &Ver,
-					    const string &VerStr,
+					    string VerStr,
 					    unsigned long Next)
 {
    // Get a structure
@@ -450,8 +450,8 @@ unsigned long pkgCacheGenerator::NewVersion(pkgCache::VerIterator &Ver,
 /* This creates a dependency element in the tree. It is linked to the
    version and to the package that it is pointing to. */
 bool pkgCacheGenerator::ListParser::NewDepends(pkgCache::VerIterator Ver,
-					       const string &PackageName,
-					       const string &Version,
+					       string PackageName,
+					       string Version,
 					       unsigned int Op,
 					       unsigned int Type)
 {
@@ -515,8 +515,8 @@ bool pkgCacheGenerator::ListParser::NewDepends(pkgCache::VerIterator Ver,
 // ---------------------------------------------------------------------
 /* */
 bool pkgCacheGenerator::ListParser::NewProvides(pkgCache::VerIterator Ver,
-					        const string &PackageName,
-						const string &Version)
+					        string PackageName,
+						string Version)
 {
    pkgCache &Cache = Owner->Cache;
 
@@ -558,7 +558,7 @@ bool pkgCacheGenerator::ListParser::NewProvides(pkgCache::VerIterator Ver,
 // ---------------------------------------------------------------------
 /* This is used to select which file is to be associated with all newly
    added versions. The caller is responsible for setting the IMS fields. */
-bool pkgCacheGenerator::SelectFile(const string &File, const string &Site,
+bool pkgCacheGenerator::SelectFile(string File,string Site,
 				   const pkgIndexFile &Index,
 				   unsigned long Flags)
 {
@@ -642,7 +642,7 @@ unsigned long pkgCacheGenerator::WriteUniqString(const char *S,
 /* This just verifies that each file in the list of index files exists,
    has matching attributes with the cache and the cache does not have
    any extra files. */
-static bool CheckValidity(const string &CacheFile, FileIterator Start, 
+static bool CheckValidity(string CacheFile, FileIterator Start, 
                           FileIterator End,MMap **OutMap = 0)
 {
    // No file, certainly invalid
