@@ -384,7 +384,7 @@ static void gatherFileDependencies(map<string,int> &filedeps, Header header)
 
 
 #ifdef OLD_FILEDEPS
-bool rpmSystem::IsFileDep(const string &File)
+bool rpmSystem::IsFileDep(string File)
 {
    return (FileDeps.find(File) != FileDeps.end());
 }

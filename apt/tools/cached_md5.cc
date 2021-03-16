@@ -23,7 +23,7 @@
 #include <apt-pkg/configuration.h>
 #include <apt-pkg/md5.h>
 
-CachedMD5::CachedMD5(const string &DirName, const string &Domain)
+CachedMD5::CachedMD5(string DirName, string Domain)
 {
    string fname = DirName;
    for (string::iterator i = fname.begin(); i != fname.end(); ++i)
@@ -76,7 +76,7 @@ CachedMD5::~CachedMD5()
    }
 }
 
-void CachedMD5::MD5ForFile(const string &FileName, time_t TimeStamp, char *buf)
+void CachedMD5::MD5ForFile(string FileName, time_t TimeStamp, char *buf)
 {
    if (MD5Table.find(FileName) != MD5Table.end()
        && TimeStamp == MD5Table[FileName].TimeStamp )

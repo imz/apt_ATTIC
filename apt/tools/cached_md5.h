@@ -53,9 +53,9 @@ class CachedMD5
 
    public:
 
-   void MD5ForFile(const string &FileName, time_t TimeStamp, char *buf);
+   void MD5ForFile(string FileName, time_t TimeStamp, char *buf);
 
-   CachedMD5(const string &DirName, const string &Domain);
+   CachedMD5(string DirName, string Domain);
    ~CachedMD5();
 };
 

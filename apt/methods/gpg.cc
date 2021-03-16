@@ -57,7 +57,7 @@ class GPGMethod : public pkgAcqMethod
  * Ie: the original file cat'enated with the signatures generated
  * through gpg -s --armor --detach <yourfile>
  */
-bool extractSignedFile(const string &file, const string &targetPrefix, const string &targetFile,
+bool extractSignedFile(string file, string targetPrefix, string targetFile,
 		       bool &oldStyle, int &sigCount)
 {
    FILE *fin;
@@ -301,7 +301,7 @@ char *getFileSigner(const char *file, const char *sigfile,
 }
 
 
-bool makeTmpDir(const string &dir, string &path)
+bool makeTmpDir(string dir, string &path)
 {
    std::unique_ptr<char[]> buf;
 
@@ -319,7 +319,7 @@ bool makeTmpDir(const string &dir, string &path)
 }
 
 
-void removeTmpDir(const string &path, int sigCount)
+void removeTmpDir(string path, int sigCount)
 {
    while (sigCount > 0)
    {

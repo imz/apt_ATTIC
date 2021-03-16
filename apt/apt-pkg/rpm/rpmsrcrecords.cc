@@ -35,7 +35,7 @@
 // SrcRecordParser::rpmSrcRecordParser - Constructor			/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-rpmSrcRecordParser::rpmSrcRecordParser(const string &File,pkgIndexFile const *Index)
+rpmSrcRecordParser::rpmSrcRecordParser(string File,pkgIndexFile const *Index)
     : Parser(Index), HeaderP(0), Buffer(0), BufSize(0), BufUsed(0)
 {
    struct stat Buf;
