@@ -524,15 +524,15 @@ bool pkgCacheGenerator::NewFileVer(pkgCache::VerIterator &Ver,
 // CacheGenerator::NewVersion - Create a new Version 			/*{{{*/
 // ---------------------------------------------------------------------
 /* This puts a version structure in the linked list */
-std::experimental::optional<map_ptrloc> pkgCacheGenerator::NewVersion(pkgCache::VerIterator &Ver,
+std::experimental::optional<unsigned long> pkgCacheGenerator::NewVersion(pkgCache::VerIterator &Ver,
 					    const string &VerStr,
-					    map_ptrloc Next)
+					    unsigned long Next)
 {
    // Get a structure
    const auto Version = AllocateInMap(sizeof(pkgCache::Version));
    const auto idxVerStr = WriteStringInMap(VerStr);
    if ((!Version) || (!idxVerStr))
-      return std::experimental::optional<map_ptrloc>();
+      return std::experimental::optional<unsigned long>();
 
    // Fill it in
    Ver = pkgCache::VerIterator(Cache,Cache.VerP + *Version);
@@ -709,7 +709,7 @@ bool pkgCacheGenerator::SelectFile(const string &File, const string &Site,
 // ---------------------------------------------------------------------
 /* This is used to create handles to strings. Given the same text it
    always returns the same number */
-std::experimental::optional<map_ptrloc> pkgCacheGenerator::WriteUniqString(const char *S,
+std::experimental::optional<unsigned long> pkgCacheGenerator::WriteUniqString(const char *S,
 						 unsigned int Size)
 {
    /* We use a very small transient hash table here, this speeds up generation
@@ -717,7 +717,7 @@ std::experimental::optional<map_ptrloc> pkgCacheGenerator::WriteUniqString(const
    pkgCache::StringItem *&Bucket = UniqHash[(S[0]*5 + S[1]) % _count(UniqHash)];
    if (Bucket != 0 && 
        stringcmp(S,S+Size,Cache.StrP + Bucket->String) == 0)
-      return std::experimental::optional<map_ptrloc>(Bucket->String);
+      return std::experimental::optional<unsigned long>(Bucket->String);
    
    // Search for an insertion point
    pkgCache::StringItem *I = Cache.StringItemP + Cache.HeaderP->StringList;
@@ -735,7 +735,7 @@ std::experimental::optional<map_ptrloc> pkgCacheGenerator::WriteUniqString(const
    if (Res == 0)
    {
       Bucket = I;
-      return std::experimental::optional<map_ptrloc>(I->String);
+      return std::experimental::optional<unsigned long>(I->String);
    }
    
    // Get a structure
@@ -743,7 +743,7 @@ std::experimental::optional<map_ptrloc> pkgCacheGenerator::WriteUniqString(const
    const auto Item = AllocateInMap(sizeof(pkgCache::StringItem));
    const auto idxString = WriteStringInMap(S, Size);
    if ((!Item) || (!idxString))
-      return std::experimental::optional<map_ptrloc>();
+      return std::experimental::optional<unsigned long>();
 
    if (oldMap != Map.Data())
    {
@@ -759,7 +759,7 @@ std::experimental::optional<map_ptrloc> pkgCacheGenerator::WriteUniqString(const
    ItemP->String = *idxString;
 
    Bucket = ItemP;
-   return std::experimental::optional<map_ptrloc>(ItemP->String);
+   return std::experimental::optional<unsigned long>(ItemP->String);
 }
 									/*}}}*/
 

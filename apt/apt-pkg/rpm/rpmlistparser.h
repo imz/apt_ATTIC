@@ -45,7 +45,7 @@ class rpmListParser : public pkgCacheGenerator::ListParser
 
    bool Duplicated;
    
-   std::experimental::optional<map_ptrloc> UniqFindTagWrite(int Tag);
+   std::experimental::optional<unsigned long> UniqFindTagWrite(int Tag);
    bool ParseStatus(pkgCache::PkgIterator &Pkg,pkgCache::VerIterator &Ver);
    bool ParseDepends(pkgCache::VerIterator &Ver,
 		     char **namel, char **verl, int32_t *flagl,
