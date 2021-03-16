@@ -29,10 +29,6 @@
 #endif
 
 #include <string>
-#include <limits>
-
-#include <sys/mman.h>
-
 #include <apt-pkg/fileutl.h>
 
 using std::string;
@@ -56,21 +52,19 @@ class MMap
    public:
 
    enum OpenFlags {NoImmMap = (1<<0),Public = (1<<1),ReadOnly = (1<<2),
-                   UnMapped = (1<<3), Moveable = (1<<4)};
-
+                   UnMapped = (1<<3)};
+      
    // Simple accessors
    inline operator void *() {return Base;};
    inline void *Data() {return Base;}; 
    inline unsigned long long Size() {return iSize;};
-   inline void AddSize(unsigned long long const size) {iSize += size;};
-   inline bool validData() const { return Base != MAP_FAILED && Base != 0; };
    
    // File manipulators
    bool Sync();
    bool Sync(unsigned long Start,unsigned long Stop);
    
    MMap(FileFd &F,unsigned long Flags);
-   explicit MMap(unsigned long Flags);
+   MMap(unsigned long Flags);
    virtual ~MMap();
 };
 
@@ -89,27 +83,21 @@ class DynamicMMap : public MMap
    protected:
    
    FileFd *Fd;
-   unsigned long long WorkSpace;
-   unsigned long long const GrowFactor;
-   unsigned long long const Limit;
+   unsigned long WorkSpace;
    Pool *Pools;
    unsigned int PoolCount;
-
-   bool Grow(unsigned long long size);
-
+   
    public:
 
    // Allocation
-   unsigned long RawAllocate(unsigned long long Size,unsigned long Aln = 0);
+   unsigned long RawAllocate(unsigned long Size,unsigned long Aln = 0);
    unsigned long Allocate(unsigned long ItemSize);
-   unsigned long WriteString(const char *String,unsigned long Len = std::numeric_limits<unsigned long>::max());
+   unsigned long WriteString(const char *String,unsigned long Len = (unsigned long)-1);
    inline unsigned long WriteString(const string &S) {return WriteString(S.c_str(),S.length());};
    void UsePools(Pool &P,unsigned int Count) {Pools = &P; PoolCount = Count;};
    
-   DynamicMMap(FileFd &F,unsigned long Flags,unsigned long long WorkSpace = 2*1024*1024,
-               unsigned long long Grow = 1024*1024, unsigned long long Limit = 0);
-   DynamicMMap(unsigned long Flags,unsigned long long WorkSpace = 2*1024*1024,
-               unsigned long long Grow = 1024*1024, unsigned long long Limit = 0);
+   DynamicMMap(FileFd &F,unsigned long Flags,unsigned long WorkSpace = 2*1024*1024);
+   DynamicMMap(unsigned long Flags,unsigned long WorkSpace = 2*1024*1024);
    virtual ~DynamicMMap();
 };
 
