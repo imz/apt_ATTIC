@@ -76,7 +76,7 @@ class RPMFileHandler : public RPMHandler
    virtual string MD5Sum() override;
 
    RPMFileHandler(FileFd *File);
-   RPMFileHandler(const string &File);
+   RPMFileHandler(string File);
    virtual ~RPMFileHandler();
 };
 
@@ -98,7 +98,7 @@ class RPMSingleFileHandler : public RPMFileHandler
    virtual string MD5Sum() override;
    virtual bool ProvideFileName() override {return true;};
 
-   RPMSingleFileHandler(const string &File) : RPMFileHandler(File), sFilePath(File) {};
+   RPMSingleFileHandler(string File) : RPMFileHandler(File), sFilePath(File) {};
    virtual ~RPMSingleFileHandler() {};
 };
 
@@ -161,7 +161,7 @@ class RPMDirHandler : public RPMHandler
    virtual unsigned long FileSize() override;
    virtual string MD5Sum() override;
 
-   RPMDirHandler(const string &DirName);
+   RPMDirHandler(string DirName);
    virtual ~RPMDirHandler();
 };
 

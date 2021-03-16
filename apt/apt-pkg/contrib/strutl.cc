@@ -199,10 +199,10 @@ bool ParseCWord(const char *&String,string &Res)
 // QuoteString - Convert a string into quoted from			/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-string QuoteString(const string &Str,const char *Bad)
+string QuoteString(string Str,const char *Bad)
 {
    string Res;
-   for (auto I = Str.begin(); I != Str.end(); ++I)
+   for (string::iterator I = Str.begin(); I != Str.end(); I++)
    {
       if (strchr(Bad,*I) != 0 || isprint(*I) == 0 || 
 	  *I <= 0x20 || *I >= 0x7F)
@@ -220,7 +220,7 @@ string QuoteString(const string &Str,const char *Bad)
 // DeQuoteString - Convert a string from quoted from                    /*{{{*/
 // ---------------------------------------------------------------------
 /* This undoes QuoteString */
-string DeQuoteString(const string &Str)
+string DeQuoteString(string Str)
 {
    std::stringstream Res;
 
@@ -318,7 +318,7 @@ string TimeToStr(unsigned long Sec)
 // SubstVar - Substitute a string for another string			/*{{{*/
 // ---------------------------------------------------------------------
 /* This replaces all occurances of Subst with Contents in Str. */
-string SubstVar(const string &Str, const string &Subst, const string &Contents)
+string SubstVar(string Str,string Subst,string Contents)
 {
    string::size_type Pos = 0;
    string::size_type OldPos = 0;
@@ -337,12 +337,11 @@ string SubstVar(const string &Str, const string &Subst, const string &Contents)
    return Temp + string(Str,OldPos);
 }
 
-string SubstVar(const string &Str,const struct SubstVar *Vars)
+string SubstVar(string Str,const struct SubstVar *Vars)
 {
-   std::string Temp = Str;
-   for (; Vars->Subst != 0; ++Vars)
-      Temp = SubstVar(Temp,Vars->Subst,*Vars->Contents);
-   return Temp;
+   for (; Vars->Subst != 0; Vars++)
+      Str = SubstVar(Str,Vars->Subst,*Vars->Contents);
+   return Str;
 }
 									/*}}}*/
 // URItoFileName - Convert the uri into a unique file name		/*{{{*/
@@ -360,8 +359,8 @@ string URItoFileName(string URI)
    
    // "\x00-\x20{}|\\\\^\\[\\]<>\"\x7F-\xFF";
    URI = QuoteString(U,"\\|{}[]<>\"^~_=!@#$%^&*");
-   auto J = URI.begin();
-   for (; J != URI.end(); ++J)
+   string::iterator J = URI.begin();
+   for (; J != URI.end(); J++)
       if (*J == '/') 
 	 *J = '_';
    return URI;
@@ -373,7 +372,7 @@ string URItoFileName(string URI)
    from wget and then patched and bug fixed.
  
    This spec can be found in rfc2045 */
-string Base64Encode(const string &S)
+string Base64Encode(string S)
 {
    // Conversion table.
    static char tbl[64] = {'A','B','C','D','E','F','G','H',
@@ -542,20 +541,20 @@ int stringcasecmp(string::const_iterator A,string::const_iterator AEnd,
 // ---------------------------------------------------------------------
 /* The format is like those used in package files and the method 
    communication system */
-string LookupTag(const string &Message,const char *Tag,const char *Default)
+string LookupTag(string Message,const char *Tag,const char *Default)
 {
    // Look for a matching tag.
    int Length = strlen(Tag);
-   for (auto I = Message.begin(); I + Length < Message.end(); ++I)
+   for (string::iterator I = Message.begin(); I + Length < Message.end(); I++)
    {
       // Found the tag
       if (I[Length] == ':' && stringcasecmp(I,I+Length,Tag) == 0)
       {
 	 // Find the end of line and strip the leading/trailing spaces
-	 decltype(I) J;
+	 string::iterator J;
 	 I += Length + 1;
-	 for (; isspace(*I) != 0 && I < Message.end(); ++I);
-	 for (J = I; *J != '\n' && J < Message.end(); ++J);
+	 for (; isspace(*I) != 0 && I < Message.end(); I++);
+	 for (J = I; *J != '\n' && J < Message.end(); J++);
 	 for (; J > I && isspace(J[-1]) != 0; J--);
 	 
 	 return string(I,J);
@@ -574,7 +573,7 @@ string LookupTag(const string &Message,const char *Tag,const char *Default)
 // ---------------------------------------------------------------------
 /* This inspects the string to see if it is true or if it is false and
    then returns the result. Several varients on true/false are checked. */
-int StringToBool(const string &Text,int Default)
+int StringToBool(string Text,int Default)
 {
    char *End;
    int Res = strtol(Text.c_str(),&End,0);   
@@ -740,14 +739,14 @@ static time_t timegm(struct tm *t)
    'timegm' to convert a struct tm in UTC to a time_t. For some bizzar
    reason the C library does not provide any such function :< This also
    handles the weird, but unambiguous FTP time format*/
-bool StrToTime(const string &Val,time_t &Result)
+bool StrToTime(string Val,time_t &Result)
 {
    struct tm Tm;
    char Month[10];
    const char *I = Val.c_str();
    
    // Skip the day of the week
-   for (;*I != 0  && *I != ' '; ++I);
+   for (;*I != 0  && *I != ' '; I++);
    
    // Handle RFC 1123 time
    Month[0] = 0;
@@ -827,14 +826,14 @@ static int HexDigit(int c)
 // Hex2Num - Convert a long hex number into a buffer			/*{{{*/
 // ---------------------------------------------------------------------
 /* The length of the buffer must be exactly 1/2 the length of the string. */
-bool Hex2Num(const string &Str,unsigned char *Num,unsigned int Length)
+bool Hex2Num(string Str,unsigned char *Num,unsigned int Length)
 {
    if (Str.length() != Length*2)
       return false;
    
    // Convert each digit. We store it in the same order as the string
    int J = 0;
-   for (auto I = Str.begin(); I != Str.end();++J, I += 2)
+   for (string::const_iterator I = Str.begin(); I != Str.end();J++, I += 2)
    {
       if (isxdigit(*I) == 0 || isxdigit(I[1]) == 0)
 	 return false;
@@ -991,10 +990,10 @@ char *safe_snprintf(char *Buffer,char *End,const char *Format,...)
 // ---------------------------------------------------------------------
 /* The domain list is a comma seperate list of domains that are suffix
    matched against the argument */
-bool CheckDomainList(const string &Host, const string &List)
+bool CheckDomainList(string Host,string List)
 {
-   auto Start = List.begin();
-   for (auto Cur = List.begin(); Cur <= List.end(); ++Cur)
+   string::const_iterator Start = List.begin();
+   for (string::const_iterator Cur = List.begin(); Cur <= List.end(); Cur++)
    {
       if (Cur < List.end() && *Cur != ',')
 	 continue;
@@ -1014,17 +1013,17 @@ bool CheckDomainList(const string &Host, const string &List)
 // URI::CopyFrom - Copy from an object					/*{{{*/
 // ---------------------------------------------------------------------
 /* This parses the URI into all of its components */
-void URI::CopyFrom(const string &U)
+void URI::CopyFrom(string U)
 {
-   auto I = U.begin();
+   string::const_iterator I = U.begin();
 
    // Locate the first colon, this separates the scheme
    for (; I < U.end() && *I != ':' ; I++);
-   auto FirstColon = I;
+   string::const_iterator FirstColon = I;
 
    /* Determine if this is a host type URI with a leading double //
       and then search for the first single / */
-   auto SingleSlash = I;
+   string::const_iterator SingleSlash = I;
    if (I + 3 < U.end() && I[1] == '/' && I[2] == '/')
       SingleSlash += 3;
    
@@ -1065,11 +1064,11 @@ void URI::CopyFrom(const string &U)
    if (I > SingleSlash)
       I = SingleSlash;
    for (; I < SingleSlash && *I != ':'; I++);
-   auto SecondColon = I;
+   string::const_iterator SecondColon = I;
    
    // Search for the @ after the colon
    for (; I < SingleSlash && *I != '@'; I++);
-   auto At = I;
+   string::const_iterator At = I;
    
    // Now write the host and user/pass
    if (At == SingleSlash)
@@ -1176,7 +1175,7 @@ URI::operator string()
 // URI::SiteOnly - Return the schema and site for the URI		/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-string URI::SiteOnly(const string &URI)
+string URI::SiteOnly(string URI)
 {
    ::URI U(URI);
    U.User = string();
