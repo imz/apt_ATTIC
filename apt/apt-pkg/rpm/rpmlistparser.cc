@@ -48,27 +48,23 @@ rpmListParser::rpmListParser(RPMHandler *Handler)
    header = NULL;
    if (Handler->IsDatabase() == true)
    {
-      SeenPackages.reset(new SeenPackagesType);
-      m_SeenPackagesRealloc.reset(new pkgCacheGenerator::DynamicFunction(
-         [this] (void const *oldMap, void const *newMap)
-      {
-         SeenPackagesType tmp;
-
-         for (auto iter: *SeenPackages)
-         {
-            tmp.insert(iter + (static_cast<const char *>(newMap) - static_cast<const char *>(oldMap)));
-         }
-
-         SeenPackages->swap(tmp);
-      }));
+#ifdef WITH_HASH_MAP
+      SeenPackages = new SeenPackagesType(517);
+#else
+      SeenPackages = new SeenPackagesType;
+#endif
    }
-
+   else
+   {
+      SeenPackages = NULL;
+   }
    RpmData = RPMPackageData::Singleton();
 }
                                                                         /*}}}*/
 
 rpmListParser::~rpmListParser()
 {
+   delete SeenPackages;
 }
 
 // ListParser::UniqFindTagWrite - Find the tag and write a unq string	/*{{{*/
@@ -141,7 +137,7 @@ string rpmListParser::Package()
    // dependencies.
    if (RpmData->IsDupPackage(Name) == true)
       IsDup = true;
-   else if (SeenPackages) {
+   else if (SeenPackages != NULL) {
       if (SeenPackages->find(Name.c_str()) != SeenPackages->end())
       {
 	 if (_config->FindB("RPM::Allow-Duplicated-Warning", true) == true)
@@ -297,8 +293,8 @@ bool rpmListParser::NewVersion(pkgCache::VerIterator &Ver)
 bool rpmListParser::UsePackage(pkgCache::PkgIterator &Pkg,
 			       pkgCache::VerIterator &Ver)
 {
-   if (SeenPackages)
-      SeenPackages->insert(Pkg.Name());
+   if (SeenPackages != NULL)
+      (*SeenPackages)[Pkg.Name()] = true;
    if (Pkg->Section == 0)
       Pkg->Section = UniqFindTagWrite(RPMTAG_GROUP);
    if (_error->PendingError()) 
