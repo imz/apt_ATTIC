@@ -41,20 +41,20 @@ class FileFd
    public:
    enum OpenMode {ReadOnly,WriteEmpty,WriteExists,WriteAny,WriteTemp};
    
-   inline bool Read(void *To,unsigned long long Size,bool AllowEof)
+   inline bool Read(void *To,unsigned long Size,bool AllowEof)
    {
       unsigned long Jnk;
       if (AllowEof)
 	 return Read(To,Size,&Jnk);
       return Read(To,Size);
    }   
-   bool Read(void *To,unsigned long long Size,unsigned long long *Actual = 0);
-   bool Write(const void *From,unsigned long long Size);
-   bool Seek(unsigned long long To);
-   bool Skip(unsigned long long To);
-   bool Truncate(unsigned long long To);
-   unsigned long long Tell();
-   unsigned long long Size();
+   bool Read(void *To,unsigned long Size,unsigned long *Actual = 0);
+   bool Write(const void *From,unsigned long Size);
+   bool Seek(unsigned long To);
+   bool Skip(unsigned long To);
+   bool Truncate(unsigned long To);
+   unsigned long Tell();
+   unsigned long Size();
    bool Open(const string &FileName,OpenMode Mode,unsigned long Perms = 0666);
    bool Close();
    bool Sync();

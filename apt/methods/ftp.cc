@@ -628,7 +628,7 @@ bool FTPConn::ExtGoPasv()
 // FTPConn::Size - Return the size of a file				/*{{{*/
 // ---------------------------------------------------------------------
 /* Grab the file size from the server, 0 means no size or empty file */
-bool FTPConn::Size(const char *Path,unsigned long long &Size)
+bool FTPConn::Size(const char *Path,unsigned long &Size)
 {
    // Query the size
    unsigned int Tag;
@@ -841,7 +841,7 @@ bool FTPConn::Finalize()
 // ---------------------------------------------------------------------
 /* This opens a data connection, sends REST and RETR and then
    transfers the file over. */
-bool FTPConn::Get(const char *Path,FileFd &To,unsigned long long Resume,
+bool FTPConn::Get(const char *Path,FileFd &To,unsigned long Resume,
 		  Hashes &Hash,bool &Missing)
 {
    Missing = false;
@@ -1002,7 +1002,7 @@ bool FtpMethod::Fetch(FetchItem *Itm)
    
    // Get the files information
    Status(_("Query"));
-   unsigned long long Size;
+   unsigned long Size;
    if (Server->Size(File,Size) == false ||
        Server->ModTime(File,FailTime) == false)
    {

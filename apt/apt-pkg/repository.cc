@@ -84,7 +84,7 @@ bool pkgRepository::ParseRelease(const string &File)
 // Repository::FindChecksums - Get checksum info for file		/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-bool pkgRepository::FindChecksums(const string &URI,unsigned long long &Size, string &MD5)
+bool pkgRepository::FindChecksums(const string &URI,unsigned long &Size, string &MD5)
 {
    string Path = string(URI,RootURI.size());
    if (IndexChecksums.find(Path) == IndexChecksums.end())

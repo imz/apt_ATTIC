@@ -30,7 +30,7 @@ class RPMPackageData
    hash_map<string,int,hash_string> DuplicatedPackages;
    hash_map<string,vector<string>,hash_string> CompatArch;
    typedef map<string,pkgCache::VerIterator> VerMapValueType;
-   typedef hash_map<unsigned long long,VerMapValueType> VerMapType;
+   typedef hash_map<unsigned long,VerMapValueType> VerMapType;
    typedef hash_map<const char*,int,
 		    hash<const char*>,cstr_eq_pred> ArchScoresType;
 #else
@@ -41,7 +41,7 @@ class RPMPackageData
    map<string,int> DuplicatedPackages;
    map<string,vector<string> > CompatArch;
    typedef map<string,pkgCache::VerIterator> VerMapValueType;
-   typedef map<unsigned long long,VerMapValueType> VerMapType;
+   typedef map<unsigned long,VerMapValueType> VerMapType;
    typedef map<const char*,int,cstr_lt_pred> ArchScoresType;
 #endif
 
@@ -122,12 +122,12 @@ class RPMPackageData
 
    static RPMPackageData *Singleton();
 
-   void SetVersion(const string &ID, unsigned long long Offset,
+   void SetVersion(const string &ID, unsigned long Offset,
 		   const pkgCache::VerIterator &Version)
    {
       VerMap[Offset][ID] = Version;
    };
-   const pkgCache::VerIterator *GetVersion(const string &ID, unsigned long long Offset)
+   const pkgCache::VerIterator *GetVersion(const string &ID, unsigned long Offset)
    {
        VerMapType::const_iterator I1 = VerMap.find(Offset);
        if (I1 != VerMap.end()) {

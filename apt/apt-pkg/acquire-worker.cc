@@ -309,7 +309,7 @@ bool pkgAcquire::Worker::RunMessages()
 	    OwnerQ->ItemDone(Itm);
 	    if (TotalSize != 0 &&
 		(unsigned)atoi(LookupTag(Message,"Size","0").c_str()) != TotalSize)
-	       _error->Warning("Bizarre Error - File size is not what the server reported %s %llu",
+	       _error->Warning("Bizarre Error - File size is not what the server reported %s %lu",
 			       LookupTag(Message,"Size","0").c_str(),TotalSize);
 
 	    Owner->Done(Message,atoi(LookupTag(Message,"Size","0").c_str()),

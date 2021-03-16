@@ -63,9 +63,9 @@ class MD5Summation
    
    public:
 
-   bool Add(const unsigned char *Data,unsigned long long Size);
+   bool Add(const unsigned char *Data,unsigned long Size);
    inline bool Add(const char *Data) {return Add((unsigned char *)Data,strlen(Data));};
-   bool AddFD(int Fd,unsigned long long Size);
+   bool AddFD(int Fd,unsigned long Size);
    inline bool Add(const unsigned char *Beg,const unsigned char *End) 
                   {return Add(Beg,End-Beg);};
    MD5SumValue Result();

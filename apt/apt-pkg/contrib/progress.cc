@@ -39,7 +39,7 @@ OpProgress::OpProgress() : Current(0), Total(0), Size(0), SubTotal(1),
 /* Current is the Base Overall progress in units of Total. Cur is the sub
    progress in units of SubTotal. Size is a scaling factor that says what
    percent of Total SubTotal is. */
-void OpProgress::Progress(unsigned long long Cur)
+void OpProgress::Progress(unsigned long Cur)
 {
    if (Total == 0 || Size == 0 || SubTotal == 0)
       Percent = 0;
@@ -51,8 +51,8 @@ void OpProgress::Progress(unsigned long long Cur)
 // OpProgress::OverallProgress - Set the overall progress		/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-void OpProgress::OverallProgress(unsigned long long Current, unsigned long long Total,
-	  			 unsigned long long Size,const string &Op)
+void OpProgress::OverallProgress(unsigned long Current, unsigned long Total,
+	  			 unsigned long Size,const string &Op)
 {
    this->Current = Current;
    this->Total = Total;
@@ -69,7 +69,7 @@ void OpProgress::OverallProgress(unsigned long long Current, unsigned long long 
 // OpProgress::SubProgress - Set the sub progress state			/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-void OpProgress::SubProgress(unsigned long long SubTotal,const string &Op)
+void OpProgress::SubProgress(unsigned long SubTotal,const string &Op)
 {
    this->SubTotal = SubTotal;
    SubOp = Op;
@@ -83,7 +83,7 @@ void OpProgress::SubProgress(unsigned long long SubTotal,const string &Op)
 // OpProgress::SubProgress - Set the sub progress state			/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-void OpProgress::SubProgress(unsigned long long SubTotal)
+void OpProgress::SubProgress(unsigned long SubTotal)
 {
    this->SubTotal = SubTotal;
    if (Total == 0)

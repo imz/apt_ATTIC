@@ -136,7 +136,7 @@ string RPMFileHandler::Directory()
    return res;
 } 
 
-unsigned long long RPMFileHandler::FileSize()
+unsigned long RPMFileHandler::FileSize()
 {
    assert(HeaderP != NULL);
 
@@ -220,7 +220,7 @@ void RPMSingleFileHandler::Rewind()
    lseek(Fileno(FD),0,SEEK_SET);
 }
 
-unsigned long long RPMSingleFileHandler::FileSize()
+unsigned long RPMSingleFileHandler::FileSize()
 {
    struct stat S;
    if (stat(sFilePath.c_str(),&S) != 0)
@@ -353,7 +353,7 @@ void RPMDirHandler::Rewind()
    iOffset = 0;
 }
 
-unsigned long long RPMDirHandler::FileSize()
+unsigned long RPMDirHandler::FileSize()
 {
    if (Dir == NULL)
       return 0;

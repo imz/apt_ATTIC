@@ -47,8 +47,8 @@ class pkgAcqMethod
       bool IMSHit;
       string Filename;
       string TmpFilename;
-      unsigned long long Size;
-      unsigned long long ResumePoint;
+      unsigned long Size;
+      unsigned long ResumePoint;
       
       void TakeHashes(Hashes &Hash);
       FetchResult();

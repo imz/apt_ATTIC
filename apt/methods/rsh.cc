@@ -253,7 +253,7 @@ bool RSHConn::WriteMsg(string &Text,bool Sync,const char *Fmt,...)
 // ---------------------------------------------------------------------
 /* Right now for successfull transfer the file size must be known in 
    advance. */
-bool RSHConn::Size(const char *Path,unsigned long long &Size)
+bool RSHConn::Size(const char *Path,unsigned long &Size)
 {
    // Query the size
    string Msg;
@@ -291,8 +291,8 @@ bool RSHConn::ModTime(const char *Path, time_t &Time)
 // RSHConn::Get - Get a file						/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-bool RSHConn::Get(const char *Path,FileFd &To,unsigned long long Resume,
-                  Hashes &Hash,bool &Missing, unsigned long long Size)
+bool RSHConn::Get(const char *Path,FileFd &To,unsigned long Resume,
+                  Hashes &Hash,bool &Missing, unsigned long Size)
 {
    Missing = false;
 
@@ -317,7 +317,7 @@ bool RSHConn::Get(const char *Path,FileFd &To,unsigned long long Resume,
       return false;
 
    // Copy loop
-   unsigned long long MyLen = Resume;
+   unsigned int MyLen = Resume;
    unsigned char Buffer[4096];
    while (MyLen < Size)
    {
@@ -431,7 +431,7 @@ bool RSHMethod::Fetch(FetchItem *Itm)
    Status(_("Connecting to %s"), Get.Host.c_str());
 
    // Get the files information
-   unsigned long long Size;
+   unsigned long Size;
    if (Server->Size(File,Size) == false ||
        Server->ModTime(File,FailTime) == false)
    {
@@ -461,7 +461,7 @@ bool RSHMethod::Fetch(FetchItem *Itm)
       }
 
       // Resume?
-      if (FailTime == Buf.st_mtime && Size > Buf.st_size)
+      if (FailTime == Buf.st_mtime && Size > (unsigned)Buf.st_size)
 	 Res.ResumePoint = Buf.st_size;
    }
 
