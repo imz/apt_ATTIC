@@ -60,27 +60,27 @@ class rpmListParser : public pkgCacheGenerator::ListParser
  public:
    
    // These all operate against the current header
-   virtual string Package() override;
-   virtual string Version() override;
-   virtual string Architecture() override;
-   virtual bool NewVersion(pkgCache::VerIterator Ver) override;
-   virtual unsigned short VersionHash() override;
+   virtual string Package();
+   virtual string Version();
+   virtual string Architecture();
+   virtual bool NewVersion(pkgCache::VerIterator Ver);
+   virtual unsigned short VersionHash();
    virtual bool UsePackage(pkgCache::PkgIterator Pkg,
-			   pkgCache::VerIterator Ver) override;
-   virtual unsigned long Offset() override
+			   pkgCache::VerIterator Ver);
+   virtual unsigned long Offset()
 	{return Handler->Offset();};
-   virtual unsigned long Size() override;
-   virtual unsigned long Flags() override;
+   virtual unsigned long Size();
+   virtual unsigned long Flags();
 
-   virtual bool OrderedOffset() override
+   virtual bool OrderedOffset()
    	{return Handler->OrderedOffset();};
 
-   virtual bool IsDatabase() override
+   virtual bool IsDatabase()
    	{return Handler->IsDatabase();};
 
    virtual bool CollectFileProvides(pkgCache &Cache,
-				    pkgCache::VerIterator Ver) override; 
-   virtual bool Step() override;
+				    pkgCache::VerIterator Ver); 
+   virtual bool Step();
    
    bool LoadReleaseInfo(pkgCache::PkgFileIterator FileI,FileFd &File);
 

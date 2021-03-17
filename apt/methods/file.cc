@@ -27,7 +27,7 @@
 
 class FileMethod : public pkgAcqMethod
 {
-   virtual bool Fetch(FetchItem *Itm) override;
+   virtual bool Fetch(FetchItem *Itm);
    
    public:
    

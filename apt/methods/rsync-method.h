@@ -76,14 +76,14 @@ class RsyncMethod : public pkgAcqMethod
 		 RsyncConnExec(URI u, const string &_proxy, const string &prog);
 		 virtual ~RsyncConnExec();
 
-		 virtual bool Get(pkgAcqMethod *Owner, FetchResult &FRes, const char *From, const char *To) override;
+		 virtual bool Get(pkgAcqMethod *Owner, FetchResult &FRes, const char *From, const char *To);
 	  };
 
    class RsyncConnExecExt: public RsyncConnExec
 	  {
 		protected:
-		 virtual void ParseOutput(pkgAcqMethod *Owner, FetchResult &FRes, const char *buf) override;
-		 virtual void AddOptions(Argv &argv) override
+		 virtual void ParseOutput(pkgAcqMethod *Owner, FetchResult &FRes, const char *buf);
+		 virtual void AddOptions(Argv &argv)
 			{ argv.add("--apt-support"); };
 
 		public:
@@ -101,8 +101,8 @@ class RsyncMethod : public pkgAcqMethod
    static void SigTerm(int);
 
   protected:
-   virtual bool Fetch(FetchItem *Itm) override;
-   virtual bool Configuration(string Message) override;
+   virtual bool Fetch(FetchItem *Itm);
+   virtual bool Configuration(string Message);
 
    void Start(FetchResult &FRes)
 	  { URIStart(FRes); }
