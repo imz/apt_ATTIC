@@ -423,14 +423,12 @@ bool FTPConn::ReadResp(unsigned int &Ret,string &Text)
 /* Simple printf like function.. */
 bool FTPConn::WriteMsg(unsigned int &Ret,string &Text,const char *Fmt,...)
 {
-   // sprintf the description
-   char S[400];
-
    va_list args;
    va_start(args,Fmt);
-   vsnprintf(S,sizeof(S) - 4,Fmt,args);
-   va_end(args);
 
+   // sprintf the description
+   char S[400];
+   vsnprintf(S,sizeof(S) - 4,Fmt,args);
    strcat(S,"\r\n");
  
    if (Debug == true)
