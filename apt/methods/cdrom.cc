@@ -37,10 +37,10 @@ class CDROMMethod : public pkgAcqMethod
    string CDROM;
    bool Mounted;
    
-   virtual bool Fetch(FetchItem *Itm) override;
+   virtual bool Fetch(FetchItem *Itm);
    string GetID(string Name);
-   virtual void Exit() override;
-   virtual string PreferredURI() override;
+   virtual void Exit();
+   virtual string PreferredURI();
 
    // CNC:2002-10-18
    bool Copy(string Src, string Dest);

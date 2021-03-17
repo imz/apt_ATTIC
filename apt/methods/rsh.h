@@ -51,8 +51,8 @@ class RSHConn
 
 class RSHMethod : public pkgAcqMethod
 {
-   virtual bool Fetch(FetchItem *Itm) override;
-   virtual bool Configuration(string Message) override;
+   virtual bool Fetch(FetchItem *Itm);
+   virtual bool Configuration(string Message);
 
    RSHConn *Server;
 
