@@ -14,8 +14,6 @@
 
 #include <apti18n.h>
 
-#include <memory>
-
 class GPGMethod : public pkgAcqMethod
 {
    virtual bool Fetch(FetchItem *Itm);
@@ -303,17 +301,19 @@ char *getFileSigner(const char *file, const char *sigfile,
 
 bool makeTmpDir(string dir, string &path)
 {
-   std::unique_ptr<char[]> buf;
+   char *buf;
 
    path = dir+"/apt-gpg.XXXXXX";
-   buf.reset(new char[path.length()+1]);
-   if (!buf)
+   buf = new char[path.length()+1];
+   if (buf == NULL)
       return _error->Error(_("Could not allocate memory"));
-   strcpy(buf.get(), path.c_str());
+   strcpy(buf, path.c_str());
 
-   if (mkdtemp(buf.get()) == NULL)
+   if (mkdtemp(buf) == NULL)
       return _error->Errno("mkdtemp", _("Could not create temporary directory"));
-   path = buf.get();
+   path = buf;
+
+   delete [] buf;
 
    return true;
 }
