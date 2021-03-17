@@ -1,4 +1,8 @@
-#!/bin/sh -- # no runable script, just for vi
+#!/bin/sh -X # no runnable script, just for editors
+# set -e is assumed.
+# (Note that in ALT /bin/sh is a bash with a few features turned off.)
+# (TODO: make sure that ALT's /bin/sh is enough;
+# use the lightweight /bin/sh in the actual test scripts.)
 
 EXIT_CODE=0
 
