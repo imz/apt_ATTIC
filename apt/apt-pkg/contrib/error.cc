@@ -80,14 +80,12 @@ GlobalError::GlobalError() : List(0), PendingFlag(false), Stack(0)
  */
 bool GlobalError::Errno(const char *Function,const char *Description,...)
 {
-   // sprintf the description
-   char S[400];
-
    va_list args;
    va_start(args,Description);
-   vsnprintf(S,sizeof(S),Description,args);
-   va_end(args);
 
+   // sprintf the description
+   char S[400];
+   vsnprintf(S,sizeof(S),Description,args);
    snprintf(S + strlen(S),sizeof(S) - strlen(S),
 	    " - %s (%i %s)",Function,errno,strerror(errno));
 
@@ -111,14 +109,12 @@ bool GlobalError::Errno(const char *Function,const char *Description,...)
  */
 bool GlobalError::WarningE(const char *Function,const char *Description,...)
 {
-   // sprintf the description
-   char S[400];
-
    va_list args;
    va_start(args,Description);
-   vsnprintf(S,sizeof(S),Description,args);
-   va_end(args);
 
+   // sprintf the description
+   char S[400];
+   vsnprintf(S,sizeof(S),Description,args);
    snprintf(S + strlen(S),sizeof(S) - strlen(S)," - %s (%i %s)",Function,errno,strerror(errno));
 
    // Put it on the list
@@ -135,13 +131,12 @@ bool GlobalError::WarningE(const char *Function,const char *Description,...)
 /* Just vsprintfs and pushes */
 bool GlobalError::Error(const char *Description,...)
 {
-   // sprintf the description
-   char S[400];
-
    va_list args;
    va_start(args,Description);
+
+   // sprintf the description
+   char S[400];
    vsnprintf(S,sizeof(S),Description,args);
-   va_end(args);
 
    // Put it on the list
    Item *Itm = new Item;
@@ -159,13 +154,12 @@ bool GlobalError::Error(const char *Description,...)
 /* This doesn't set the pending error flag */
 bool GlobalError::Warning(const char *Description,...)
 {
-   // sprintf the description
-   char S[400];
-
    va_list args;
    va_start(args,Description);
+
+   // sprintf the description
+   char S[400];
    vsnprintf(S,sizeof(S),Description,args);
-   va_end(args);
 
    // Put it on the list
    Item *Itm = new Item;
