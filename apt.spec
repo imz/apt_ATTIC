@@ -7,7 +7,7 @@
 
 Name: apt
 Version: 0.5.15lorg2
-Release: alt71.3
+Release: alt72
 
 Summary: Debian's Advanced Packaging Tool with RPM support
 Summary(ru_RU.UTF-8): Debian APT - Усовершенствованное средство управления пакетами с поддержкой RPM
@@ -367,6 +367,11 @@ popd
 %_datadir/%name/tests/
 
 %changelog
+* Mon Sep 21 2020 Aleksei Nikiforov <darktemplar@altlinux.org> 0.5.15lorg2-alt72
+- Updated apt history.
+- Fixed dynamic memory allocation leak (Closes: #37481).
+- Fixed apt-cdrom, now it properly copies release information (Closes: #37531).
+
 * Mon Sep 21 2020 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt71.3
 - Fixed copying release information from cdrom (thx Aleksei Nikiforov).
   (Closes: #37531)
