@@ -406,9 +406,31 @@ popd
 %_datadir/%name/tests/
 
 %changelog
-* Mon Sep 21 2020 Aleksei Nikiforov <darktemplar@altlinux.org> 0.5.15lorg2-alt72
-- Updated apt history.
-- Fixed dynamic memory allocation leak (Closes: #37481).
+* Thu Mar 18 2021 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt72
+- Cleaned up the code (thx Dmitry V. Levin ldv@; including
+  quite a few commits cherry-picked from http://apt-rpm.org/scm/apt.git):
+  + to avoid compilation warnings altogether and some unreliable code;
+  + to avoid using any old deprecated RPM API.
+- Reverted (for a while) new features with unreliable implementation introduced
+  in 0.5.15lorg2-alt70 (dynamic resizing of allocated memory; some support
+  for large files). Updated how the other changes look in the history
+  (thx darktemplar@). (The soname has been bumped again.)
+- API changes:
+  + Reverted inessential optimizations that caused incompatibilities with
+    the Debian API (introduced in 0.5.15lorg2-alt70).
+  + Made pkgCacheFile class lazy and immutable so that it better suits
+    the expectations of modern libapt clients such as PackageKit
+    and so that it is less prone to memory leaks and other programming errors.
+  + And changed some other things (how functions return results) to avoid
+    programming errors (which lead to the NULL dereference bugs listed below).
+- Fixed some recently introduced and recently discovered bugs:
+  + APT now can handle packages without ARCH tag (such as gpg-pubkey, brought
+    by 3rd-party packages) without a crash (thx darktemplar@ et al)
+    (ALT#38381, ALT#38642).
+  + Some crashes with incomplete indices (after the old apt-cdrom or for
+    incompatible arch).
+- Increased the default APT::Cache-Limit (up to 192M)
+  to make the "out of space" failure less probable for packagekit.
 
 * Mon Sep 21 2020 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt71.3
 - Fixed copying release information from cdrom (thx Aleksei Nikiforov).
