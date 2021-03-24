@@ -33,7 +33,13 @@
 #include <stdio.h>
 #include <system.h>
 									/*}}}*/
+
 typedef vector<pkgIndexFile *>::iterator FileIterator;
+
+// TODO: FindI() takes and returns int, which is inappropriate in many places.
+/* The default value used in pkgMake{,Only}StatusCache */
+constexpr unsigned long defaultCacheLimit =
+   (sizeof(long) < 8 ? 5 : 6) * 32 * 1024 * 1024;
 
 // CacheGenerator::pkgCacheGenerator - Constructor			/*{{{*/
 // ---------------------------------------------------------------------
@@ -857,7 +863,7 @@ static bool CollectFileProvides(pkgCacheGenerator &Gen,
 std::unique_ptr<MMap> pkgMakeStatusCache(pkgSourceList &List,OpProgress &Progress,
                                          bool AllowMem)
 {
-   unsigned long MapSize = _config->FindI("APT::Cache-Limit",((sizeof(long) < 8) ? 5 : 6)*32*1024*1024);
+   unsigned long MapSize = _config->FindI("APT::Cache-Limit",defaultCacheLimit);
 
    vector<pkgIndexFile *> Files(List.begin(),List.end());
    unsigned long EndOfSource = Files.size();
@@ -1080,7 +1086,7 @@ std::unique_ptr<MMap> pkgMakeStatusCache(pkgSourceList &List,OpProgress &Progres
 /* */
 std::unique_ptr<DynamicMMap> pkgMakeOnlyStatusCache(OpProgress &Progress)
 {
-   unsigned long MapSize = _config->FindI("APT::Cache-Limit",((sizeof(long) < 8) ? 5 : 6)*32*1024*1024);
+   unsigned long MapSize = _config->FindI("APT::Cache-Limit",defaultCacheLimit);
    vector<pkgIndexFile *> Files;
    unsigned long EndOfSource = Files.size();
    if (_system->AddStatusFiles(Files) == false)
