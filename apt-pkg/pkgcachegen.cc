@@ -858,7 +858,7 @@ static bool CollectFileProvides(pkgCacheGenerator &Gen,
 std::unique_ptr<MMap> pkgMakeStatusCache(pkgSourceList &List,OpProgress &Progress,
                                          bool AllowMem)
 {
-   unsigned long MapSize = _config->FindI("APT::Cache-Limit",6*(16+sizeof(long))*1024*1024);
+   unsigned long MapSize = _config->FindI("APT::Cache-Limit",((sizeof(long) < 8) ? 5 : 6)*32*1024*1024);
 
    vector<pkgIndexFile *> Files(List.begin(),List.end());
    unsigned long EndOfSource = Files.size();
@@ -1081,7 +1081,7 @@ std::unique_ptr<MMap> pkgMakeStatusCache(pkgSourceList &List,OpProgress &Progres
 /* */
 std::unique_ptr<DynamicMMap> pkgMakeOnlyStatusCache(OpProgress &Progress)
 {
-   unsigned long MapSize = _config->FindI("APT::Cache-Limit",6*(16+sizeof(long))*1024*1024);
+   unsigned long MapSize = _config->FindI("APT::Cache-Limit",((sizeof(long) < 8) ? 5 : 6)*32*1024*1024);
    vector<pkgIndexFile *> Files;
    unsigned long EndOfSource = Files.size();
    if (_system->AddStatusFiles(Files) == false)
