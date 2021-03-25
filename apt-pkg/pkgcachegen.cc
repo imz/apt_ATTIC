@@ -41,6 +41,17 @@ typedef vector<pkgIndexFile *>::iterator FileIterator;
 constexpr unsigned long defaultCacheLimit =
    (sizeof(long) < 8 ? 5 : 6) * 32 * 1024 * 1024;
 
+static unsigned long getConfiguredCacheLimit(const char * const Function)
+{
+   const unsigned long MapSize = _config->FindI("APT::Cache-Limit",defaultCacheLimit);
+   if (MapSize < defaultCacheLimit)
+      _error->Warning("%s: The configured APT::Cache-Limit (%lu) is below the recommended default value (%lu). Remove it to use the default.",
+                      Function,
+                      MapSize,
+                      defaultCacheLimit);
+   return MapSize;
+}
+
 // CacheGenerator::pkgCacheGenerator - Constructor			/*{{{*/
 // ---------------------------------------------------------------------
 /* We set the diry flag and make sure that is written to the disk */
@@ -864,7 +875,7 @@ static bool CollectFileProvides(pkgCacheGenerator &Gen,
 std::unique_ptr<MMap> pkgMakeStatusCache(pkgSourceList &List,OpProgress &Progress,
                                          bool AllowMem)
 {
-   unsigned long MapSize = _config->FindI("APT::Cache-Limit",defaultCacheLimit);
+   const unsigned long MapSize = getConfiguredCacheLimit("pkgMakeStatusCache");
 
    vector<pkgIndexFile *> Files(List.begin(),List.end());
    unsigned long EndOfSource = Files.size();
@@ -1087,7 +1098,7 @@ std::unique_ptr<MMap> pkgMakeStatusCache(pkgSourceList &List,OpProgress &Progres
 /* */
 std::unique_ptr<DynamicMMap> pkgMakeOnlyStatusCache(OpProgress &Progress)
 {
-   unsigned long MapSize = _config->FindI("APT::Cache-Limit",defaultCacheLimit);
+   const unsigned long MapSize = getConfiguredCacheLimit("pkgMakeOnlyStatusCache");
    vector<pkgIndexFile *> Files;
    unsigned long EndOfSource = Files.size();
    if (_system->AddStatusFiles(Files) == false)
