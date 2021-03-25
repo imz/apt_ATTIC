@@ -13,7 +13,7 @@ buildpackage 'conflicting-package-two'
 
 generaterepository_and_switch_sources "$TMPWORKINGDIRECTORY/usr/src/RPM/RPMS"
 
-testsuccess aptget update
+testsuccess aptget update -o APT::Cache-Limit=$(( 2 * 1024 * 1024 ))
 testsuccess aptcache show simple-package
 testsuccess aptcache show simple-package-noarch
 testfailure aptcache show nosuchpkg
