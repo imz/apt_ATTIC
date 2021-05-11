@@ -172,12 +172,3 @@ $(top_builddir)/include/%: rpm/%
 clean-local:
 	rm -f $(PRIVCOPYHEADERS)
 	rm -rf $(top_builddir)/include/apt-pkg
-
-# Just for the transition to private rpm/rpm%.h (until the code is adapted):
-# still put them in apt-pkg/, so that the code still compiles.
-include_HEADERS += $(filter \
-		     rpm/rpm%.h, \
-		     $(PRIVATEHEADERS))
-REALHEADERS += $(filter \
-		     rpm/rpm%.h, \
-		     $(PRIVATEHEADERS))
