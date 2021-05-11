@@ -124,6 +124,9 @@ PRIVREALHEADERS = $(PRIVATEHEADERS)
 PRIVCOPYHEADERS = $(patsubst %.h, \
 		    $(top_builddir)/include/%.h, \
 		    $(notdir $(PRIVREALHEADERS)))
+# Note: REALHEADERS is given the same definition as include_HEADERS,
+# given that PRIVREALHEADERS is the same as PRIVATEHEADERS. Wouldn't it be
+# simpler to just assign include_HEADERS to REALHEADERS?
 REALHEADERS = $(filter-out \
 		$(PRIVREALHEADERS), \
 		$(filter %.h,$(libapt_pkg_la_SOURCES)))
