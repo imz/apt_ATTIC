@@ -867,8 +867,9 @@ static bool CollectFileProvides(pkgCacheGenerator &Gen,
 // ---------------------------------------------------------------------
 /* This makes sure that the status cache (the cache that has all
    index files from the sources list and all local ones) is ready
-   to be mmaped. If OutMap is not zero then a MMap object representing
-   the cache will be stored there. This is pretty much mandatory if you
+   to be mmaped. On success, returns a non-null pointer to a MMap object
+   representing the cache, which the caller can keep or discard (the ownership
+   is transferred to the caller). Keeping it is pretty much mandatory if you
    are using AllowMem. AllowMem lets the function be run as non-root
    where it builds the cache 'fast' into a memory buffer. */
 std::unique_ptr<MMap> pkgMakeStatusCache(pkgSourceList &List,OpProgress &Progress,
