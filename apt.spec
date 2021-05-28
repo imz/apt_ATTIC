@@ -14,6 +14,14 @@ Summary(ru_RU.UTF-8): Debian APT - Усовершенствованное сре
 License: GPL-2.0-or-later
 Group: System/Configuration/Packaging
 URL: http://apt-rpm.org
+# Known upstream "apt-rpm" Git repos:
+#
+# * http://apt-rpm.org/scm/apt.git
+# * https://github.com/arelixlinux/apt which is said to be a clone from GitLab
+#
+# The second repo has a few more recent commits than the first one, a deeper
+# history (into the past),  and some better formatted commit headers (Author).
+# (Compare like this: git range-diff apt-rpm/master...apt-rpm@github/master)
 Vcs: git://git.altlinux.org/gears/a/apt.git
 Source0: %name-%version-%release.tar
 
