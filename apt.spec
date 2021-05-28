@@ -14,6 +14,28 @@ Summary(ru_RU.UTF-8): Debian APT - Усовершенствованное сре
 License: GPL-2.0-or-later
 Group: System/Configuration/Packaging
 URL: http://apt-rpm.org
+# Known upstream "apt-rpm" Git repos:
+#
+# * http://apt-rpm.org/scm/apt.git
+# * https://github.com/arelixlinux/apt which is said to be a clone from GitLab
+#
+# The second repo has a few more recent commits than the first one, a deeper
+# history (into the past), and some better formatted commit headers (Author).
+# (Compare like this: git range-diff apt-rpm/master...apt-rpm@github/master)
+#
+# To graft it (the 2nd deeper history) to ALT's history locally for yourself:
+#
+# git replace --graft 0.5.15lorg2-alt3 0.5.15cnc6-alt18 49dff175fb8ea3cd3ef47d45836f3089838246d6
+#
+# Then git blame on the source code gives more interesting information.
+# (Make sure that the grafted source code is identical to ours:
+#
+# git tag apt-0.5.15lorg2@github 49dff175fb8ea3cd3ef47d45836f3089838246d6
+# git diff apt-0.5.15lorg2@github..0.5.15lorg2-alt3 --stat | fgrep -v ' => '
+#
+# The only reported difference is that they added a contributed script.)
+#
+# The upstream Debian repo is now at: https://salsa.debian.org/apt-team/apt.git
 Vcs: git://git.altlinux.org/gears/a/apt.git
 Source0: %name-%version-%release.tar
 
