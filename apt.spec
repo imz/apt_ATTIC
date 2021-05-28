@@ -14,6 +14,42 @@ Summary(ru_RU.UTF-8): Debian APT - Усовершенствованное сре
 License: GPL-2.0-or-later
 Group: System/Configuration/Packaging
 URL: http://apt-rpm.org
+# Known upstream "apt-rpm" Git repos:
+# -----------------------------------
+#
+# * http://apt-rpm.org/scm/apt.git
+# * https://github.com/arelixlinux/apt which is said to be a clone from GitLab
+#
+# The second repo has a few more recent commits than the first one, a deeper
+# history (into the past), and some better formatted commit headers (Author).
+# (Compare like this: git range-diff apt-rpm/master...apt-rpm@github/master)
+#
+# To graft it (the 2nd deeper history) to ALT's history locally for yourself:
+#
+# git replace --graft 0.5.15lorg2-alt3 49dff175fb8ea3cd3ef47d45836f3089838246d6 0.5.15cnc6-alt18
+#
+# Then git blame on the source code gives more interesting information.
+# If the two parents are in this order, git blame --first-parent -w shows more
+# intersting individual commits from Conectiva's history, and not ALT's one.
+# (Make sure that the grafted source code is identical to ours:
+#
+# git tag apt-0.5.15lorg2@github 49dff175fb8ea3cd3ef47d45836f3089838246d6
+# git diff apt-0.5.15lorg2@github..0.5.15lorg2-alt3 --stat | fgrep -v ' => '
+#
+# The only reported difference is that they added a contributed script.)
+#
+# The upstream Debian repo:
+# -------------------------
+#
+# https://salsa.debian.org/apt-team/apt.git
+#
+# To attach it to Conectiva's history (locally for yourself):
+#
+# git tag apt-rpm-MERGED-0.5.4.9@github b780834d0d29cca5b0af1b544d3ff7b2a3d1a7a8
+# git tag 0.5.4.9-MERGED-into-CNC 4968036c93552ff78c1f857a91c685f0f3bcb794
+# git replace --graft apt-rpm-MERGED-0.5.4.9@github 0.5.4.9-MERGED-into-CNC apt-rpm-MERGED-0.5.4.9@github^
+#
+# The parent with the richer history is 1st for git blame --first-parent -w.
 Vcs: git://git.altlinux.org/gears/a/apt.git
 Source0: %name-%version-%release.tar
 
