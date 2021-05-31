@@ -36,7 +36,7 @@
 // CacheFile::CacheFile - Constructor					/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-pkgCacheFile::pkgCacheFile() : Cache(0), DCache(0), Policy(0)
+pkgCacheFile::pkgCacheFile() : Cache(nullptr), DCache(nullptr), Policy(nullptr)
 {
 }
 									/*}}}*/
@@ -132,9 +132,9 @@ void pkgCacheFile::Close()
    Map.reset();
    _system->UnLock(true);
 
-   DCache = 0;
-   Policy = 0;
-   Cache = 0;
+   DCache = nullptr;
+   Policy = nullptr;
+   Cache = nullptr;
 }
 									/*}}}*/
 pkgCache *CacheFile::SortCache = 0;
