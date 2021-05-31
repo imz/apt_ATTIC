@@ -1073,8 +1073,9 @@ bool DoUpdate(CommandLine &CmdL)
 
       pkgAcquire::UriIterator I = Fetcher.UriBegin();
       for (; I != Fetcher.UriEnd(); I++)
-	 cout << '\'' << I->URI << "' " << flNotDir(I->Owner->DestFile) << ' ' <<
-	       I->Owner->FileSize << ' ' << I->Owner->MD5Sum() << endl;
+         cout << '\'' << I->URI << "' " << flNotDir(I->Owner->DestFile) << ' ' <<
+            I->Owner->FileSize << ' ' << I->Owner->MD5Sum() << endl;
+
       return true;
    }
 
