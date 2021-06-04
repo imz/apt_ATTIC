@@ -21,7 +21,7 @@ typedef int (*lua_CFunction)(struct lua_State*);
 class LuaCacheControl {
    public:
 
-   virtual pkgDepCache *Open();
+   virtual pkgDepCache *OpenAsPossible();
    virtual pkgDepCache *Open(bool Write) = 0;
    virtual void Close() = 0;
 
