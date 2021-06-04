@@ -564,7 +564,7 @@ void Lua::SetCacheControl(LuaCacheControl *CacheControl_)
 pkgDepCache *Lua::GetDepCache(lua_State *L)
 {
    if (DepCache == NULL && CacheControl)
-      SetDepCache(CacheControl->Open());
+      SetDepCache(CacheControl->OpenAsPossible());
    if (DepCache == NULL && L != NULL) {
       lua_pushstring(L, "no depcache available at that point");
       lua_error(L);
@@ -575,7 +575,7 @@ pkgDepCache *Lua::GetDepCache(lua_State *L)
 pkgCache *Lua::GetCache(lua_State *L)
 {
    if (Cache == NULL && CacheControl)
-      SetDepCache(CacheControl->Open());
+      SetDepCache(CacheControl->OpenAsPossible());
    if (Cache == NULL && L != NULL) {
       lua_pushstring(L, "no cache available at that point");
       lua_error(L);
@@ -1481,7 +1481,7 @@ static int luaopen_apt(lua_State *L)
    return 0;
 }
 
-pkgDepCache *LuaCacheControl::Open()
+pkgDepCache *LuaCacheControl::OpenAsPossible()
 {
    if (geteuid() == 0)
       return Open(true);
