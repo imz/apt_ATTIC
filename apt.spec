@@ -201,11 +201,16 @@ printf '%_target_cpu\t%_target_cpu' >> buildlib/archtable
 
 gettextize --force --quiet --no-changelog --symlink
 %autoreconf
+
 %add_optflags -DAPTRPM_ID=\\\"%name-%{?epoch:%epoch:}%version-%release%{?disttag::%disttag}.%_target_cpu\\\"
+
+# To avoid some errors on API change:
+%add_optflags -Werror=overloaded-virtual
 %ifarch %e2k
 %remove_optflags -Wno-error
 %add_optflags -std=gnu++11
 %endif
+
 %configure --includedir=%_includedir/apt-pkg %{subst_enable static}
 
 # Probably this obsolete now?
