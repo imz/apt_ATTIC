@@ -3556,7 +3556,16 @@ void GetInitialize()
    _config->Set("APT::Get::Assume-Yes",false);
    _config->Set("APT::Get::Fix-Broken",false);
    _config->Set("APT::Get::Force-Yes",false);
-   _config->Set("APT::Get::APT::Get::No-List-Cleanup",true);
+   /* This option was apparently misspelled in the old source code and
+      hence had no effect anyway; moreover, usually the opposite one is checked
+      with the default value being true, so this setting here contradicted
+      the intentions in the rest of the code.
+      Cf. this file or the new apt-pkg/update.cc:
+
+       (_config->FindB("APT::Get::List-Cleanup", true) &&
+        _config->FindB("APT::List-Cleanup", true))
+   */
+   //_config->Set("APT::Get::No-List-Cleanup",true);
 }
 									/*}}}*/
 // SigWinch - Window size change signal handler				/*{{{*/
