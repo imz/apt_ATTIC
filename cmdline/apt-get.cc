@@ -1107,18 +1107,6 @@ pkgSrcRecords::Parser *FindSrc(const char *Name,pkgRecords &Recs,
 // DoUpdate - Update the package lists					/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-
-// CNC:2004-04-19
-class UpdateLogCleaner : public pkgArchiveCleaner
-{
-   protected:
-   virtual void Erase(const char *File,string Pkg,string Ver,struct stat &St) override
-   {
-      c1out << "Del " << Pkg << " " << Ver << " [" << SizeToStr(St.st_size) << "B]" << endl;
-      unlink(File);
-   }
-};
-
 bool DoUpdate(CommandLine &CmdL)
 {
    bool Partial = false;
@@ -1258,15 +1246,6 @@ bool DoUpdate(CommandLine &CmdL)
 #ifdef WITH_LUA
    _lua->RunScripts("Scripts::AptGet::Update::Post");
 #endif
-
-   // CNC:2004-04-19
-   if (!Failed && _config->FindB("APT::Get::Archive-Cleanup", false))
-   {
-      UpdateLogCleaner Cleaner;
-      Cleaner.Go(_config->FindDir("Dir::Cache::archives"), *Cache);
-      Cleaner.Go(_config->FindDir("Dir::Cache::archives") + "partial/",
-	         *Cache);
-   }
 
    if (Failed)
       return _error->Error(_("Some index files failed to download, they have been ignored, or old ones used instead."));
