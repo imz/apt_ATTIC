@@ -210,9 +210,18 @@ printf '%_target_cpu\t%_target_cpu' >> buildlib/archtable
 gettextize --force --quiet --no-changelog --symlink
 %autoreconf
 
-%ifarch %e2k
+# std::optional support
+# (We set a GNU dialect in -std= in order to minimally diverge
+# from GCC's default, which is also -std=gnu++NN.)
+%ifnarch %e2k
+%add_optflags -std=gnu++17
+%else
 %remove_optflags -Wno-error
-%add_optflags -std=gnu++11
+%add_optflags -std=gnu++14
+find -type f -'(' -name '*.cc' -or -name '*.h' -')' -print0 \
+| xargs -0 sed -i -re \
+'s,(std::)(optional|nullopt),\1experimental::\2,g;
+ s,^(#[[:blank:]]*include[[:blank:]]*<)(optional>),\1experimental/\2,'
 # [[fallthrough]] attribute is not yet known to lcc:
 %add_optflags -Wno-error=attributes
 %endif
