@@ -22,6 +22,8 @@ URL: http://apt-rpm.org
 # The second repo has a few more recent commits than the first one, a deeper
 # history (into the past),  and some better formatted commit headers (Author).
 # (Compare like this: git range-diff apt-rpm/master...apt-rpm@github/master)
+#
+# The upstream Debian repo is now at: https://salsa.debian.org/apt-team/apt.git
 Vcs: git://git.altlinux.org/gears/a/apt.git
 Source0: %name-%version-%release.tar
 
