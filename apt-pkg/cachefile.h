@@ -66,6 +66,11 @@ class pkgCacheFile
 
    pkgCacheFile();
    ~pkgCacheFile();
+
+   // One is not allowed to copy this object;
+   // otherwise, one would fork the ownership of the member-pointers.
+   pkgCacheFile(const pkgCacheFile &) = delete;
+   pkgCacheFile & operator= (const pkgCacheFile &) = delete;
 };
 
 // class CacheFile - Cover class for some dependency cache functions	/*{{{*/
