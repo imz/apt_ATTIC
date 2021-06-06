@@ -90,6 +90,10 @@ pkgCacheGenerator::~pkgCacheGenerator()
 
    Cache.HeaderP->Dirty = false;
    Map.Sync(0,sizeof(pkgCache::Header));
+
+   // CNC:2003-03-07 - Signal to the system so that it can free its
+   //		       internal caches, if any.
+   _system->CacheBuilt();
 }
 									/*}}}*/
 // CacheGenerator::MergeList - Merge the package list			/*{{{*/
@@ -997,10 +1001,6 @@ bool pkgMakeStatusCache(pkgSourceList &List,OpProgress &Progress,
       }
    }
 
-   // CNC:2003-03-07 - Signal to the system so that it can free its
-   //		       internal caches, if any.
-   _system->CacheBuilt();
-
    return true;
 }
 									/*}}}*/
@@ -1044,10 +1044,6 @@ bool pkgMakeOnlyStatusCache(OpProgress &Progress,DynamicMMap **OutMap)
    if (_error->PendingError() == true)
       return false;
    *OutMap = Map.release();
-
-   // CNC:2003-03-07 - Signal to the system so that it can free its
-   //		       internal caches, if any.
-   _system->CacheBuilt();
 
 
    return true;
