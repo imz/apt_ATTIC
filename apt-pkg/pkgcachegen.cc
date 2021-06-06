@@ -1011,6 +1011,7 @@ std::unique_ptr<MMap> pkgMakeStatusCache(pkgSourceList &List,OpProgress &Progres
 
    if (CacheF != nullptr)
    {
+      Map.reset();
       return std::unique_ptr<MMap>(new MMap(*CacheF,MMap::Public | MMap::ReadOnly));
    }
 
