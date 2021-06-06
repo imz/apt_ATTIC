@@ -32,7 +32,7 @@ class pkgCacheFile
 
    protected:
 
-   std::unique_ptr<MMap> Map;
+   MMap* Map;
    pkgCache *Cache;
    pkgDepCache *DCache;
    pkgSourceList *SrcList;

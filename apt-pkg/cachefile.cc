@@ -37,7 +37,7 @@
 // CacheFile::CacheFile - Constructor					/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-pkgCacheFile::pkgCacheFile() : SysLock(), Cache(nullptr), DCache(nullptr), SrcList(nullptr), Policy(nullptr)
+pkgCacheFile::pkgCacheFile() : SysLock(), Map(nullptr), Cache(nullptr), DCache(nullptr), SrcList(nullptr), Policy(nullptr)
 {
 }
 									/*}}}*/
@@ -75,7 +75,7 @@ bool pkgCacheFile::BuildCaches(OpProgress &Progress,bool WithLock)
       return false;
 
    // Read the caches
-   Map = pkgMakeStatusCache(*SrcList,Progress,!WithLock);
+   Map = pkgMakeStatusCache(*SrcList,Progress,!WithLock).release();
    Progress.Done();
    // pkgCache ctor below dereferences Map, so we can't continue if it's null
    if (Map == nullptr)
@@ -141,13 +141,14 @@ void pkgCacheFile::Close()
    delete DCache;
    delete Policy;
    delete Cache;
-   Map.reset();
+   delete Map;
    delete SrcList;
    SysLock.Drop(true);
 
    DCache = nullptr;
    Policy = nullptr;
    Cache = nullptr;
+   Map = nullptr;
    SrcList = nullptr;
 }
 									/*}}}*/
