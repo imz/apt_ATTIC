@@ -75,7 +75,7 @@ bool pkgCacheFile::BuildCaches(OpProgress &Progress,bool WithLock)
       return false;
 
    // Read the caches
-   Map = pkgMakeStatusCache(*SrcList,Progress,!WithLock);
+   Map.reset(pkgMakeStatusCache(*SrcList,Progress,!WithLock).release());
    Progress.Done();
    // pkgCache ctor below dereferences Map, so we can't continue if it's null
    if (Map == nullptr)
