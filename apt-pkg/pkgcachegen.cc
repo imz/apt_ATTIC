@@ -833,8 +833,7 @@ std::unique_ptr<MMap> pkgMakeStatusCache(pkgSourceList &List,OpProgress &Progres
 
    {
       std::unique_ptr<MMap> Map = CheckValidity(CacheFile,Files.begin(),Files.end());
-      // Cache is OK, Fin.
-      if (Map)
+      if (Map) // Cache is OK, Fin.
       {
          Progress.OverallProgress(1,1,1,_("Reading Package Lists"));
          return Map;
@@ -1004,6 +1003,8 @@ std::unique_ptr<MMap> pkgMakeStatusCache(pkgSourceList &List,OpProgress &Progres
 
    if (_error->PendingError() == true)
       return nullptr;
+
+   // We are almost ready, some final constructions are possibly due.
 
    // CNC:2003-03-07 - Signal to the system so that it can free it's
    //		       internal caches, if any.
