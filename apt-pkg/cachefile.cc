@@ -85,7 +85,7 @@ bool pkgCacheFile::BuildCaches(OpProgress &Progress,bool WithLock)
    if (_error->empty() == false)
       _error->Warning(_("You may want to run apt-get update to correct these problems"));
 
-   Cache = new pkgCache(*Map);
+   Cache = new pkgCache(*Map.get());
    if (_error->PendingError() == true)
       return false;
    return true;
