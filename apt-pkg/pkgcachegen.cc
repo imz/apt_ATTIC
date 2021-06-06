@@ -1008,7 +1008,7 @@ std::unique_ptr<MMap> pkgMakeStatusCache(pkgSourceList &List,OpProgress &Progres
 
    // CNC:2003-03-07 - Signal to the system so that it can free it's
    //		       internal caches, if any.
-   scope_exit SysCacheBuilt(&SystemCacheBuilt);
+   //scope_exit SysCacheBuilt(&SystemCacheBuilt);
 
    if (CacheF != nullptr)
    {
@@ -1061,7 +1061,7 @@ std::unique_ptr<DynamicMMap> pkgMakeOnlyStatusCache(OpProgress &Progress)
 
    // CNC:2003-03-07 - Signal to the system so that it can free it's
    //		       internal caches, if any.
-   SystemCacheBuilt();
+   //SystemCacheBuilt();
 
    return Map;
 }
