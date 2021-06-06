@@ -141,13 +141,14 @@ void pkgCacheFile::Close()
    delete DCache;
    delete Policy;
    delete Cache;
-   Map.reset();
+   delete Map.release();
    delete SrcList;
    SysLock.Drop(true);
 
    DCache = nullptr;
    Policy = nullptr;
    Cache = nullptr;
+   Map = nullptr;
    SrcList = nullptr;
 }
 									/*}}}*/
