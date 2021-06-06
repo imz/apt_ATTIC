@@ -22,6 +22,7 @@
 #include <apt-pkg/strutl.h>
 #include <apt-pkg/sptr.h>
 #include <apt-pkg/pkgsystem.h>
+#include <apt-pkg/scopeexit.h>
 
 #include <apti18n.h>
 
@@ -1006,7 +1007,7 @@ std::unique_ptr<MMap> pkgMakeStatusCache(pkgSourceList &List,OpProgress &Progres
 
    // CNC:2003-03-07 - Signal to the system so that it can free it's
    //		       internal caches, if any.
-   _system->CacheBuilt();
+   scope_exit SysCacheBuilt(&SystemCacheBuilt);
 
    if (CacheF != nullptr)
    {
@@ -1058,7 +1059,7 @@ std::unique_ptr<DynamicMMap> pkgMakeOnlyStatusCache(OpProgress &Progress)
 
    // CNC:2003-03-07 - Signal to the system so that it can free it's
    //		       internal caches, if any.
-   _system->CacheBuilt();
+   SystemCacheBuilt();
 
    return Map;
 }

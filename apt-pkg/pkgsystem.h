@@ -119,6 +119,11 @@ class pkgSystem
 // The environment we are operating in.
 extern pkgSystem *_system;
 
+/* A trivial wrapper around _system->CacheBuilt()
+   which--at the least--is more convenient to pass as std::function.
+*/
+void SystemCacheBuilt();
+
 class singleSystemLock
 {
    bool m_acquired;

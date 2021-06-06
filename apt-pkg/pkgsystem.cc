@@ -41,6 +41,14 @@ pkgSystem *pkgSystem::GetSystem(const char *Label)
    return 0;
 }
 									/*}}}*/
+/* A trivial wrapper around _system->CacheBuilt()
+   which--at the least--is more convenient to pass as std::function.
+*/
+void SystemCacheBuilt()
+{
+   _system->CacheBuilt();
+}
+
 singleSystemLock::singleSystemLock():
    m_acquired(false)
 {
