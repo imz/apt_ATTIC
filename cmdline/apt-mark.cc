@@ -67,7 +67,7 @@ static bool DoAuto(CommandLine &CmdL)
    if ((AutoMarkChanged > 0) && (!_config->FindB("APT::Mark::Simulate", false)))
    {
       std::unique_ptr<pkgPackageManager> PM(_system->CreatePM(Cache));
-      _system->UnLock();
+      Cache.SysLock.Drop();
       return PM->UpdateMarks();
    }
 

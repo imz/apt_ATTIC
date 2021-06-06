@@ -41,3 +41,45 @@ pkgSystem *pkgSystem::GetSystem(const char *Label)
    return 0;
 }
 									/*}}}*/
+singleSystemLock::singleSystemLock():
+   m_acquired(false)
+{
+}
+
+bool singleSystemLock::Acquire()
+{
+   /* This class is designed to remember only a single acquisition of a lock,
+      and at the end it can UnLock() only a single time. We can't allow
+      a mismatch when Lock() is called more times than UnLock() would be.
+   */
+   if (!m_acquired)
+   {
+      // I hope this method is never invoked twice concurrently,
+      // so never gets to this point twice at the same moment;
+      // otherwise, it would invoke Lock() twice.
+      m_acquired = _system->Lock();
+   }
+   return m_acquired;
+}
+
+bool singleSystemLock::Acquired()
+{
+   return m_acquired;
+}
+
+bool singleSystemLock::Drop(bool NoErrors)
+{
+   if (!m_acquired)
+      return NoErrors; // dropping twice is an error (analogously to UnLock())
+
+   // I hope this method is never invoked twice concurrently,
+   // so never gets to this point twice at the same moment;
+   // otherwise, it would invoke UnLock() twice.
+   m_acquired = false;
+   return _system->UnLock(NoErrors);
+}
+
+singleSystemLock::~singleSystemLock()
+{
+   Drop(true); // No Errors
+}

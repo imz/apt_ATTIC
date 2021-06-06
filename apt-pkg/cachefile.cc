@@ -36,7 +36,7 @@
 // CacheFile::CacheFile - Constructor					/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-pkgCacheFile::pkgCacheFile() : Map(0), Cache(0), DCache(0), Policy(0)
+pkgCacheFile::pkgCacheFile() : SysLock(), Map(0), Cache(0), DCache(0), Policy(0)
 {
 }
 									/*}}}*/
@@ -49,7 +49,7 @@ pkgCacheFile::~pkgCacheFile()
    delete Policy;
    delete Cache;
    delete Map;
-   _system->UnLock(true);
+   SysLock.Drop(true);
 }
 									/*}}}*/
 // CacheFile::BuildCaches - Open and build the cache files		/*{{{*/
@@ -57,9 +57,11 @@ pkgCacheFile::~pkgCacheFile()
 /* */
 bool pkgCacheFile::BuildCaches(OpProgress &Progress,bool WithLock)
 {
-   if (WithLock == true)
-      if (_system->Lock() == false)
+   if (WithLock == true) {
+      SysLock.Acquire(); // TODO: maybe replace with a move assignment from ctor
+      if (SysLock.Acquired() == false)
 	 return false;
+   }
 
    // CNC:2002-07-06
    if (WithLock == false)
@@ -130,7 +132,7 @@ void pkgCacheFile::Close()
    delete Policy;
    delete Cache;
    delete Map;
-   _system->UnLock(true);
+   SysLock.Drop(true);
 
    Map = 0;
    DCache = 0;

@@ -18,12 +18,16 @@
 
 #include <apt-pkg/depcache.h>
 #include <apt-pkg/cmndline.h>
+#include <apt-pkg/pkgsystem.h>
 
 #include <memory>
 
 class pkgPolicy;
 class pkgCacheFile
 {
+   public: // apt-get needs access to unlock temporarily when running RPM
+   singleSystemLock SysLock;
+
    protected:
 
    MMap *Map;

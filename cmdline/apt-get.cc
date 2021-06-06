@@ -399,7 +399,7 @@ bool InstallPackages(CacheFile &Cache,bool ShwKept,bool Ask = true,
    /* Unlock the dpkg lock if we are not going to be doing an install
       after. */
    if (_config->FindB("APT::Get::Download-Only",false) == true)
-      _system->UnLock();
+      Cache.SysLock.Drop(true);
 #endif
 
    // CNC:2003-02-24
@@ -495,7 +495,7 @@ bool InstallPackages(CacheFile &Cache,bool ShwKept,bool Ask = true,
 	    // We must do that in a system independent way. */
 	    _config->Set("RPM::Install-Options::", "--nodeps");
 	 }
-	 _system->UnLock();
+	 Cache.SysLock.Drop();
 	 pkgPackageManager::OrderResult Res = PM->DoInstall();
 	 if (Res == pkgPackageManager::Failed || _error->PendingError() == true)
 	 {
@@ -515,7 +515,7 @@ bool InstallPackages(CacheFile &Cache,bool ShwKept,bool Ask = true,
 	    return Ret;
 	 }
 
-	 _system->Lock();
+	 Cache.SysLock.Acquire();
       }
 
       // CNC:2003-02-24

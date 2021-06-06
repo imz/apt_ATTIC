@@ -61,8 +61,12 @@ class pkgSystem
 
    /* Prevent other programs from touching shared data not covered by
       other locks (cache or state locks) */
+   protected:
    virtual bool Lock() = 0;
    virtual bool UnLock(bool NoErrors = false) = 0;
+   friend class singleSystemLock;
+
+   public:
 
    // CNC:2002-07-06
    virtual bool LockRead() {return true;}
@@ -114,5 +118,24 @@ class pkgSystem
 
 // The environment we are operating in.
 extern pkgSystem *_system;
+
+class singleSystemLock
+{
+   bool m_acquired;
+
+   public:
+
+   bool Acquire();
+   bool Acquired();
+   bool Drop(bool NoErrors = false);
+
+   singleSystemLock();
+   ~singleSystemLock();
+
+   // One is not allowed to copy this object;
+   // otherwise, one would drop the lock twice.
+   singleSystemLock(const singleSystemLock &) = delete;
+   singleSystemLock & operator= (const singleSystemLock &) = delete;
+};
 
 #endif
