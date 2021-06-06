@@ -37,7 +37,7 @@
 // CacheFile::CacheFile - Constructor					/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-pkgCacheFile::pkgCacheFile() : SysLock(), Cache(nullptr), DCache(nullptr), SrcList(nullptr), Policy(nullptr)
+pkgCacheFile::pkgCacheFile() : SysLock(), Map(nullptr), Cache(nullptr), DCache(nullptr), SrcList(nullptr), Policy(nullptr)
 {
 }
 									/*}}}*/
