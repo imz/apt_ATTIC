@@ -35,7 +35,7 @@ class pkgSourceList;
 
 class lazyCacheFile
 {
-   protected:
+   private:
 
    bool Lock;
    pkgSourceList *SrcList;
@@ -88,6 +88,24 @@ class lazyCacheFile
    virtual std::unique_ptr<pkgDepCache> MakeDepCache(OpProgress &Progress) = 0;
    virtual std::unique_ptr<pkgPolicy> MakePolicy(OpProgress &Progress) = 0;
    virtual std::unique_ptr<pkgSourceList> MakeSrcList(OpProgress *Progress) = 0;
+
+  /* Analogues of std::unique_ptr::get().
+
+     Some functions in subclasses access the members directly (without
+     supplying a Progress object); so these methods help them.
+
+     These methods are not safe; dangerous to use if you are not sure that
+     the accessed members have already been built successfully.
+   */
+
+   protected:
+
+   //MMap * getMap() const { return Map; }
+   pkgCache * getCache() const { return Cache; }
+   //pkgPolicy * getPolicy() const { return Policy; }
+   pkgDepCache * getDCache() const { return DCache; }
+   pkgSourceList* getSrcList() const { return SrcList; }
+
 };
 
 class pkgCacheFile: public lazyCacheFile
@@ -99,16 +117,16 @@ class pkgCacheFile: public lazyCacheFile
    public:
 
    // We look pretty much exactly like a pointer to a dep cache
-   inline operator pkgCache &() const {return *Cache;}
-   inline operator pkgCache *() const {return Cache;}
-   inline operator pkgDepCache &() const {return *DCache;}
-   inline operator pkgDepCache *() const {return DCache;}
-   inline operator pkgSourceList &() const {return *SrcList;}
-   inline operator pkgSourceList *() const {return SrcList;}
-   inline pkgDepCache *operator ->() const {return DCache;}
-   inline pkgDepCache &operator *() const {return *DCache;}
-   inline pkgDepCache::StateCache &operator [](pkgCache::PkgIterator const &I) const {return (*DCache)[I];}
-   inline unsigned char &operator [](pkgCache::DepIterator const &I) const {return (*DCache)[I];}
+   inline operator pkgCache &() const {return *getCache();}
+   inline operator pkgCache *() const {return getCache();}
+   inline operator pkgDepCache &() const {return *getDCache();}
+   inline operator pkgDepCache *() const {return getDCache();}
+   inline operator pkgSourceList &() const {return *getSrcList();}
+   inline operator pkgSourceList *() const {return getSrcList();}
+   inline pkgDepCache *operator ->() const {return getDCache();}
+   inline pkgDepCache &operator *() const {return *getDCache();}
+   inline pkgDepCache::StateCache &operator [](pkgCache::PkgIterator const &I) const {return (*getDCache())[I];}
+   inline unsigned char &operator [](pkgCache::DepIterator const &I) const {return (*getDCache())[I];}
 
    bool MakeLock() override;
    std::unique_ptr<MMap> MakeMap(OpProgress &Progress) override;
