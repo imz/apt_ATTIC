@@ -35,14 +35,14 @@ class pkgCacheFile
    pkgPolicy *Policy;
 
    // We look pretty much exactly like a pointer to a dep cache
-   inline operator pkgCache &() {return *Cache;}
-   inline operator pkgCache *() {return Cache;}
-   inline operator pkgDepCache &() {return *DCache;}
-   inline operator pkgDepCache *() {return DCache;}
-   inline pkgDepCache *operator ->() {return DCache;}
-   inline pkgDepCache &operator *() {return *DCache;}
-   inline pkgDepCache::StateCache &operator [](pkgCache::PkgIterator const &I) {return (*DCache)[I];}
-   inline unsigned char &operator [](pkgCache::DepIterator const &I) {return (*DCache)[I];}
+   inline operator pkgCache &() const {return *Cache;}
+   inline operator pkgCache *() const {return Cache;}
+   inline operator pkgDepCache &() const {return *DCache;}
+   inline operator pkgDepCache *() const {return DCache;}
+   inline pkgDepCache *operator ->() const {return DCache;}
+   inline pkgDepCache &operator *() const {return *DCache;}
+   inline pkgDepCache::StateCache &operator [](pkgCache::PkgIterator const &I) const {return (*DCache)[I];}
+   inline unsigned char &operator [](pkgCache::DepIterator const &I) const {return (*DCache)[I];}
 
    bool BuildCaches(OpProgress &Progress,bool WithLock);
    bool Open(OpProgress &Progress,bool WithLock);
