@@ -38,11 +38,7 @@
 // ---------------------------------------------------------------------
 /* */
 pkgCacheFile::pkgCacheFile()
-   : Map(nullptr)
-   , Cache(nullptr)
-   , DCache(nullptr)
-   , SrcList(nullptr)
-   , Policy(nullptr)
+   : SrcList(nullptr)
 {
 }
 									/*}}}*/
@@ -78,16 +74,20 @@ bool pkgCacheFile::BuildCaches(OpProgress &Progress,bool WithLock)
       return false;
 
    // Read the caches
-   bool Res = pkgMakeStatusCache(*SrcList,Progress,&Map,!WithLock);
-   Progress.Done();
-   if (Res == false)
-      return _error->Error(_("The package lists or status file could not be parsed or opened."));
+   {
+      MMap *TmpMap = nullptr;
+      bool Res = pkgMakeStatusCache(*SrcList,Progress,&TmpMap,!WithLock);
+      resetMap(TmpMap);
+      Progress.Done();
+      if (Res == false)
+         return _error->Error(_("The package lists or status file could not be parsed or opened."));
 
-   /* This sux, remove it someday */
-   if (_error->empty() == false)
-      _error->Warning(_("You may want to run apt-get update to correct these problems"));
+      /* This sux, remove it someday */
+      if (_error->empty() == false)
+         _error->Warning(_("You may want to run apt-get update to correct these problems"));
+   }
 
-   Cache = new pkgCache(Map);
+   resetCache(new pkgCache(getMap()));
    if (_error->PendingError() == true)
       return false;
    return true;
@@ -115,18 +115,18 @@ bool pkgCacheFile::Open(OpProgress &Progress,bool WithLock)
       return false;
 
    // The policy engine
-   Policy = new pkgPolicy(Cache);
+   resetPolicy(new pkgPolicy(getCache()));
    if (_error->PendingError() == true)
       return false;
-   if (ReadPinFile(*Policy) == false || ReadPinDir(*Policy) == false)
+   if (ReadPinFile(*getPolicy()) == false || ReadPinDir(*getPolicy()) == false)
       return false;
 
    // Create the dependency cache
-   DCache = new pkgDepCache(Cache,Policy);
+   resetDCache(new pkgDepCache(getCache(),getPolicy()));
    if (_error->PendingError() == true)
       return false;
 
-   DCache->Init(&Progress);
+   getDCache()->Init(&Progress);
    Progress.Done();
    if (_error->PendingError() == true)
       return false;
@@ -140,17 +140,10 @@ bool pkgCacheFile::Open(OpProgress &Progress,bool WithLock)
 /* */
 void pkgCacheFile::Close()
 {
-   delete DCache;
-   delete Policy;
-   delete Cache;
-   delete Map;
+   clear();
    delete SrcList;
    _system->UnLock(true);
 
-   Map = nullptr;
-   DCache = nullptr;
-   Policy = nullptr;
-   Cache = nullptr;
    SrcList = nullptr;
 }
 									/*}}}*/
@@ -236,15 +229,15 @@ void CacheFile::Sort()
    // Allocate and zero memory
    // https://stackoverflow.com/a/7546745/94687
    // Thanks to imz@
-   List.reset(new pkgCache::Package*[Cache->Head().PackageCount]());
+   List.reset(new pkgCache::Package*[getCache()->Head().PackageCount]());
 
-   for (pkgCache::PkgIterator I = Cache->PkgBegin(); not I.end(); ++I)
+   for (pkgCache::PkgIterator I = getCache()->PkgBegin(); not I.end(); ++I)
    {
       List[I->ID] = I;
    }
 
    SortCache = *this;
-   std::qsort(List.get(), Cache->Head().PackageCount, sizeof(*(List.get())), NameComp);
+   std::qsort(List.get(), getCache()->Head().PackageCount, sizeof(*(List.get())), NameComp);
 }
 									/*}}}*/
 // CacheFile::CheckDeps - Open the cache file				/*{{{*/
@@ -266,13 +259,13 @@ bool CacheFile::CheckDeps(bool AllowBroken)
 #endif
 
    // Apply corrections for half-installed packages
-   if (!pkgApplyStatus(*DCache))
+   if (!pkgApplyStatus(*getDCache()))
    {
       return false;
    }
 
    // Nothing is broken
-   if ((DCache->BrokenCount() == 0) || AllowBroken)
+   if ((getDCache()->BrokenCount() == 0) || AllowBroken)
    {
       return true;
    }
@@ -281,13 +274,13 @@ bool CacheFile::CheckDeps(bool AllowBroken)
    if (_config->FindB("APT::Get::Fix-Broken", false))
    {
       m_c1out << _("Correcting dependencies...") << std::flush;
-      if ((!pkgFixBroken(*DCache)) || (DCache->BrokenCount() != 0))
+      if ((!pkgFixBroken(*getDCache())) || (getDCache()->BrokenCount() != 0))
       {
          m_c1out << _(" failed.") << std::endl;
          ShowBroken(m_c1out, *this, true);
          return _error->Error(_("Unable to correct dependencies"));
       }
-      if (!pkgMinimizeUpgrade(*DCache))
+      if (!pkgMinimizeUpgrade(*getDCache()))
       {
          return _error->Error(_("Unable to minimize the upgrade set"));
       }
