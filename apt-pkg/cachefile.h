@@ -60,7 +60,7 @@ class pkgCacheFile
    inline bool IsSrcListBuilt() const { return (SrcList != NULL); }
 
    pkgCacheFile();
-   ~pkgCacheFile();
+   virtual ~pkgCacheFile();
 };
 
 // class CacheFile - Cover class for some dependency cache functions	/*{{{*/
