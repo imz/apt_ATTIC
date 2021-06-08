@@ -56,8 +56,15 @@ pkgCacheFile::~pkgCacheFile()
 bool pkgCacheFile::BuildCaches(OpProgress &Progress,bool WithLock)
 {
    if (WithLock == true)
-      if (_system->Lock() == false)
-	 return false;
+   {
+      if (false /* || (WithLock && already have lock */)
+      {}
+      else
+      {
+         if (_system->Lock() == false)
+            return false;
+      }
+   }
 
    // CNC:2002-07-06
    if (WithLock == false)
@@ -74,6 +81,9 @@ bool pkgCacheFile::BuildCaches(OpProgress &Progress,bool WithLock)
       return false;
 
    // Read the caches
+   if (getMap() != nullptr)
+   {}
+   else
    {
       MMap *TmpMap = nullptr;
       bool Res = pkgMakeStatusCache(*SrcList,Progress,&TmpMap,!WithLock);
@@ -87,6 +97,8 @@ bool pkgCacheFile::BuildCaches(OpProgress &Progress,bool WithLock)
          _error->Warning(_("You may want to run apt-get update to correct these problems"));
    }
 
+   if (getCache() != nullptr)
+      return true;
    resetCache(new pkgCache(getMap()));
    if (_error->PendingError() == true)
       return false;
@@ -115,21 +127,31 @@ bool pkgCacheFile::Open(OpProgress &Progress,bool WithLock)
       return false;
 
    // The policy engine
-   resetPolicy(new pkgPolicy(getCache()));
-   if (_error->PendingError() == true)
-      return false;
-   if (ReadPinFile(*getPolicy()) == false || ReadPinDir(*getPolicy()) == false)
-      return false;
+   if (getPolicy() != nullptr)
+   {}
+   else
+   {
+      resetPolicy(new pkgPolicy(getCache()));
+      if (_error->PendingError() == true)
+         return false;
+      if (ReadPinFile(*getPolicy()) == false || ReadPinDir(*getPolicy()) == false)
+         return false;
+   }
 
    // Create the dependency cache
-   resetDCache(new pkgDepCache(getCache(),getPolicy()));
-   if (_error->PendingError() == true)
-      return false;
+   if (getDCache() != nullptr)
+   {}
+   else
+   {
+      resetDCache(new pkgDepCache(getCache(),getPolicy()));
+      if (_error->PendingError() == true)
+         return false;
 
-   getDCache()->Init(&Progress);
-   Progress.Done();
-   if (_error->PendingError() == true)
-      return false;
+      getDCache()->Init(&Progress);
+      Progress.Done();
+      if (_error->PendingError() == true)
+         return false;
+   }
 
    return true;
 }

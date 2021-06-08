@@ -221,7 +221,27 @@ class pkgCacheWithDependents
 
 };
 
-class pkgCacheFile: public pkgCacheWithDependents
+/* A class that is normally used (maybe as a base class) to manage pkgCache
+   and its common dependent objects (and a few prerequisite objects such as
+   an MMap, a lock etc).
+
+   pkgCacheFile has stronger invariants than pkgCacheWithDependents,
+   which is used for the implementation of pkgCacheFile. (Therefore
+   the inheritance is private.)
+
+   Stronger invariant (monotonicity): the owned objects may be created only
+   once. (In this respect, it's similar to a const std::unique_ptr,
+   with an inconvenient difference: it is filled not by the ctor, but with
+   methods like Open(), BuildCaches().)
+
+   So, after Close() or a move from a pkgCacheFile object, the original
+   object should be considered invalid and not used anymore.
+
+   This stronger invariant (monotonicity) is guaranteed by deleting any methods
+   for resetting the pointers from the interface (the "protected": as seen by
+   derived classes), such as reset___() and clear___() and Close().
+*/
+class pkgCacheFile: private pkgCacheWithDependents
 {
    protected:
 
@@ -230,6 +250,11 @@ class pkgCacheFile: public pkgCacheWithDependents
    pkgSourceList *SrcList;
 
    public:
+   // Allow read access to the underlying objects (and nothing else)
+   using pkgCacheWithDependents::getMap;
+   using pkgCacheWithDependents::getCache;
+   using pkgCacheWithDependents::getPolicy;
+   using pkgCacheWithDependents::getDCache;
 
    // We look pretty much exactly like a pointer to a dep cache
    inline operator pkgCache &() const {return *getCache();}
@@ -247,7 +272,26 @@ class pkgCacheFile: public pkgCacheWithDependents
    bool BuildSourceList(OpProgress *Progress = NULL);
    bool Open(OpProgress &Progress,bool WithLock);
    static void RemoveCaches();
+
+   /* To guarantee monotonicity, no one should Close() at random times.
+      It's end-of-life (done by the dtor).
+      If one would Close() during work, then the state would look as if it was
+      never initialized, and BuildCaches() etc would create new owned objects,
+      and that's something we want to prohibit. (The clients might be using old
+      pointers/references coming from their instance of pkgCacheFile, and we
+      make our best with this API to make it clear to the clients when they
+      become invalid/dangling. Without Close() in the API, the rule is as simple
+      as: if and only if you destroy a pkgCacheFile instance, all the pointers
+      you got from it become invalid. (Unfortunately, C++ has no better means to
+      restrict the lifetime of dependent pointers saved elsewhere in the code.
+      One way could be to never give away pointers from this class, but just
+      to forward any method calls to the underlying owned objects.
+      That's too much rewrite.)
+   */
+   private:
    void Close();
+
+   public:
 
    inline pkgSourceList* GetSourceList() { BuildSourceList(); return SrcList; }
 
