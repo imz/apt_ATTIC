@@ -57,19 +57,14 @@ pkgCacheFile::~pkgCacheFile()
 // CacheFile::BuildCaches - Open and build the cache files		/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-bool pkgCacheFile::BuildCaches(OpProgress &Progress,bool WithLock)
+bool pkgCacheFile::BuildCaches(OpProgress &Progress,const bool WithLock)
 {
    if (WithLock == true)
       if (_system->Lock() == false)
 	 return false;
-
-   // CNC:2002-07-06
-   if (WithLock == false)
+   else
+      // CNC:2002-07-06
       _system->LockRead();
-
-   if (_config->FindB("Debug::NoLocking",false) == true)
-      WithLock = false;
-
    if (_error->PendingError() == true)
       return false;
 
@@ -78,14 +73,17 @@ bool pkgCacheFile::BuildCaches(OpProgress &Progress,bool WithLock)
       return false;
 
    // Read the caches
-   bool Res = pkgMakeStatusCache(*SrcList,Progress,&Map,!WithLock);
-   Progress.Done();
-   if (Res == false)
-      return _error->Error(_("The package lists or status file could not be parsed or opened."));
-
-   /* This sux, remove it someday */
-   if (_error->empty() == false)
-      _error->Warning(_("You may want to run apt-get update to correct these problems"));
+   {
+      const bool AllowMem = (!WithLock
+                             || _config->FindB("Debug::NoLocking",false));
+      const bool Res = pkgMakeStatusCache(*SrcList,Progress,&Map,AllowMem);
+      Progress.Done();
+      if (Res == false)
+         return _error->Error(_("The package lists or status file could not be parsed or opened."));
+      /* This sux, remove it someday */
+      if (_error->empty() == false)
+         _error->Warning(_("You may want to run apt-get update to correct these problems"));
+   }
 
    Cache = new pkgCache(Map);
    if (_error->PendingError() == true)
