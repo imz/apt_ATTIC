@@ -28,6 +28,7 @@ class pkgCacheFile
 {
    protected:
 
+   bool Lock;
    pkgSourceList *SrcList;
    MMap *Map;
    pkgCache *Cache;

@@ -38,7 +38,8 @@
 // ---------------------------------------------------------------------
 /* */
 pkgCacheFile::pkgCacheFile()
-   : SrcList(nullptr)
+   : Lock(false)
+   , SrcList(nullptr)
    , Map(nullptr)
    , Cache(nullptr)
    , DCache(nullptr)
@@ -60,11 +61,12 @@ pkgCacheFile::~pkgCacheFile()
 bool pkgCacheFile::BuildCaches(OpProgress &Progress,const bool WithLock)
 {
    if (WithLock == true)
-      if (_system->Lock() == false)
-	 return false;
+      Lock = _system->Lock();
    else
       // CNC:2002-07-06
-      _system->LockRead();
+      Lock = _system->LockRead();
+   if (!Lock)
+	 return false;
    if (_error->PendingError() == true)
       return false;
 
@@ -143,8 +145,10 @@ void pkgCacheFile::Close()
    delete Cache;
    delete Map;
    delete SrcList;
-   _system->UnLock(true);
+   if (Lock)
+      _system->UnLock(true);
 
+   Lock = false;
    SrcList = nullptr;
    Map = nullptr;
    Cache = nullptr;
