@@ -32,11 +32,10 @@ class pkgCacheFile
    pkgSourceList *SrcList;
    MMap *Map;
    pkgCache *Cache;
+   pkgPolicy *Policy;
    pkgDepCache *DCache;
 
    public:
-
-   pkgPolicy *Policy;
 
    // We look pretty much exactly like a pointer to a dep cache
    inline operator pkgCache &() const {return *Cache;}

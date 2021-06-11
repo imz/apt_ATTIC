@@ -42,8 +42,8 @@ pkgCacheFile::pkgCacheFile()
    , SrcList(nullptr)
    , Map(nullptr)
    , Cache(nullptr)
-   , DCache(nullptr)
    , Policy(nullptr)
+   , DCache(nullptr)
 {
 }
 									/*}}}*/
