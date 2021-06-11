@@ -997,7 +997,7 @@ bool pkgMakeStatusCache(pkgSourceList &List,OpProgress &Progress,
       }
    }
 
-   // CNC:2003-03-07 - Signal to the system so that it can free it's
+   // CNC:2003-03-07 - Signal to the system so that it can free its
    //		       internal caches, if any.
    _system->CacheBuilt();
 
@@ -1045,7 +1045,7 @@ bool pkgMakeOnlyStatusCache(OpProgress &Progress,DynamicMMap **OutMap)
       return false;
    *OutMap = Map.release();
 
-   // CNC:2003-03-07 - Signal to the system so that it can free it's
+   // CNC:2003-03-07 - Signal to the system so that it can free its
    //		       internal caches, if any.
    _system->CacheBuilt();
 
