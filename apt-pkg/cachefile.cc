@@ -34,12 +34,11 @@
 #include <apti18n.h>
 									/*}}}*/
 
-// CacheFile::CacheFile - Constructor					/*{{{*/
+// lazyCacheFile::lazyCacheFile - Constructor				/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-pkgCacheFile::pkgCacheFile(const bool WithLock)
-   : WithLock(WithLock)
-   , Lock(false)
+lazyCacheFile::lazyCacheFile()
+   : Lock(false)
    , SrcList(nullptr)
    , Map(nullptr)
    , Cache(nullptr)
@@ -48,10 +47,10 @@ pkgCacheFile::pkgCacheFile(const bool WithLock)
 {
 }
 									/*}}}*/
-// CacheFile::~CacheFile - Destructor					/*{{{*/
+// lazyCacheFile::~lazyCacheFile - Destructor				/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-pkgCacheFile::~pkgCacheFile()
+lazyCacheFile::~lazyCacheFile()
 {
    delete DCache;
    delete Policy;
@@ -69,57 +68,152 @@ pkgCacheFile::~pkgCacheFile()
    DCache = nullptr;
 }
 									/*}}}*/
-// CacheFile::BuildCaches - Open and build the cache files		/*{{{*/
+// These methods build the members and never recreate anything that exists.
+
+bool lazyCacheFile::BuildLock()
+{
+   return Lock || (Lock = MakeLock());
+}
+
+bool lazyCacheFile::BuildMap(OpProgress &Progress) {
+   return Map || (Map = MakeMap(Progress).release());
+}
+
+bool lazyCacheFile::BuildCaches(OpProgress &Progress)
+{
+   return Cache || (Cache = MakePkgCache(Progress).release());
+}
+
+bool lazyCacheFile::BuildSourceList(OpProgress *Progress)
+{
+   return SrcList || (SrcList = MakeSrcList(Progress).release());
+}
+
+bool lazyCacheFile::BuildPolicy(OpProgress &Progress)
+{
+   return Policy || (Policy = MakePolicy(Progress).release());
+}
+
+bool lazyCacheFile::BuildDepCache(OpProgress &Progress)
+{
+   return DCache || (DCache = MakeDepCache(Progress).release());
+}
+
+// pkgCacheFile::pkgCacheFile - Constructor				/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-bool pkgCacheFile::BuildCaches(OpProgress &Progress)
+pkgCacheFile::pkgCacheFile(const bool WithLock)
+   : lazyCacheFile()
+   , WithLock(WithLock)
 {
+}
+									/*}}}*/
+bool pkgCacheFile::MakeLock()
+{
+   bool Lock = false;
    if (WithLock == true)
       Lock = _system->Lock();
    else
       // CNC:2002-07-06
       Lock = _system->LockRead();
-   if (!Lock)
-	 return false;
    if (_error->PendingError() == true)
       return false;
+   return Lock;
+}
+
+std::unique_ptr<MMap> pkgCacheFile::MakeMap(OpProgress &Progress)
+{
+   if (!GetLock())
+      return nullptr;
 
    // Read the source list
-   if (!BuildSourceList(&Progress))
-      return false;
+   pkgSourceList * const SrcList = GetSourceList();
+   if (!SrcList)
+      return nullptr;
 
-   // Read the caches
+   const bool AllowMem = (!WithLock
+                          || _config->FindB("Debug::NoLocking",false));
+   MMap * TmpMap = nullptr;
+   const bool Res = pkgMakeStatusCache(*SrcList,Progress,&TmpMap,AllowMem);
+   std::unique_ptr<MMap> Map(TmpMap);
+   Progress.Done();
+   if (Res == false)
    {
-      const bool AllowMem = (!WithLock
-                             || _config->FindB("Debug::NoLocking",false));
-      const bool Res = pkgMakeStatusCache(*SrcList,Progress,&Map,AllowMem);
-      Progress.Done();
-      if (Res == false)
-         return _error->Error(_("The package lists or status file could not be parsed or opened."));
-      /* This sux, remove it someday */
-      if (_error->empty() == false)
-         _error->Warning(_("You may want to run apt-get update to correct these problems"));
+      _error->Error(_("The package lists or status file could not be parsed or opened."));
+      return nullptr;
    }
+   /* This sux, remove it someday */
+   if (_error->empty() == false)
+      _error->Warning(_("You may want to run apt-get update to correct these problems"));
 
-   Cache = new pkgCache(Map);
+   return Map;
+}
+
+// pkgCacheFile::MakePkgCache - Open and build the cache files		/*{{{*/
+// ---------------------------------------------------------------------
+/* */
+std::unique_ptr<pkgCache> pkgCacheFile::MakePkgCache(OpProgress &Progress)
+{
+   // Read the caches
+   MMap * const Map = GetMap(Progress);
+   if (!Map)
+      return nullptr;
+
+   std::unique_ptr<pkgCache> Cache(new pkgCache(Map));
    if (_error->PendingError() == true)
-      return false;
-   return true;
+      return nullptr;
+   return Cache;
 }
 									/*}}}*/
-bool pkgCacheFile::BuildSourceList(OpProgress * /*Progress*/)
+std::unique_ptr<pkgSourceList> pkgCacheFile::MakeSrcList(OpProgress * /*Progress*/)
 {
-   std::unique_ptr<pkgSourceList> tmpSrcList;
-   if (SrcList != NULL)
-      return true;
+   std::unique_ptr<pkgSourceList> SrcList(new pkgSourceList());
+   if (!SrcList->ReadMainList())
+   {
+      _error->Error(_("The list of sources could not be read."));
+      return nullptr;
+   }
 
-   tmpSrcList.reset(new pkgSourceList());
-   if (!tmpSrcList->ReadMainList())
-      return _error->Error(_("The list of sources could not be read."));
-   SrcList = tmpSrcList.release();
-
-   return true;
+   return SrcList;
 }
+
+// The policy engine
+std::unique_ptr<pkgPolicy> pkgCacheFile::MakePolicy(OpProgress &Progress)
+{
+   pkgCache * const Cache = GetPkgCache(Progress);
+   if (!Cache)
+      return nullptr;
+
+   std::unique_ptr<pkgPolicy> Policy(new pkgPolicy(Cache));
+   if (_error->PendingError() == true)
+      return nullptr;
+   if (ReadPinFile(*Policy) == false || ReadPinDir(*Policy) == false)
+      return nullptr;
+
+   return Policy;
+}
+
+// Create the dependency cache
+std::unique_ptr<pkgDepCache> pkgCacheFile::MakeDepCache(OpProgress &Progress)
+{
+   pkgCache * const Cache = GetPkgCache(Progress);
+   if (!Cache)
+      return nullptr;
+
+   pkgPolicy * const Policy = GetPolicy(Progress);
+   if (!Policy)
+      return nullptr;
+
+   std::unique_ptr<pkgDepCache> DCache(new pkgDepCache(Cache,Policy));
+   if (_error->PendingError() == true)
+      return nullptr;
+
+   if (DCache->Init(&Progress) == false)
+      return nullptr;
+
+   return DCache;
+}
+
 // CacheFile::Open - Open the cache files, creating if necessary	/*{{{*/
 // ---------------------------------------------------------------------
 /* */
@@ -128,19 +222,12 @@ bool pkgCacheFile::Open(OpProgress &Progress)
    if (BuildCaches(Progress) == false)
       return false;
 
-   // The policy engine
-   Policy = new pkgPolicy(Cache);
-   if (_error->PendingError() == true)
-      return false;
-   if (ReadPinFile(*Policy) == false || ReadPinDir(*Policy) == false)
+   if (BuildPolicy(Progress) == false)
       return false;
 
-   // Create the dependency cache
-   DCache = new pkgDepCache(Cache,Policy);
-   if (_error->PendingError() == true)
+   if (BuildDepCache(Progress) == false)
       return false;
 
-   DCache->Init(&Progress);
    Progress.Done();
    if (_error->PendingError() == true)
       return false;

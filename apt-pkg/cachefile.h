@@ -24,11 +24,18 @@
 class pkgPolicy;
 class pkgSourceList;
 
-class pkgCacheFile
+/* An abstract class that owns pkgCache & its dependents (and some requisites).
+   It formally imposes the property (on any derived class) that once an owned
+   resource is "built" it doesn't ever change.
+
+   Internally, it's lazy: the owned resources are built on demand.
+
+   From outside, it looks like an immutable (lazy) structure.
+ */
+
+class lazyCacheFile
 {
    protected:
-
-   const bool WithLock;
 
    bool Lock;
    pkgSourceList *SrcList;
@@ -36,6 +43,58 @@ class pkgCacheFile
    pkgCache *Cache;
    pkgPolicy *Policy;
    pkgDepCache *DCache;
+
+   public:
+
+   // These methods demand the resources; so, if needed, they are built.
+   // They are not safe; dangerous to use if you don't check for
+   // runtime errors/NULL return values. Regrettably...
+   inline bool GetLock() { BuildLock(); return Lock; }
+   inline MMap* GetMap(OpProgress &Progress) { BuildMap(Progress); return Map; }
+   inline pkgCache* GetPkgCache(OpProgress &Progress) { BuildCaches(Progress); return Cache; }
+   inline pkgDepCache* GetDepCache(OpProgress &Progress) { BuildDepCache(Progress); return DCache; }
+   inline pkgPolicy* GetPolicy(OpProgress &Progress) { BuildPolicy(Progress); return Policy; }
+   inline pkgSourceList* GetSourceList() { BuildSourceList(); return SrcList; }
+
+   // These methods build the members and never recreate anything that exists.
+   bool BuildLock();
+   bool BuildMap(OpProgress &Progress);
+   bool BuildCaches(OpProgress &Progress);
+   bool BuildSourceList(OpProgress *Progress = NULL);
+   bool BuildPolicy(OpProgress &Progress);
+   bool BuildDepCache(OpProgress &Progress);
+
+   inline bool IsLockBuilt() const { return Lock; }
+   inline bool IsMapBuilt() const { return (Map != NULL); }
+   inline bool IsPkgCacheBuilt() const { return (Cache != NULL); }
+   inline bool IsDepCacheBuilt() const { return (DCache != NULL); }
+   inline bool IsPolicyBuilt() const { return (Policy != NULL); }
+   inline bool IsSrcListBuilt() const { return (SrcList != NULL); }
+
+   lazyCacheFile();
+   virtual ~lazyCacheFile();
+   /* The owner must be unique.
+
+      Prohibit copying (just in case the compiler doesn't see that
+      it's bad to implicitly define copy ctor and assignment for this class).
+   */
+   lazyCacheFile(const lazyCacheFile &) = delete;
+   lazyCacheFile & operator=(const lazyCacheFile &) = delete;
+
+   // These methods are implemented by subclasses. They can't break our rule.
+   virtual bool MakeLock() = 0;
+   virtual std::unique_ptr<MMap> MakeMap(OpProgress &Progress) = 0;
+   virtual std::unique_ptr<pkgCache> MakePkgCache(OpProgress &Progress) = 0;
+   virtual std::unique_ptr<pkgDepCache> MakeDepCache(OpProgress &Progress) = 0;
+   virtual std::unique_ptr<pkgPolicy> MakePolicy(OpProgress &Progress) = 0;
+   virtual std::unique_ptr<pkgSourceList> MakeSrcList(OpProgress *Progress) = 0;
+};
+
+class pkgCacheFile: public lazyCacheFile
+{
+   protected:
+
+   const bool WithLock;
 
    public:
 
@@ -51,17 +110,17 @@ class pkgCacheFile
    inline pkgDepCache::StateCache &operator [](pkgCache::PkgIterator const &I) const {return (*DCache)[I];}
    inline unsigned char &operator [](pkgCache::DepIterator const &I) const {return (*DCache)[I];}
 
-   bool BuildCaches(OpProgress &Progress);
-   bool BuildSourceList(OpProgress *Progress = NULL);
+   bool MakeLock() override;
+   std::unique_ptr<MMap> MakeMap(OpProgress &Progress) override;
+   std::unique_ptr<pkgCache> MakePkgCache(OpProgress &Progress) override;
+   std::unique_ptr<pkgDepCache> MakeDepCache(OpProgress &Progress) override;
+   std::unique_ptr<pkgPolicy> MakePolicy(OpProgress &Progress) override;
+   std::unique_ptr<pkgSourceList> MakeSrcList(OpProgress *Progress) override;
+
    bool Open(OpProgress &Progress);
    static void RemoveCaches();
 
-   inline pkgSourceList* GetSourceList() { BuildSourceList(); return SrcList; }
-
-   inline bool IsSrcListBuilt() const { return (SrcList != NULL); }
-
    explicit pkgCacheFile(bool WithLock);
-   virtual ~pkgCacheFile();
 };
 
 // Helper for apt-get and apt-mark
