@@ -52,7 +52,20 @@ pkgCacheFile::pkgCacheFile()
 /* */
 pkgCacheFile::~pkgCacheFile()
 {
-   Close();
+   delete DCache;
+   delete Policy;
+   delete Cache;
+   delete Map;
+   delete SrcList;
+   if (Lock)
+      _system->UnLock(true);
+
+   Lock = false;
+   SrcList = nullptr;
+   Map = nullptr;
+   Cache = nullptr;
+   Policy = nullptr;
+   DCache = nullptr;
 }
 									/*}}}*/
 // CacheFile::BuildCaches - Open and build the cache files		/*{{{*/
@@ -132,28 +145,6 @@ bool pkgCacheFile::Open(OpProgress &Progress,bool WithLock)
       return false;
 
    return true;
-}
-									/*}}}*/
-
-// CacheFile::Close - close the cache files				/*{{{*/
-// ---------------------------------------------------------------------
-/* */
-void pkgCacheFile::Close()
-{
-   delete DCache;
-   delete Policy;
-   delete Cache;
-   delete Map;
-   delete SrcList;
-   if (Lock)
-      _system->UnLock(true);
-
-   Lock = false;
-   SrcList = nullptr;
-   Map = nullptr;
-   Cache = nullptr;
-   Policy = nullptr;
-   DCache = nullptr;
 }
 									/*}}}*/
 // CacheFile::RemoveCaches - remove all cache files from disk		/*{{{*/

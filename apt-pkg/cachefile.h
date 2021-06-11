@@ -53,7 +53,6 @@ class pkgCacheFile
    bool BuildSourceList(OpProgress *Progress = NULL);
    bool Open(OpProgress &Progress,bool WithLock);
    static void RemoveCaches();
-   void Close();
 
    inline pkgSourceList* GetSourceList() { BuildSourceList(); return SrcList; }
 
