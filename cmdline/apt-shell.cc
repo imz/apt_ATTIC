@@ -86,6 +86,11 @@ unsigned int ScreenWidth = 80;
 
 static CacheFile *GCache = NULL;
 
+bool CanCommit()
+{
+   return geteuid() == 0;
+}
+
 class AutoRestore
 {
    pkgDepCache::State State;
@@ -113,8 +118,8 @@ class AutoReOpenCache
 	 delete *Cache;
 	 if (_error->PendingError())
 		 _error->PushState();
-	 *Cache = new CacheFile(c1out);
-	 (*Cache)->Open((*Cache)->CanCommit());
+	 *Cache = new CacheFile(c1out,CanCommit());
+	 (*Cache)->Open();
 	 _error->PopState();
 	 if ((*Cache)->CheckDeps(true) == false) {
 	    c1out << _("There are broken packages. ")
@@ -1674,7 +1679,9 @@ bool DoAutoClean(CommandLine &CmdL)
 
    CacheFile &Cache = *GCache;
 #if 0
-   if (Cache.Open(Cache.CanCommit()) == false)
+   // Normally, you shouldn't Open() a CacheFile twice!
+   // If you need a fresh CacheFile, instead recreate the object.
+   if (Cache.Open() == false)
       return false;
 #endif
 
@@ -3853,8 +3860,8 @@ int aptpipe_init(void)
 	_config->Set("Acquire::CDROM::Copy-All", "false");
 
 	// Prepare the cache
-	GCache = new CacheFile(c1out);
-	GCache->Open(GCache->CanCommit());
+	GCache = new CacheFile(c1out,CanCommit());
+	GCache->Open();
 
 	if (_error->empty() == false) {
 		bool Errors = _error->PendingError();
@@ -4020,8 +4027,8 @@ int main(int argc,const char *argv[])
    SigWinch(0);
 
    // Prepare the cache
-   GCache = new CacheFile(c1out);
-   GCache->Open(GCache->CanCommit());
+   GCache = new CacheFile(c1out,CanCommit());
+   GCache->Open();
 
    // CNC:2004-02-18
    if (_error->empty() == false)

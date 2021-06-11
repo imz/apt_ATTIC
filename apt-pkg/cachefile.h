@@ -28,6 +28,8 @@ class pkgCacheFile
 {
    protected:
 
+   const bool WithLock;
+
    bool Lock;
    pkgSourceList *SrcList;
    MMap *Map;
@@ -49,18 +51,21 @@ class pkgCacheFile
    inline pkgDepCache::StateCache &operator [](pkgCache::PkgIterator const &I) const {return (*DCache)[I];}
    inline unsigned char &operator [](pkgCache::DepIterator const &I) const {return (*DCache)[I];}
 
-   bool BuildCaches(OpProgress &Progress,bool WithLock);
+   bool BuildCaches(OpProgress &Progress);
    bool BuildSourceList(OpProgress *Progress = NULL);
-   bool Open(OpProgress &Progress,bool WithLock);
+   bool Open(OpProgress &Progress);
    static void RemoveCaches();
 
    inline pkgSourceList* GetSourceList() { BuildSourceList(); return SrcList; }
 
    inline bool IsSrcListBuilt() const { return (SrcList != NULL); }
 
-   pkgCacheFile();
+   explicit pkgCacheFile(bool WithLock);
    virtual ~pkgCacheFile();
 };
+
+// Helper for apt-get and apt-mark
+bool ShouldLockForInstall();
 
 // class CacheFile - Cover class for some dependency cache functions	/*{{{*/
 // ---------------------------------------------------------------------
@@ -70,7 +75,7 @@ class CacheFile: public pkgCacheFile
 public:
    std::unique_ptr<pkgCache::Package*[]> List;
 
-   explicit CacheFile(std::ostream &c1out);
+   CacheFile(std::ostream &c1out, bool WithLock);
 
    void Sort();
 
@@ -79,15 +84,13 @@ public:
    /* This routine generates the caches and then opens the dependency cache
       and verifies that the system is OK. */
    bool CheckDeps(bool AllowBroken = false);
-   bool BuildCaches(bool WithLock);
-   bool Open(bool WithLock);
-   bool OpenForInstall();
+   bool BuildCaches();
+   bool Open();
 
    bool CanCommit() const;
 
 private:
    std::ostream &m_c1out;
-   bool m_is_root;
 
    static pkgCache *SortCache;
 

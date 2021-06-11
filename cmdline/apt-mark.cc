@@ -45,8 +45,8 @@ unsigned int ScreenWidth = 80;
 /* DoAuto - mark packages as automatically/manually installed */
 static bool DoAuto(CommandLine &CmdL)
 {
-   CacheFile Cache(c1out);
-   if (!Cache.OpenForInstall())
+   CacheFile Cache(c1out,ShouldLockForInstall());
+   if (!Cache.Open())
    {
       return false;
    }
@@ -77,8 +77,8 @@ static bool DoAuto(CommandLine &CmdL)
 /* ShowAuto - show automatically installed packages (sorted) */
 static bool ShowAuto(CommandLine &CmdL)
 {
-   CacheFile Cache(c1out);
-   if (!Cache.Open(false))
+   CacheFile Cache(c1out, false /* not WithLock */);
+   if (!Cache.Open())
    {
       return false;
    }

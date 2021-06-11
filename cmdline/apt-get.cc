@@ -90,8 +90,8 @@ public:
    {
       if (!Cache)
       {
-         Cache.reset(new CacheFile(c1out));
-         if (!Cache->Open(Write))
+         Cache.reset(new CacheFile(c1out,Write));
+         if (!Cache->Open())
          {
             return NULL;
          }
@@ -1169,12 +1169,12 @@ bool DoUpdate(CommandLine &CmdL)
    // Needed for the download object
    AcqTextStatus Stat(ScreenWidth,_config->FindI("quiet",0));
    // Prepare the cache.
-   CacheFile Cache(c1out);
+   CacheFile Cache(c1out, true /* WithLock */);
 
    if (!ListUpdate(Stat, List, Cache))
       return false;
 
-   if (Cache.Open(true) == false)
+   if (Cache.Open() == false)
       return false;
 
    return true;
@@ -1193,8 +1193,8 @@ bool DoUpgrade(CommandLine &CmdL)
                              "use '--enable-upgrade' option or enable 'APT::Get::EnableUpgrade' configuration setting"));
    }
 
-   CacheFile Cache(c1out);
-   if (Cache.OpenForInstall() == false || Cache.CheckDeps() == false)
+   CacheFile Cache(c1out,ShouldLockForInstall());
+   if (Cache.Open() == false || Cache.CheckDeps() == false)
       return false;
 
    // Do the upgrade
@@ -1223,8 +1223,8 @@ bool DoUpgrade(CommandLine &CmdL)
 /* Install named packages */
 bool DoInstall(CommandLine &CmdL)
 {
-   CacheFile Cache(c1out);
-   if (Cache.OpenForInstall() == false ||
+   CacheFile Cache(c1out,ShouldLockForInstall());
+   if (Cache.Open() == false ||
        Cache.CheckDeps(CmdL.FileSize() != 1) == false)
       return false;
 
@@ -1675,8 +1675,8 @@ bool DoInstall(CommandLine &CmdL)
 /* Intelligent upgrader that will install and remove packages at will */
 bool DoDistUpgrade(CommandLine &CmdL)
 {
-   CacheFile Cache(c1out);
-   if (Cache.OpenForInstall() == false || Cache.CheckDeps() == false)
+   CacheFile Cache(c1out,ShouldLockForInstall());
+   if (Cache.Open() == false || Cache.CheckDeps() == false)
       return false;
 
    c0out << _("Calculating Upgrade... ") << flush;
@@ -1708,8 +1708,8 @@ bool DoDistUpgrade(CommandLine &CmdL)
 /* Follows dselect's selections */
 bool DoDSelectUpgrade(CommandLine &CmdL)
 {
-   CacheFile Cache(c1out);
-   if (Cache.OpenForInstall() == false || Cache.CheckDeps() == false)
+   CacheFile Cache(c1out,ShouldLockForInstall());
+   if (Cache.Open() == false || Cache.CheckDeps() == false)
       return false;
 
    // Install everything with the install flag set
@@ -1835,8 +1835,8 @@ bool DoAutoClean(CommandLine &CmdL)
 	 return _error->Error(_("Unable to lock the download directory"));
    }
 
-   CacheFile Cache(c1out);
-   if (Cache.Open(true) == false)
+   CacheFile Cache(c1out, true /* WithLock */);
+   if (Cache.Open() == false)
       return false;
 
    LogCleaner Cleaner;
@@ -1851,8 +1851,8 @@ bool DoAutoClean(CommandLine &CmdL)
    for debugging */
 bool DoCheck(CommandLine &CmdL)
 {
-   CacheFile Cache(c1out);
-   Cache.Open(true);
+   CacheFile Cache(c1out, true /* WithLock */);
+   Cache.Open();
    Cache.CheckDeps();
 
    return true;
@@ -1870,8 +1870,8 @@ struct DscFile
 
 bool DoSource(CommandLine &CmdL)
 {
-   CacheFile Cache(c1out);
-   if (Cache.Open(false) == false)
+   CacheFile Cache(c1out, false /* not WithLock */);
+   if (Cache.Open() == false)
       return false;
 
    if (CmdL.FileSize() <= 1)
@@ -2153,9 +2153,9 @@ bool DoSource(CommandLine &CmdL)
    package and install the necessary packages to make it true, or fail. */
 bool DoBuildDep(CommandLine &CmdL)
 {
-   CacheFile Cache(c1out);
+   CacheFile Cache(c1out,ShouldLockForInstall());
    // CNC:2004-04-06
-   if (Cache.OpenForInstall() == false ||
+   if (Cache.Open() == false ||
        Cache.CheckDeps() == false)
       return false;
 
@@ -2444,9 +2444,9 @@ bool DoMoo(CommandLine &CmdL)
 
 bool DoAutoremove(CommandLine &/*CmdL*/)
 {
-   CacheFile Cache(c1out);
+   CacheFile Cache(c1out,ShouldLockForInstall());
 
-   if ((not Cache.OpenForInstall()) || (not Cache.CheckDeps()))
+   if ((not Cache.Open()) || (not Cache.CheckDeps()))
    {
       return false;
    }

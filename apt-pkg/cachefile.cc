@@ -37,8 +37,9 @@
 // CacheFile::CacheFile - Constructor					/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-pkgCacheFile::pkgCacheFile()
-   : Lock(false)
+pkgCacheFile::pkgCacheFile(const bool WithLock)
+   : WithLock(WithLock)
+   , Lock(false)
    , SrcList(nullptr)
    , Map(nullptr)
    , Cache(nullptr)
@@ -71,7 +72,7 @@ pkgCacheFile::~pkgCacheFile()
 // CacheFile::BuildCaches - Open and build the cache files		/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-bool pkgCacheFile::BuildCaches(OpProgress &Progress,const bool WithLock)
+bool pkgCacheFile::BuildCaches(OpProgress &Progress)
 {
    if (WithLock == true)
       Lock = _system->Lock();
@@ -122,9 +123,9 @@ bool pkgCacheFile::BuildSourceList(OpProgress * /*Progress*/)
 // CacheFile::Open - Open the cache files, creating if necessary	/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-bool pkgCacheFile::Open(OpProgress &Progress,bool WithLock)
+bool pkgCacheFile::Open(OpProgress &Progress)
 {
-   if (BuildCaches(Progress,WithLock) == false)
+   if (BuildCaches(Progress) == false)
       return false;
 
    // The policy engine
@@ -199,10 +200,18 @@ void pkgCacheFile::RemoveCaches()
 
 pkgCache *CacheFile::SortCache = 0;
 
-CacheFile::CacheFile(std::ostream &c1out)
-   : m_c1out(c1out),
-   m_is_root((geteuid() == 0))
+CacheFile::CacheFile(std::ostream &c1out,const bool WithLock)
+   : pkgCacheFile(WithLock)
+   , m_c1out(c1out)
 {
+}
+
+// Helper for apt-get and apt-mark
+bool ShouldLockForInstall()
+{
+   // CNC:2004-03-07 - dont take lock if in download mode
+   return !(_config->FindB("APT::Get::Print-URIs")
+            || _config->FindB("APT::Get::Download-only"));
 }
 
 // CacheFile::NameComp - QSort compare by name				/*{{{*/
@@ -299,17 +308,17 @@ bool CacheFile::CheckDeps(bool AllowBroken)
 }
 									/*}}}*/
 
-bool CacheFile::BuildCaches(bool WithLock)
+bool CacheFile::BuildCaches()
 {
    OpTextProgress Prog(*_config);
-   return pkgCacheFile::BuildCaches(Prog, WithLock);
+   return pkgCacheFile::BuildCaches(Prog);
 }
 
-bool CacheFile::Open(bool WithLock)
+bool CacheFile::Open()
 {
    OpTextProgress Prog(*_config);
 
-   if (!pkgCacheFile::Open(Prog, WithLock))
+   if (!pkgCacheFile::Open(Prog))
    {
       return false;
    }
@@ -319,23 +328,10 @@ bool CacheFile::Open(bool WithLock)
    return true;
 }
 
-bool CacheFile::OpenForInstall()
-{
-   // CNC:2004-03-07 - dont take lock if in download mode
-   if (_config->FindB("APT::Get::Print-URIs")
-      || _config->FindB("APT::Get::Download-only"))
-   {
-      return Open(false);
-   }
-   else
-   {
-      return Open(true);
-   }
-}
-
+// In apt-shell, WithLock is always set according to (geteuid() == 0).
 bool CacheFile::CanCommit() const
 {
-   return m_is_root;
+   return WithLock;
 }
 
 // ShowList - Show a list						/*{{{*/
