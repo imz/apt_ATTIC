@@ -16,19 +16,37 @@ set -o pipefail
 
 readonly HSHDIR="$1"; shift
 
+run_sh_e()
+{
+    local ret
+    share_network=1 \
+		 hsh-run --root "$HSHDIR" -- \
+		 /bin/sh -exc "$*" \
+	&& ret=$? || ret=$?
+
+    echo "$ret"
+    return "$ret"
+}
+
+# Prepare our hasher env
 #hsh --ini --with-stuff "$HSHDIR"
-hsh-install "$HSHDIR" apt-conf-sisyphus apt-repo packagekit
+hsh-install "$HSHDIR" \
+	    apt-conf-sisyphus \
+	    apt-repo \
+	    packagekit
 
-share_network=1 \
-hsh-run --root "$HSHDIR" -- \
-/bin/sh -xc 'apt-repo add sisyphus &&
-	    apt-repo &&
-	    apt-get update &&
-	    /usr/lib/packagekit-direct search-detail packagekit;
-	    ret=$?;
-	    echo "$ret";
-	    exit "$ret"'
+# Setup for tests.
+run_sh_e 'apt-repo add sisyphus
+	  apt-repo
+	  apt-get update'
 
+# Test whether there is a crash during an action ("search-detail"):
+
+run_sh_e /usr/lib/packagekit-direct search-detail packagekit
+
+
+# * * *
+#
 # Note that git-bisect(1) expects an "exit with a code between 1 and
 # 127 (inclusive), except 125, if the current source code is bad".
 # Therefore, I use this script like this:
