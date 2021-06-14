@@ -208,6 +208,8 @@ gettextize --force --quiet --no-changelog --symlink
 %add_optflags -Werror=overloaded-virtual
 # A style enforcement: always use the keyword, which helps to avoid API misuse
 %add_optflags -Werror=suggest-override
+# A style enforcement: list initializers in ctor in the order they actually work
+%add_optflags -Werror=reorder
 %ifarch %e2k
 %remove_optflags -Wno-error
 %add_optflags -std=gnu++11
