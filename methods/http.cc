@@ -1113,7 +1113,7 @@ bool HttpMethod::Fetch(FetchItem *)
 // HttpMethod::Configuration - Handle a configuration message		/*{{{*/
 // ---------------------------------------------------------------------
 /* We stash the desired pipeline depth */
-bool HttpMethod::Configuration(string Message)
+bool HttpMethod::Configuration(const string Message)
 {
    if (pkgAcqMethod::Configuration(Message) == false)
       return false;

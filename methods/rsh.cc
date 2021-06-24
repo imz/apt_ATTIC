@@ -369,7 +369,7 @@ RSHMethod::RSHMethod() : pkgAcqMethod("1.0",SendConfig)
 									/*}}}*/
 // RSHMethod::Configuration - Handle a configuration message		/*{{{*/
 // ---------------------------------------------------------------------
-bool RSHMethod::Configuration(string Message)
+bool RSHMethod::Configuration(const string Message)
 {
    char ProgStr[100];
 

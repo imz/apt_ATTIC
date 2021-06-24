@@ -109,7 +109,7 @@ pkgAcquire::Item::~Item()
 // ---------------------------------------------------------------------
 /* We return to an idle state if there are still other queues that could
    fetch this object */
-void pkgAcquire::Item::Failed(string Message,pkgAcquire::MethodConfig *Cnf)
+void pkgAcquire::Item::Failed(const string Message,pkgAcquire::MethodConfig *Cnf)
 {
    Status = StatIdle;
    ErrorText = LookupTag(Message,"Message");
@@ -135,7 +135,7 @@ void pkgAcquire::Item::Failed(string Message,pkgAcquire::MethodConfig *Cnf)
 // ---------------------------------------------------------------------
 /* Stash status and the file size. Note that setting Complete means
    sub-phases of the acquire process such as decompresion are operating */
-void pkgAcquire::Item::Start(string /*Message*/,unsigned long Size)
+void pkgAcquire::Item::Start(const string /*Message*/,unsigned long Size)
 {
    Status = StatFetching;
    if (FileSize == 0 && Complete == false)
@@ -145,7 +145,7 @@ void pkgAcquire::Item::Start(string /*Message*/,unsigned long Size)
 // Acquire::Item::Done - Item downloaded OK				/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-void pkgAcquire::Item::Done(string Message,unsigned long Size,string,
+void pkgAcquire::Item::Done(const string Message,unsigned long Size,const string,
 			    pkgAcquire::MethodConfig *Cnf)
 {
    // We just downloaded something..
@@ -271,7 +271,7 @@ string pkgAcqIndex::Custom600Headers()
    to the uncompressed version of the file. If this is so the file
    is copied into the partial directory. In all other cases the file
    is decompressed with a gzip uri. */
-void pkgAcqIndex::Done(string Message,unsigned long Size,string MD5,
+void pkgAcqIndex::Done(const string Message,unsigned long Size,const string MD5,
 		       pkgAcquire::MethodConfig *Cfg)
 {
    Item::Done(Message,Size,MD5,Cfg);
