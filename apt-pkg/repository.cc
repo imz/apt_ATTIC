@@ -29,7 +29,7 @@ using namespace std;
 // Repository::ParseRelease - Parse Release file for checksums		/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-bool pkgRepository::ParseRelease(string File)
+bool pkgRepository::ParseRelease(const string File)
 {
    // Open the stream for reading
    FileFd F(File, FileFd::ReadOnly);
