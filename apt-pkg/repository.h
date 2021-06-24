@@ -43,10 +43,10 @@ class pkgRepository
    virtual bool FindChecksums(string URI,unsigned long &Size, string &MD5);
    // LORG:2006-02-23
    virtual string GetCheckMethod() const {return CheckMethod;}
-   virtual string GetComprMethod(string URI) const {return "bz2";}
+   virtual string GetComprMethod(const string URI) const {return "bz2";}
 
-   pkgRepository(string URI,string Dist, const pkgSourceList::Vendor *Vendor,
-		 string RootURI)
+   pkgRepository(const string URI,const string Dist, const pkgSourceList::Vendor * const Vendor,
+		 const string RootURI)
       : GotRelease(0), URI(URI), Dist(Dist), RootURI(RootURI),
 	Acquire(1)
    {
