@@ -411,6 +411,7 @@ popd
 * Tue Aug 24 2021 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt73
 - (source code; ABI) Got rid of virtual methods with default parameters
   (because they are confusing for the programmer).
+- implement generic callback system (thx Oleg Solovyov mcpain@)
 
 * Thu Mar 18 2021 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt72
 - Cleaned up the code (thx Dmitry V. Levin ldv@; including
