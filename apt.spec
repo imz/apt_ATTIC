@@ -514,6 +514,7 @@ seq 0 $((TRIES-1)) | xargs -I'{}' ${NPROCS:+-P$NPROCS --process-slot-var=PARALLE
 
 %changelog
 * Sat Dec 04 2021 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt74
+- implement generic callback system (thx Oleg Solovyov mcpain@)
 
 * Fri Oct 29 2021 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt73
 - (tests) Report if a test (marked XFAIL) uneXpectedly passes (XPASS).
