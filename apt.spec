@@ -3,7 +3,7 @@
 
 Name: apt
 Version: 0.5.15lorg2
-Release: alt73
+Release: alt74
 
 Summary: Debian's Advanced Packaging Tool with RPM support
 Summary(ru_RU.UTF-8): Debian APT - Усовершенствованное средство управления пакетами с поддержкой RPM
@@ -513,6 +513,8 @@ seq 0 $((TRIES-1)) | xargs -I'{}' ${NPROCS:+-P$NPROCS --process-slot-var=PARALLE
 %_datadir/%name/tests/
 
 %changelog
+* Sat Dec 04 2021 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt74
+
 * Fri Oct 29 2021 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt73
 - (tests) Report if a test (marked XFAIL) uneXpectedly passes (XPASS).
 - (tests) Run them not in %%check, but in *-checkinstall subpkgs. (To break
