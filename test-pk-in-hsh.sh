@@ -14,6 +14,15 @@ set -o pipefail
 # (The idea could be implemented in an automated test
 # required by apt-checkinstall and packagekit-checkinstall.)
 
+case "$1" in
+    --ini*)
+	shift
+	readonly INI="$1"; shift
+	;;
+    *)
+	readonly INI=
+	;;
+esac
 readonly HSHDIR="$1"; shift
 
 run_sh_e()
@@ -30,29 +39,36 @@ run_sh_e()
 
 set -x
 
-# (run only once)
-hsh --ini --with-stuff "$HSHDIR"
-hsh-install "$HSHDIR" packagekit
+if [ -n "$INI" ]; then
+    # (run only once)
+    hsh --ini --with-stuff "$HSHDIR"
 
-# Prepare the hasher env for the tests with big repos in the sources.list
-#
-# * Either with the local repos and with the scripts from
-# git://git.altlinux.org/people/imz/public/hsh-setup-apt-with-same-sources-via-ssh.git :
+    # Prepare the hasher env for the tests with big repos in the sources.list
+    #
+    # * either with the local repos and with the scripts from
+    # git://git.altlinux.org/people/imz/public/hsh-setup-apt-with-same-sources-via-ssh.git
+    #
+    # * or with the public repos (and with the help of apt-repo)
 
-# (run only once)
-hsh-setup-ssh-to-localhost "$HSHDIR"
-hsh-setup-apt-with-same-sources-via-ssh --update "$HSHDIR"
-
-# * Or with the public repos and with apt-repo:
-
+    case "$INI" in
+	SAME)
+	    # (run only once)
+	    hsh-setup-ssh-to-localhost "$HSHDIR"
+	    # (can be run many times)
+	    hsh-setup-apt-with-same-sources-via-ssh --update "$HSHDIR"
+	    ;;
+	*)
+	    # (can be run many times)
+	    hsh-install "$HSHDIR" \
+			apt-conf-sisyphus \
+			apt-repo
+	    run_sh_e apt-repo add "$INI"
+	    run_sh_e apt-get update
+	    ;;
+    esac
+fi
 # (can be run many times)
-# hsh-install "$HSHDIR" \
-# 	    apt-conf-sisyphus \
-# 	    apt-repo \
-# 	    packagekit
-# run_sh_e 'apt-repo add sisyphus
-# 	  apt-repo
-# 	  apt-get update'
+hsh-install "$HSHDIR" packagekit
 
 # Test whether there is a crash during an action ("search-detail"):
 
