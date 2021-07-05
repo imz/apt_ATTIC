@@ -24,6 +24,10 @@ case "$1" in
 	;;
 esac
 readonly HSHDIR="$1"; shift
+[ $# -eq 0 ] || {
+    printf '%s: Too many arguments! (Only 1 hasher dir expected.)\n' "$0" >&2
+    exit 1
+}
 
 run_sh_e()
 {
