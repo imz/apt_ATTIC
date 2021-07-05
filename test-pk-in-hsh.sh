@@ -30,17 +30,29 @@ run_sh_e()
 
 set -x
 
-# Prepare our hasher env
-#hsh --ini --with-stuff "$HSHDIR"
-hsh-install "$HSHDIR" \
-	    apt-conf-sisyphus \
-	    apt-repo \
-	    packagekit
+# (run only once)
+hsh --ini --with-stuff "$HSHDIR"
+hsh-install "$HSHDIR" packagekit
 
-# The common setup for all tests, do just once (although we may repeat this, too).
-run_sh_e 'apt-repo add sisyphus
-	  apt-repo
-	  apt-get update'
+# Prepare the hasher env for the tests with big repos in the sources.list
+#
+# * Either with the local repos and with the scripts from
+# git://git.altlinux.org/people/imz/public/hsh-setup-apt-with-same-sources-via-ssh.git :
+
+# (run only once)
+hsh-setup-ssh-to-localhost "$HSHDIR"
+hsh-setup-apt-with-same-sources-via-ssh --update "$HSHDIR"
+
+# * Or with the public repos and with apt-repo:
+
+# (can be run many times)
+# hsh-install "$HSHDIR" \
+# 	    apt-conf-sisyphus \
+# 	    apt-repo \
+# 	    packagekit
+# run_sh_e 'apt-repo add sisyphus
+# 	  apt-repo
+# 	  apt-get update'
 
 # Test whether there is a crash during an action ("search-detail"):
 
