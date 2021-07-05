@@ -1,4 +1,4 @@
-#!/bin/sh -efuCx
+#!/bin/sh -efuC
 set -o pipefail
 
 # How to test PackageKit (in hasher).
@@ -27,6 +27,8 @@ run_sh_e()
     echo "$ret"
     return "$ret"
 }
+
+set -x
 
 # Prepare our hasher env
 #hsh --ini --with-stuff "$HSHDIR"
