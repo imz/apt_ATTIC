@@ -232,6 +232,8 @@ This package contains test suite for APT.
 %prep
 %setup -n %name-%version-%release
 
+./verify-src.sh
+
 # Fix url.
 sed -i 's,/usr/share/common-licenses/GPL,/usr/share/license/GPL,' COPYING
 
