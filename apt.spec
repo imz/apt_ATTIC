@@ -225,7 +225,6 @@ This package contains test suite for APT.
 %prep
 %setup -n %name-%version-%release
 
-%build
 # Fix url.
 sed -i 's,/usr/share/common-licenses/GPL,/usr/share/license/GPL,' COPYING
 
@@ -235,6 +234,7 @@ sed -i 's, > /dev/null 2>&1,,' buildlib/tools.m4
 # Add trivial arch translation.
 printf '%_target_cpu\t%_target_cpu' >> buildlib/archtable
 
+%build
 gettextize --force --quiet --no-changelog --symlink
 %autoreconf
 
