@@ -24,7 +24,7 @@ class debSystem : public pkgSystem
    public:
 
    virtual bool Lock();
-   virtual bool UnLock(bool NoErrors = false);
+   virtual bool UnLock(bool NoErrors);
    virtual pkgPackageManager *CreatePM(pkgDepCache *Cache) const;
    virtual bool Initialize(Configuration &Cnf);
    virtual bool ArchiveSupported(const char *Type);

@@ -62,7 +62,9 @@ class pkgSystem
    /* Prevent other programs from touching shared data not covered by
       other locks (cache or state locks) */
    virtual bool Lock() = 0;
-   virtual bool UnLock(bool NoErrors = false) = 0;
+   virtual bool UnLock(bool NoErrors) = 0;
+   /* a virtual method with default parameter is confusing; instead, define: */
+   bool UnLock() { return UnLock(false); }
 
    // CNC:2002-07-06
    virtual bool LockRead() {return true;}
