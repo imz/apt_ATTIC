@@ -55,7 +55,9 @@ class pkgIndexFile
    virtual string ArchiveInfo(pkgCache::VerIterator Ver) const;
    virtual string SourceInfo(pkgSrcRecords::Parser const &Record,
 			     pkgSrcRecords::File const &File) const;
-   virtual string Describe(bool Short = false) const = 0;
+   virtual string Describe(bool Short) const = 0;
+   /* a virtual method with default parameter is confusing; instead, define: */
+   string Describe() const { return Describe(false); }
 
    // Interface for acquire
    virtual string ArchiveURI(string /*File*/) const {return string();}
