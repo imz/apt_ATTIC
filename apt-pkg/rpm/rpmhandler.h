@@ -87,7 +87,10 @@ class RPMHandler
    virtual string SourceRpm() const = 0;
 
    virtual bool DepsList(unsigned int Type, std::vector<Dependency*> &Deps,
-			 bool checkInternalDep = true) const = 0;
+			 bool checkInternalDep) const = 0;
+   /* a virtual method with default parameter is confusing; instead, define: */
+   bool DepsList(const unsigned int Type, std::vector<Dependency*> &Deps) const
+   { return DepsList(Type,Deps,true); }
    virtual bool FileList(std::vector<string> &FileList) const = 0;
 
    virtual bool HasFile(const char *File) const;
@@ -127,7 +130,7 @@ class RPMHdrHandler : public RPMHandler
    virtual string SourceRpm() const override {return GetSTag(RPMTAG_SOURCERPM);}
 
    virtual bool DepsList(unsigned int Type, std::vector<Dependency*> &Deps,
-			 bool checkInternalDep = true) const override;
+			 bool checkInternalDep) const override;
    virtual bool FileList(std::vector<string> &FileList) const override;
 
    RPMHdrHandler() : RPMHandler(), HeaderP(0) {}
