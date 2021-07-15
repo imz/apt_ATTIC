@@ -45,7 +45,7 @@ class pkgRPMPM : public pkgPackageManager
    // The Actuall installation implementation
    virtual bool Install(PkgIterator Pkg,string File) override;
    virtual bool Configure(PkgIterator Pkg) override;
-   virtual bool Remove(PkgIterator Pkg,bool Purge = false) override;
+   virtual bool Remove(PkgIterator Pkg,bool Purge) override;
 
    virtual bool Process(const std::vector<apt_item> &install,
 		const std::vector<apt_item> &upgrade,

@@ -39,7 +39,7 @@ class pkgDPkgPM : public pkgPackageManager
    // The Actuall installation implementation
    virtual bool Install(PkgIterator Pkg,string File);
    virtual bool Configure(PkgIterator Pkg);
-   virtual bool Remove(PkgIterator Pkg,bool Purge = false);
+   virtual bool Remove(PkgIterator Pkg,bool Purge);
    virtual bool Go();
    virtual void Reset();
 
