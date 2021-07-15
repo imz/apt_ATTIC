@@ -34,7 +34,7 @@ class rpmSystem : public pkgSystem
 
    virtual bool LockRead() override;
    virtual bool Lock() override;
-   virtual bool UnLock(bool NoErrors = false) override;
+   virtual bool UnLock(bool NoErrors) override;
    virtual pkgPackageManager *CreatePM(pkgDepCache *Cache) const override;
    virtual bool Initialize(Configuration &Cnf) override;
    virtual bool ArchiveSupported(const char *Type) override;
