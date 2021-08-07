@@ -111,6 +111,7 @@ runtest() {
 	else
 		printf >&2 "${CTEST}Run Testcase ($(($ALL+1))/${TOTAL}) ${CHIGH}$testcase${CRESET}\n"
 	fi
+	APT_TEST_XFAIL="${APT_TEST_XFAIL:-$(case "${method:-}" in (http*) echo yes; ;; esac;)}" \
         APT_TEST_METHOD="${method:-}" \
 		./${testscript} && PASS=$((PASS+1)) || {
 			if ! [ $? -eq 255 ]; then
