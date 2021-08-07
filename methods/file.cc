@@ -73,7 +73,7 @@ bool FileMethod::Fetch(FetchItem *Itm)
    // the uncompressed file in the reply, so we shall then waste time
    // decompressing instead of optimally taking the uncompressed file
    // (if it exists).
-   string ComprExtension = _config->Find("Acquire::ComprExtension", ".gz");
+   string ComprExtension = _config->Find("Acquire::ComprExtension", ".bz2");
    string::size_type Pos = File.rfind(ComprExtension);
    if (Pos + ComprExtension.length() == File.length())
    {
