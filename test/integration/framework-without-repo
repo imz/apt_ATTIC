@@ -264,6 +264,10 @@ END
 				-o Acquire::CDROM::"$MOCKUP_CDROM_STORAGE/"::UMount=/bin/true
 				# this is needed not to statvfs of the emulated CDROM FS:
 				-o Debug::identcdrom=true
+				# FIXME: a quick hack to add more debugging opts
+				# for apt-get (non-cdrom-specific):
+				-o Acquire::Verbose=yes
+				-o Debug::pkgAcquire::Auth=yes
 			   )
 
 	msgdone 'info'
