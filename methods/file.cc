@@ -59,6 +59,20 @@ bool FileMethod::Fetch(FetchItem *Itm)
 
    // CNC:2003-11-04
    // See if we can compute a file without a .gz/.bz2/etc extension
+   //
+   // FIXME: For this to work, the extension tried here must match the
+   // extension in the item queued from the APT process. The bad thing
+   // seems to be that this download method doesn't get this
+   // configuration variable as initialized in the APT process; so,
+   // there can be a mismatch. The situation doesn't look so bad if
+   // several extensions are tried in a sequence when queuing: if at
+   // least one of them matches the only extension known by this
+   // method, then this trick will work. However, e.g., if ".xz" is
+   // queued in the first try, and the xz-compressed file actually exists,
+   // then if this method doesn't know about ".xz", it won't supply
+   // the uncompressed file in the reply, so we shall then waste time
+   // decompressing instead of optimally taking the uncompressed file
+   // (if it exists).
    string ComprExtension = _config->Find("Acquire::ComprExtension", ".bz2");
    string::size_type Pos = File.rfind(ComprExtension);
    if (Pos + ComprExtension.length() == File.length())
