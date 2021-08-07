@@ -30,7 +30,10 @@ generaterepository_and_switch_sources "$TMPWORKINGDIRECTORY/usr/src/RPM/RPMS"
 
 nginxstart
 
-testsuccess aptget update
+testsuccess aptget \
+	    -o Acquire::Verbose=yes \
+	    -o Debug::pkgAcquire::Auth=yes \
+	    update
 
 testpkgnotinstalled 'simple-package'
 testsuccess aptget install simple-package
