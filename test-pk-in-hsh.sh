@@ -59,7 +59,7 @@ if [ -n "$INI" ]; then
 	    # (run only once)
 	    hsh-setup-ssh-to-localhost "$HSHDIR"
 	    # (can be run many times)
-	    hsh-setup-apt-with-same-sources-via-ssh --update "$HSHDIR"
+	    hsh-setup-apt-with-same-sources-via-ssh "$HSHDIR"
 	    ;;
 	*)
 	    # (can be run many times)
@@ -67,9 +67,12 @@ if [ -n "$INI" ]; then
 			apt-conf-sisyphus \
 			apt-repo
 	    run_sh_e apt-repo add "$INI"
-	    run_sh_e apt-get update
 	    ;;
     esac
+    run_sh_e apt-get \
+	     -o Acquire::Verbose=yes \
+	     -o Debug::pkgAcquire::Auth=yes \
+	     update
 fi
 # (can be run many times)
 hsh-install "$HSHDIR" packagekit
