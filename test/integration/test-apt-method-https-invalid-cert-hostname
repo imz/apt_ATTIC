@@ -29,7 +29,10 @@ generaterepository_and_switch_sources "$TMPWORKINGDIRECTORY/usr/src/RPM/RPMS"
 
 nginxstart
 
-testfailure aptget update
+testfailure aptget \
+	    -o Acquire::Verbose=yes \
+	    -o Debug::pkgAcquire::Auth=yes \
+	    update
 
 testpkgnotinstalled 'conflicting-package-one'
 testfailure aptget install conflicting-package-one
