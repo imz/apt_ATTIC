@@ -55,7 +55,7 @@ using std::string;
 // ---------------------------------------------------------------------
 /* Returns false only if the checksums fail (the file not existing is not
    a checksum mismatch) */
-static bool VerifyChecksums(const string &File, unsigned long Size, const string &MD5)
+static bool VerifyChecksums(string File, unsigned long Size, string MD5)
 {
    struct stat Buf;
 
@@ -168,7 +168,7 @@ void pkgAcquire::Item::Done(const string Message,unsigned long Size,const string
 // ---------------------------------------------------------------------
 /* This helper function is used by alot of item methods as thier final
    step */
-void pkgAcquire::Item::Rename(const string &From, const string &To)
+void pkgAcquire::Item::Rename(string From,string To)
 {
    if (rename(From.c_str(),To.c_str()) != 0)
    {
@@ -187,7 +187,7 @@ void pkgAcquire::Item::Rename(const string &From, const string &To)
    instantiated to fetch the revision file */
 // CNC:2002-07-03
 pkgAcqIndex::pkgAcqIndex(pkgAcquire *Owner,pkgRepository *Repository,
-			 const string &URI, const string &URIDesc, const string &ShortDesc) :
+			 string URI,string URIDesc,string ShortDesc) :
                       Item(Owner), RealURI(URI), Repository(Repository)
 {
    Decompression = false;
@@ -387,7 +387,7 @@ void pkgAcqIndex::Done(const string Message,unsigned long Size,const string MD5,
 /* The Release file is added to the queue */
 // CNC:2002-07-03
 pkgAcqIndexRel::pkgAcqIndexRel(pkgAcquire *Owner,pkgRepository *Repository,
-			       const string &URI, const string &URIDesc, const string &ShortDesc,
+			       string URI,string URIDesc,string ShortDesc,
 			       bool Master) :
                       Item(Owner), RealURI(URI), Master(Master),
 		      Repository(Repository)
@@ -470,7 +470,7 @@ string pkgAcqIndexRel::Custom600Headers()
 /* The release file was not placed into the download directory then
    a copy URI is generated and it is copied there otherwise the file
    in the partial directory is moved into .. and the URI is finished. */
-void pkgAcqIndexRel::Done(const string Message,unsigned long Size,const string MD5,
+void pkgAcqIndexRel::Done(string Message,unsigned long Size,string MD5,
 			  pkgAcquire::MethodConfig *Cfg)
 {
    Item::Done(Message,Size,MD5,Cfg);
@@ -635,7 +635,7 @@ void pkgAcqIndexRel::Done(const string Message,unsigned long Size,const string M
 // AcqIndexRel::Failed - Silence failure messages for missing rel files	/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-void pkgAcqIndexRel::Failed(const string Message,pkgAcquire::MethodConfig *Cnf)
+void pkgAcqIndexRel::Failed(string Message,pkgAcquire::MethodConfig *Cnf)
 {
    if (Cnf->LocalOnly == true ||
        StringToBool(LookupTag(Message,"Transient-Failure"),false) == false)
@@ -835,7 +835,7 @@ static void ScriptsAcquireDone(const char *ConfKey,
 // AcqArchive::Done - Finished fetching					/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-void pkgAcqArchive::Done(const string Message,unsigned long Size,const string Md5Hash,
+void pkgAcqArchive::Done(string Message,unsigned long Size,string Md5Hash,
 			 pkgAcquire::MethodConfig *Cfg)
 {
    Item::Done(Message,Size,Md5Hash,Cfg);
@@ -908,7 +908,7 @@ void pkgAcqArchive::Done(const string Message,unsigned long Size,const string Md
 // AcqArchive::Failed - Failure handler					/*{{{*/
 // ---------------------------------------------------------------------
 /* Here we try other sources */
-void pkgAcqArchive::Failed(const string Message,pkgAcquire::MethodConfig *Cnf)
+void pkgAcqArchive::Failed(string Message,pkgAcquire::MethodConfig *Cnf)
 {
    ErrorText = LookupTag(Message,"Message");
 
@@ -958,8 +958,8 @@ void pkgAcqArchive::Finished()
 // AcqFile::pkgAcqFile - Constructor					/*{{{*/
 // ---------------------------------------------------------------------
 /* The file is added to the queue */
-pkgAcqFile::pkgAcqFile(pkgAcquire *Owner,const string &URI, const string &MD5,
-		       unsigned long Size, const string &Dsc, const string &ShortDesc) :
+pkgAcqFile::pkgAcqFile(pkgAcquire *Owner,string URI,string MD5,
+		       unsigned long Size,string Dsc,string ShortDesc) :
                        Item(Owner), Md5Hash(MD5)
 {
    Retries = _config->FindI("Acquire::Retries",0);
@@ -992,7 +992,7 @@ pkgAcqFile::pkgAcqFile(pkgAcquire *Owner,const string &URI, const string &MD5,
 // AcqFile::Done - Item downloaded OK					/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-void pkgAcqFile::Done(const string Message,unsigned long Size, const string MD5,
+void pkgAcqFile::Done(string Message,unsigned long Size,string MD5,
 		      pkgAcquire::MethodConfig *Cnf)
 {
    // Check the md5
@@ -1066,7 +1066,7 @@ void pkgAcqFile::Done(const string Message,unsigned long Size, const string MD5,
 // AcqFile::Failed - Failure handler					/*{{{*/
 // ---------------------------------------------------------------------
 /* Here we try other sources */
-void pkgAcqFile::Failed(const string Message,pkgAcquire::MethodConfig *Cnf)
+void pkgAcqFile::Failed(string Message,pkgAcquire::MethodConfig *Cnf)
 {
    ErrorText = LookupTag(Message,"Message");
 
