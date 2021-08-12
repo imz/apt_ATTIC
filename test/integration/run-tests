@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e
 
+# Some tests are "multiplied" by the method for accessing the repo (the one
+# specified in sources.list). The user may override them with this parameter.
+readonly -a APT_TEST_METHODS=(${APT_TEST_METHODS:-file cdrom})
+
 FAIL=0
 XFAIL=0
 XPASS=0
@@ -41,9 +45,6 @@ export APT_TEST_TARGET="${APT_TEST_TARGET-}"
 # The GPG key to apply rpm --import, so that all the tests are run with such db.
 # If empty, no GPG key is imported into the db.
 export APT_TEST_GPGPUBKEY="${APT_TEST_GPGPUBKEY-}"
-
-# One must choose the method to access the repo (specified in sources.list).
-export APT_TEST_METHOD="${APT_TEST_METHOD:-file}"
 
 # The compression options for the basedir can be forced by the environment.
 # (Some methods don't work without some option;
@@ -98,14 +99,19 @@ fi
 
 runtest() {
 	local -r testscript="$1"; shift
+	local method
+	if [ -n "${1-}" ]; then
+		local -r method="$1"; shift
+	fi
 
-	local -r testcase="$testscript"
+	local -r testcase="$testscript${method:+_via_$method}"
 	if [ "$MSGLEVEL" -le 2 ]; then
 		printf >&2 "($(($ALL+1))/${TOTAL}) ${CTEST}Testcase ${CHIGH}$testcase${CRESET}: "
 	else
 		printf >&2 "${CTEST}Run Testcase ($(($ALL+1))/${TOTAL}) ${CHIGH}$testcase${CRESET}\n"
 	fi
-	./${testscript} && PASS=$((PASS+1)) || {
+        APT_TEST_METHOD="${method:-}" \
+		./${testscript} && PASS=$((PASS+1)) || {
 			local -r testresult=$?
 			if [ "$testresult" -eq 255 ]; then
 				XFAIL=$((XFAIL+1))
@@ -129,14 +135,17 @@ runtest() {
 
 readonly -a TESTSCRIPTS_WITHOUT_REPO=($(ls $DIR | grep -Ee '^test-without-repo-'))
 readonly -a TESTSCRIPTS_WITH_REPO=($(ls $DIR | grep -Ee '^test-' | grep -v -Ee '^test-without-repo-'))
-readonly TOTAL=$(( ${#TESTSCRIPTS_WITHOUT_REPO[@]} + ${#TESTSCRIPTS_WITH_REPO[@]} ))
+readonly TOTAL=$(( ${#TESTSCRIPTS_WITHOUT_REPO[@]}
+		   + ${#TESTSCRIPTS_WITH_REPO[@]} * ${#APT_TEST_METHODS[@]} ))
 
 for testscript in "${TESTSCRIPTS_WITHOUT_REPO[@]}"; do
 	runtest "$testscript"
 done
 
+for method in "${APT_TEST_METHODS[@]}"; do
 for testscript in "${TESTSCRIPTS_WITH_REPO[@]}"; do
-	runtest "$testscript"
+	runtest "$testscript" "$method"
+done
 done
 
 echo >&2 "Statistics: $ALL tests were run: $PASS successfully and $FAIL failed and $XFAIL xfailed and $XPASS xpassed"
