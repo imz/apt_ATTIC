@@ -97,19 +97,19 @@ fi
 TOTAL="$(ls $DIR | egrep '^test-' | wc -l)"
 for testcase in $(ls $DIR | egrep '^test-'); do
 	if [ "$MSGLEVEL" -le 2 ]; then
-		printf "($(($ALL+1))/${TOTAL}) ${CTEST}Testcase ${CHIGH}$(basename ${testcase})${CRESET}: "
+		printf "($(($ALL+1))/${TOTAL}) ${CTEST}Testcase ${CHIGH}$testcase${CRESET}: "
 	else
-		printf "${CTEST}Run Testcase ($(($ALL+1))/${TOTAL}) ${CHIGH}$(basename ${testcase})${CRESET}\n"
+		printf "${CTEST}Run Testcase ($(($ALL+1))/${TOTAL}) ${CHIGH}$testcase${CRESET}\n"
 	fi
 	./${testcase} && PASS=$((PASS+1)) || {
 			if ! [ $? -eq 255 ]; then
 				FAIL=$((FAIL+1))
-				FAILED_TESTS="$FAILED_TESTS $(basename $testcase)"
-				echo >&2 "$(basename $testcase) ... FAIL"
+				FAILED_TESTS="$FAILED_TESTS $testcase"
+				echo >&2 "$testcase ... FAIL"
 			else
 				XFAIL=$((XFAIL+1))
-				XFAILED_TESTS="$XFAILED_TESTS $(basename $testcase)"
-				echo >&2 "$(basename $testcase) ... XFAIL"
+				XFAILED_TESTS="$XFAILED_TESTS $testcase"
+				echo >&2 "$testcase ... XFAIL"
 			fi
 	}
 	ALL=$((ALL+1))
