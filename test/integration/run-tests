@@ -119,6 +119,9 @@ for testcase in $(ls $DIR | egrep '^test-'); do
 done
 
 echo >&2 "Statistics: $ALL tests were run: $PASS successfully and $FAIL failed and $XFAIL xfailed"
+if [ -n "$XFAILED_TESTS" ]; then
+	echo >&2 "XFailed tests: $XFAILED_TESTS"
+fi
 if [ -n "$FAILED_TESTS" ]; then
 	echo >&2 "Failed tests: $FAILED_TESTS"
 else
