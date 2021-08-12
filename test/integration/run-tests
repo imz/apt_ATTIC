@@ -94,14 +94,16 @@ else
 	CRESET=''
 fi
 
-TOTAL="$(ls $DIR | egrep '^test-' | wc -l)"
-for testcase in $(ls $DIR | egrep '^test-'); do
+readonly -a TESTSCRIPTS=($(ls $DIR | grep -Ee '^test-'))
+readonly TOTAL="${#TESTSCRIPTS[@]}"
+for testscript in "${TESTSCRIPTS[@]}"; do
+	testcase="$testscript"
 	if [ "$MSGLEVEL" -le 2 ]; then
 		printf "($(($ALL+1))/${TOTAL}) ${CTEST}Testcase ${CHIGH}$testcase${CRESET}: "
 	else
 		printf "${CTEST}Run Testcase ($(($ALL+1))/${TOTAL}) ${CHIGH}$testcase${CRESET}\n"
 	fi
-	./${testcase} && PASS=$((PASS+1)) || {
+	./${testscript} && PASS=$((PASS+1)) || {
 			if ! [ $? -eq 255 ]; then
 				FAIL=$((FAIL+1))
 				FAILED_TESTS="$FAILED_TESTS $testcase"
