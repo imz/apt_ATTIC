@@ -94,10 +94,10 @@ else
 	CRESET=''
 fi
 
-readonly -a TESTSCRIPTS=($(ls $DIR | grep -Ee '^test-'))
-readonly TOTAL="${#TESTSCRIPTS[@]}"
-for testscript in "${TESTSCRIPTS[@]}"; do
-	testcase="$testscript"
+runtest() {
+	local -r testscript="$1"; shift
+
+	local -r testcase="$testscript"
 	if [ "$MSGLEVEL" -le 2 ]; then
 		printf "($(($ALL+1))/${TOTAL}) ${CTEST}Testcase ${CHIGH}$testcase${CRESET}: "
 	else
@@ -118,6 +118,12 @@ for testscript in "${TESTSCRIPTS[@]}"; do
 	if [ "$MSGLEVEL" -le 2 ]; then
 		echo
 	fi
+}
+
+readonly -a TESTSCRIPTS=($(ls $DIR | grep -Ee '^test-'))
+readonly TOTAL="${#TESTSCRIPTS[@]}"
+for testscript in "${TESTSCRIPTS[@]}"; do
+	runtest "$testscript"
 done
 
 echo >&2 "Statistics: $ALL tests were run: $PASS successfully and $FAIL failed and $XFAIL xfailed"
