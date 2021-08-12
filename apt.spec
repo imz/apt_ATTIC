@@ -335,12 +335,10 @@ export APT_TEST_TARGET="$system_arch"
 	METHODSDIR=%buildroot%_libdir/apt/methods \\\
 		./run-tests
 
-%runtests
+APT_TEST_METHODS='file cdrom' %runtests
 
-# The same tests, but via cdrom:
-APT_TEST_METHOD=cdrom %runtests
-# ...with a missing release:
-#APT_TEST_METHOD=cdrom_missing_release %%runtests
+# The same tests, but just via cdrom with a missing release:
+#APT_TEST_METHODS=cdrom_missing_release %%runtests
 
 # prepare data for rpm --import
 APT_TEST_GPGPUBKEY="$PWD"/example-pubkey.asc
