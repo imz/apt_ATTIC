@@ -127,9 +127,15 @@ runtest() {
 	fi
 }
 
-readonly -a TESTSCRIPTS=($(ls $DIR | grep -Ee '^test-'))
-readonly TOTAL="${#TESTSCRIPTS[@]}"
-for testscript in "${TESTSCRIPTS[@]}"; do
+readonly -a TESTSCRIPTS_WITHOUT_REPO=($(ls $DIR | grep -Ee '^test-without-repo-'))
+readonly -a TESTSCRIPTS_WITH_REPO=($(ls $DIR | grep -Ee '^test-' | grep -v -Ee '^test-without-repo-'))
+readonly TOTAL=$(( ${#TESTSCRIPTS_WITHOUT_REPO[@]} + ${#TESTSCRIPTS_WITH_REPO[@]} ))
+
+for testscript in "${TESTSCRIPTS_WITHOUT_REPO[@]}"; do
+	runtest "$testscript"
+done
+
+for testscript in "${TESTSCRIPTS_WITH_REPO[@]}"; do
 	runtest "$testscript"
 done
 
