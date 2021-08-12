@@ -2,7 +2,7 @@
 set -eu
 
 TESTDIR=$(readlink -f $(dirname $0))
-. $TESTDIR/framework
+. $TESTDIR/framework-without-repo
 
 if [ -z "${APT_TEST_GPGPUBKEY}" ]; then
 	msgskip
