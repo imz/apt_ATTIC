@@ -350,8 +350,14 @@ gpg-keygen --passphrase '' \
 
 export APT_TEST_GPGPUBKEY
 
+# Below we run the same tests many times in order to possibly catch
+# bad races. (It's more probable to catch a race under heavy load;
+# therefore, of the total specified number of tries, we do
+# simultaneously as many as reasonable and possibly even more than TRIES.)
+
 # To not run in parallel, build with --define 'nprocs_for_check %nil'
 %{?!nprocs_for_check:%global nprocs_for_check %__nprocs}
+# Consider multiplying %%__nprocs by 2 for heavier load.
 NPROCS=%nprocs_for_check
 TRIES=2
 if [ $TRIES -lt ${NPROCS:-0} ]; then
