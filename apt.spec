@@ -335,7 +335,8 @@ export APT_TEST_TARGET="$system_arch"
 	METHODSDIR=%buildroot%_libdir/apt/methods \\\
 		./run-tests
 
-APT_TEST_METHODS='file cdrom' %runtests
+# A quick test with just one method for the case without APT_TEST_GPGPUBKEY.
+APT_TEST_METHODS='file' %runtests
 
 # The same tests, but just via cdrom with a missing release:
 #APT_TEST_METHODS=cdrom_missing_release %%runtests
@@ -348,6 +349,10 @@ gpg-keygen --passphrase '' \
 
 export APT_TEST_GPGPUBKEY
 
+%runtests
+
+# Everything has been tested by now.
+#
 # Below we run the same tests many times in order to possibly catch
 # bad races. (It's more probable to catch a race under heavy load;
 # therefore, of the total specified number of tries, we do
