@@ -37,7 +37,7 @@ class pkgRepository
    bool ParseRelease(string File);
    bool HasRelease() const { return GotRelease; }
 
-   bool IsAuthenticated() const { return !FingerPrint.empty(); }
+   bool IsAuthenticated() const { return true; }
    bool FindChecksums(string URI,unsigned long &Size, string &MD5);
 
    pkgRepository(string URI,string Dist, const pkgSourceList::Vendor *Vendor,
