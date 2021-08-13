@@ -129,6 +129,42 @@ generaterepository_and_switch_sources() {
 		http|https|https_invalid_cert_hostname)
 			REPO_DIR="$TMPWORKINGDIRECTORY/nginx/repo"
 
+			case "$APT_TEST_METHOD" in
+				http)
+					nginxsetuphttp
+					;;
+				https*)
+					nginxsetuphttps
+
+					# generate key
+					case "$APT_TEST_METHOD" in
+						https_invalid_cert_hostname)
+							local -r cert_hostname=wronghost
+							;;
+						*)
+							local -r cert_hostname=localhost
+							;;
+					esac
+					openssl req -x509 \
+						-newkey rsa:4096 \
+						-keyout $TMPWORKINGDIRECTORY/nginx/cert.key \
+						-out $TMPWORKINGDIRECTORY/nginx/cert.crt \
+						-nodes \
+						-days 365 \
+						-subj "/CN=$cert_hostname" \
+					    &>/dev/null
+
+					# add key to apt's config. Also pin the key
+					cat > $TMPWORKINGDIRECTORY/rootdir/etc/apt/apt.conf.d/80https.conf <<- END
+					Acquire::https::CaInfo	"$TMPWORKINGDIRECTORY/nginx/cert.crt";
+					END
+
+					cat > $TMPWORKINGDIRECTORY/rootdir/etc/apt/apt.conf.d/81https-pinning.conf <<- END
+					Acquire::https::PinnedCert	"$TMPWORKINGDIRECTORY/nginx/cert.crt";
+					END
+					;;
+			esac
+
 			generaterepository "$ORIG_DIR" "$REPO_DIR" "$REPO_DATE"
 
 			# overwrite old sources.list
@@ -136,6 +172,8 @@ generaterepository_and_switch_sources() {
 				rpm ${APT_TEST_METHOD%%_*}://localhost:$((8080+PARALLEL_SLOT))/ $APT_TEST_USED_ARCH apt-tests
 				rpm ${APT_TEST_METHOD%%_*}://localhost:$((8080+PARALLEL_SLOT))/ noarch apt-tests
 			END
+
+			nginxstart
 			;;
 
 		cdrom|cdrom_missing_release)
