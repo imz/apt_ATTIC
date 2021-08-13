@@ -9,25 +9,9 @@ TESTDIR=$(readlink -f $(dirname $0))
 
 setupenvironment
 
-nginxsetuphttps
-
-# generate key
-openssl req -x509 -newkey rsa:4096 -keyout $TMPWORKINGDIRECTORY/nginx/cert.key -out $TMPWORKINGDIRECTORY/nginx/cert.crt -nodes -days 365 -subj '/CN=wronghost' &>/dev/null
-
-# add key to apt's config. Also pin the key
-cat > $TMPWORKINGDIRECTORY/rootdir/etc/apt/apt.conf.d/80https.conf << END
-Acquire::https::CaInfo	"$TMPWORKINGDIRECTORY/nginx/cert.crt";
-END
-
-cat > $TMPWORKINGDIRECTORY/rootdir/etc/apt/apt.conf.d/81https-pinning.conf << END
-Acquire::https::PinnedCert	"$TMPWORKINGDIRECTORY/nginx/cert.crt";
-END
-
 buildpackage 'simple-package'
 
 generaterepository_and_switch_sources "$TMPWORKINGDIRECTORY/usr/src/RPM/RPMS"
-
-nginxstart
 
 testfailure aptget update
 

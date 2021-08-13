@@ -9,13 +9,9 @@ TESTDIR=$(readlink -f $(dirname $0))
 
 setupenvironment
 
-nginxsetuphttp
-
 buildpackage 'simple-package'
 
 generaterepository_and_switch_sources "$TMPWORKINGDIRECTORY/usr/src/RPM/RPMS"
-
-nginxstart
 
 testsuccess aptget update
 
