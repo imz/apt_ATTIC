@@ -512,9 +512,13 @@ testpartsexhaust() {
 	local REGEXPART
 	for REGEXPART in "${REGEXPARTS[@]}"; do
 		if ! match_and_delete "$REGEXPART" RESULT; then
-			echo -e "\n${CINFO}A part couldn't be matched with the remaining result:${CNORMAL}"
+			echo -e "\n${CINFO}*** During matching parts with the output result, a part couldn't be matched.${CNORMAL}"
+			echo -e "${CINFO}The remaining unmatched result:${CNORMAL}"
+			echo -e "${CINFO}----------------------------------------${CNORMAL}"
 			echo "$RESULT"
+			echo -e "${CINFO}----------------------------------------${CNORMAL}"
 			echo -e "${CINFO}The part that didn't match:${CNORMAL}"
+			echo -e "${CINFO}----------------------------------------${CNORMAL}"
 			echo "$REGEXPART"
 			msgfail
 			return
