@@ -15,6 +15,6 @@ generaterepository_and_switch_sources "$TMPWORKINGDIRECTORY/usr/src/RPM/RPMS"
 
 testfailure aptget update
 
-testpkgnotinstalled 'conflicting-package-one'
-testfailure aptget install conflicting-package-one
-testpkgnotinstalled 'conflicting-package-one'
+testpkgnotinstalled 'simple-package'
+testfailure aptget install simple-package
+testpkgnotinstalled 'simple-package'
