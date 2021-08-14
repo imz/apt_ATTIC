@@ -1,9 +1,6 @@
 #!/bin/bash
 set -eu
 
-# a single test overriding the method
-APT_TEST_METHOD=http
-
 TESTDIR=$(readlink -f $(dirname $0))
 . $TESTDIR/framework
 
