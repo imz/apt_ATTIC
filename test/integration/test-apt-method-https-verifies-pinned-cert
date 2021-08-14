@@ -5,20 +5,8 @@ set -eu
 APT_TEST_METHOD=https
 
 TESTDIR=$(readlink -f $(dirname $0))
-. $TESTDIR/framework
 
-setupenvironment
-
-buildpackage 'simple-package'
-buildpackage 'conflicting-package-one'
-
-generaterepository_and_switch_sources "$TMPWORKINGDIRECTORY/usr/src/RPM/RPMS"
-
-testsuccess aptget update
-
-testpkgnotinstalled 'simple-package'
-testsuccess aptget install simple-package
-testpkginstalled 'simple-package'
+. $TESTDIR/test-apt-install-simple
 
 # generate another key, and pin apt to it. Check key pinning
 msgmsg 'Pinning invalid key in apt'
