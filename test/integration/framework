@@ -173,7 +173,7 @@ generaterepository_and_switch_sources() {
 				rpm ${APT_TEST_METHOD%%_*}://localhost:$((8080+PARALLEL_SLOT))/ noarch apt-tests
 			END
 
-			nginxstart
+			nginxrestart
 			;;
 
 		cdrom|cdrom_missing_release)
@@ -313,9 +313,15 @@ wait_for_file() {
 		done
 }
 
-nginxstart() {
+nginxrestart() {
 	local -r NGINXPIDFILE=$TMPWORKINGDIRECTORY/nginx/nginx.pid
 	local -r NGINXLOG=$TMPWORKINGDIRECTORY/nginx/process-stderr.log
+
+	! [ -s "$NGINXPIDFILE" ] || {
+		echo 'Stopping nginx with a signal (before a restart).'
+		kill -TERM "$(cat "$NGINXPIDFILE")"
+	} &>>"$NGINXLOG"
+	rm -f "$NGINXPIDFILE"
 
 	# The wait_for_file workaround would not be needed if nginx fully conformed
 	# to the "traditional UNIX forking daemon" behavior described
