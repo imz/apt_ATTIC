@@ -208,7 +208,7 @@ nginxsetuphttp() {
 	mkdir -p $TMPWORKINGDIRECTORY/nginx ||:
 	mkdir -p $TMPWORKINGDIRECTORY/nginx/tmp ||:
 
-cat >> $TMPWORKINGDIRECTORY/nginx/nginx.conf << ENDCONFIG
+	cat >| $TMPWORKINGDIRECTORY/nginx/nginx.conf << ENDCONFIG
 error_log stderr;
 worker_processes 1;
 pid $TMPWORKINGDIRECTORY/nginx/nginx.pid;
@@ -253,7 +253,7 @@ nginxsetuphttps() {
 	mkdir -p $TMPWORKINGDIRECTORY/nginx ||:
 	mkdir -p $TMPWORKINGDIRECTORY/nginx/tmp ||:
 
-	cat >> $TMPWORKINGDIRECTORY/nginx/nginx.conf << ENDCONFIG
+	cat >| $TMPWORKINGDIRECTORY/nginx/nginx.conf << ENDCONFIG
 error_log stderr;
 worker_processes 1;
 pid $TMPWORKINGDIRECTORY/nginx/nginx.pid;
