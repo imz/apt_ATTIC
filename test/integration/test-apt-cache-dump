@@ -31,6 +31,10 @@ case "$APT_TEST_METHOD" in
 		readonly ESCAPED_REPO="Distribution[^/_$NL]+Disk"
 		readonly SITE="Distribution$ANY+Disk"
 		;;
+	http*)
+		readonly ESCAPED_REPO='localhost(:[0-9]+)?'
+		readonly SITE='localhost'
+		;;
 	*)
 		readonly ESCAPED_REPO="${FNAME}_usr_src_RPM_REPO"
 		readonly SITE='[ ]*'
