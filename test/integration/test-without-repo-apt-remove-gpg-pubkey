@@ -2,12 +2,13 @@
 set -eu
 
 TESTDIR=$(readlink -f $(dirname $0))
-. $TESTDIR/framework-without-repo
 
 if [ -z "${APT_TEST_GPGPUBKEY}" ]; then
-	msgskip
+	echo 'SKIP (requires the presence of APT_TEST_GPGPUBKEY)' >&2
 	exit 0
 fi
+
+. $TESTDIR/framework-without-repo
 
 setupenvironment
 
