@@ -1,10 +1,17 @@
 #!/bin/bash
 set -eu
 
-# a single test overriding the method
-APT_TEST_METHOD=https
-
 TESTDIR=$(readlink -f $(dirname $0))
+
+case "$APT_TEST_METHOD" in
+	https*)
+		:
+		;;
+	*)
+		echo 'SKIP (makes sense only for APT_TEST_METHOD being https*)' >&2
+		exit 0
+		;;
+esac
 
 . $TESTDIR/framework-without-repo
 prereq $TESTDIR/test-apt-install-simple

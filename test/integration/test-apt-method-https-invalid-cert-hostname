@@ -1,10 +1,18 @@
 #!/bin/bash
 set -eu
 
-# a single test overriding the method
-APT_TEST_METHOD=https_invalid_cert_hostname
-
 TESTDIR=$(readlink -f $(dirname $0))
+
+case "$APT_TEST_METHOD" in
+	https*)
+		APT_TEST_METHOD=https_invalid_cert_hostname
+		;;
+	*)
+		echo 'SKIP (makes sense only for APT_TEST_METHOD being https*)' >&2
+		exit 0
+		;;
+esac
+
 . $TESTDIR/framework
 
 setupenvironment
