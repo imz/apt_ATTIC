@@ -2,13 +2,14 @@
 set -eu
 
 TESTDIR=$(readlink -f $(dirname $0))
-. $TESTDIR/framework
 
 # The hardcoded data below is wrong if there is an extra pkg in the db.
 if [ -n "$APT_TEST_GPGPUBKEY" ]; then
-	msgskip
+	echo 'SKIP (not ready for the presence of APT_TEST_GPGPUBKEY)' >&2
 	exit 0
 fi
+
+. $TESTDIR/framework
 
 setupenvironment
 
