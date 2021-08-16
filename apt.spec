@@ -303,9 +303,6 @@ Summary: Immediately test %name when installing this package (only basic tests)
 Group: Other
 BuildArch: noarch
 Requires(pre): %name-tests
-# Until test-apt-method-https isn't replaced
-# with a generic test-apt-install-simple, where the method won't be fixed.
-Requires(pre): %complete_reqs_of_tests
 
 %description basic-checkinstall
 Immediately test %name when installing this package.
