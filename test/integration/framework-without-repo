@@ -200,7 +200,9 @@ setupenvironment() {
 		  etc/apt/trusted.gpg.d etc/apt/preferences.d
 	mkdir -p var/cache var/lib/apt var/log tmp
 	mkdir -p var/lib/rpm
-	mkdir -p var/lib/apt/lists/partial var/cache/apt/archives/partial
+	# global var to be conveniently re-used in tests
+	readonly APT_LISTS_DIR="$PWD/var/lib/apt/lists"
+	mkdir -p "$APT_LISTS_DIR"/partial var/cache/apt/archives/partial
 	cd ..
 
 	{
