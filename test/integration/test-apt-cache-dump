@@ -55,45 +55,47 @@ case "$APT_TEST_METHOD" in
 		readonly SITE_RE
 		;;
 esac
-readonly NOARCH_PKGLIST="/$ANY*/rootdir/var/lib/apt/lists/${ENCODED_URI_RE}_noarch_base_pkglist\.apt-tests"
-readonly MYARCH_PKGLIST="/$ANY*/rootdir/var/lib/apt/lists/${ENCODED_URI_RE}_[^/_$NL]+_base_pkglist\.apt-tests"
+set_regex_quote_str APT_LISTS_DIR_RE "$APT_LISTS_DIR"
+readonly APT_LISTS_DIR_RE
+readonly PKGLIST_NOARCH_RE="$APT_LISTS_DIR_RE/${ENCODED_URI_RE}_noarch_base_pkglist\.apt-tests"
+readonly PKGLIST_MYARCH_RE="$APT_LISTS_DIR_RE/${ENCODED_URI_RE}_[^/_$NL]+_base_pkglist\.apt-tests"
 
 readonly -a dump_pkgs=(
 	"Package: conflicting-package-two
  Version: 1-alt1@[0-9]+
-     File: $MYARCH_PKGLIST
+     File: $PKGLIST_MYARCH_RE
   Depends: conflicting-package-one \(null\)"
 
 	"Package: no-such-package"
 
 	"Package: simple-package-noarch
  Version: 1-alt1@[0-9]+
-     File: $NOARCH_PKGLIST"
+     File: $PKGLIST_NOARCH_RE"
 
 	"Package: simple-package-new
  Version: 3-alt1@[0-9]+
-     File: $MYARCH_PKGLIST
+     File: $PKGLIST_MYARCH_RE
   Depends: simple-package 3-alt1
   Depends: simple-package 3-alt1"
 
 	"Package: missing-dependency
  Version: 1-alt1@[0-9]+
-     File: $MYARCH_PKGLIST
+     File: $PKGLIST_MYARCH_RE
   Depends: no-such-package \(null\)"
 
 	"Package: simple-package
  Version: 2-alt1@[0-9]+
-     File: $MYARCH_PKGLIST
+     File: $PKGLIST_MYARCH_RE
  Version: 1-alt1@[0-9]+
-     File: $MYARCH_PKGLIST"
+     File: $PKGLIST_MYARCH_RE"
 
 	"Package: conflicting-package-one
  Version: 2-alt1@[0-9]+
-     File: $MYARCH_PKGLIST
+     File: $PKGLIST_MYARCH_RE
   Depends: conflicting-package-two \(null\)
   Depends: simple-package \(null\)
  Version: 1-alt1@[0-9]+
-     File: $MYARCH_PKGLIST
+     File: $PKGLIST_MYARCH_RE
   Depends: conflicting-package-two \(null\)"
 
 )
@@ -131,7 +133,7 @@ readonly dump_rpmdb="File: /$ANY*/var/lib/rpm/Packages
 case "$APT_TEST_METHOD" in
 	cdrom_missing_release)
 		readonly -a dump_lists=(
-			"File: $NOARCH_PKGLIST
+			"File: $PKGLIST_NOARCH_RE
  Type: RPM Package Index
  Size: [0-9]+
  ID: [01]
@@ -145,7 +147,7 @@ case "$APT_TEST_METHOD" in
  Label: \(null\)
  Architecture: \(null\)"
 
-			"File: $MYARCH_PKGLIST
+			"File: $PKGLIST_MYARCH_RE
  Type: RPM Package Index
  Size: [0-9]+
  ID: [01]
@@ -163,7 +165,7 @@ case "$APT_TEST_METHOD" in
 		;;
 	*)
 		readonly -a dump_lists=(
-			"File: $NOARCH_PKGLIST
+			"File: $PKGLIST_NOARCH_RE
  Type: RPM Package Index
  Size: [0-9]+
  ID: [01]
@@ -177,7 +179,7 @@ case "$APT_TEST_METHOD" in
  Label: apt-tests
  Architecture: noarch"
 
-			"File: $MYARCH_PKGLIST
+			"File: $PKGLIST_MYARCH_RE
  Type: RPM Package Index
  Size: [0-9]+
  ID: [01]
