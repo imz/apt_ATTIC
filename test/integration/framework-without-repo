@@ -260,10 +260,10 @@ END
 	mkdir -p $TMPWORKINGDIRECTORY/bash/results
 
 	# emulate CDROM (without affecting the config)
-	CDROM_URI="$TMPWORKINGDIRECTORY/usr/src/RPM/DISK"
-	CDROM_OPTS=(-o Acquire::CDROM::Mount="$CDROM_URI"
-				-o Acquire::CDROM::"$CDROM_URI/"::Mount=/bin/true
-				-o Acquire::CDROM::"$CDROM_URI/"::UMount=/bin/true
+	MOCKUP_CDROM_STORAGE="$TMPWORKINGDIRECTORY/usr/src/RPM/DISK"
+	CDROM_OPTS=(-o Acquire::CDROM::Mount="$MOCKUP_CDROM_STORAGE"
+				-o Acquire::CDROM::"$MOCKUP_CDROM_STORAGE/"::Mount=/bin/true
+				-o Acquire::CDROM::"$MOCKUP_CDROM_STORAGE/"::UMount=/bin/true
 				# this is needed not to statvfs of the emulated CDROM FS:
 				-o Debug::identcdrom=true
 			   )
