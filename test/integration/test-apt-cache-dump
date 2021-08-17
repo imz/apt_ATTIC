@@ -37,7 +37,7 @@ case "$APT_TEST_METHOD" in
 		;;
 	*)
 		readonly ENCODED_URI_RE="${FNAME}_usr_src_RPM_REPO"
-		readonly SITE_RE='[ ]*'
+		readonly SITE_RE=''
 		;;
 esac
 readonly NOARCH_PKGLIST="/$ANY*/rootdir/var/lib/apt/lists/${ENCODED_URI_RE}_noarch_base_pkglist\.apt-tests"
@@ -109,7 +109,7 @@ readonly dump_rpmdb="File: /$ANY*/var/lib/rpm/Packages
  Component: \(null\)
  Version: \(null\)
  Origin: \(null\)
- Site:[ ]*
+ Site:[ ]
  Label: \(null\)
  Architecture: \(null\)"
 
