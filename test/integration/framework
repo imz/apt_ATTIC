@@ -194,7 +194,7 @@ generaterepository_and_switch_sources() {
 
 			# overwrite old sources.list
 			echo >| rootdir/etc/apt/sources.list
-			aptcdrom add
+			aptcdrom add <<<$'\n'
 			;;
 
 		*)
