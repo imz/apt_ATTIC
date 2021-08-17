@@ -12,9 +12,9 @@
 aptcdrom() { runapt apt-cdrom "${CDROM_OPTS[@]}" "$@"; }
 
 generaterepository() {
-	local ORIG_DIR="$1"
-	local REPO_DIR="$2"
-	local REPO_DATE="${3-}"
+	local orig_dir="$1"
+	local repo_dir="$2"
+	local repo_date="${3-}"
 
 	local label="$GB_REPO_LABEL"
 	if [ -z "$label" ]; then
@@ -28,8 +28,8 @@ generaterepository() {
 	local arch="$APT_TEST_USED_ARCH"
 	local comps="${label}"
 
-	if [ -n "$REPO_DATE" ] ; then
-		date_s="$REPO_DATE"
+	if [ -n "$repo_date" ] ; then
+		date_s="$repo_date"
 	fi
 
 	local archive="$GB_REPO_ARCHIVE"
@@ -73,12 +73,12 @@ generaterepository() {
 		esac
 	fi
 
-	rm -rf "$REPO_DIR"
+	rm -rf "$repo_dir"
 	for dir in ${arch} noarch ; do
-		mkdir -p "${REPO_DIR}/${dir}/RPMS.${label}"
-		mkdir -p "${REPO_DIR}/${dir}/base"
-		stat "${ORIG_DIR}/${dir}/"*.rpm &>/dev/null &&
-			cp "${ORIG_DIR}/${dir}/"*.rpm "${REPO_DIR}/${dir}/RPMS.${label}"/
+		mkdir -p "${repo_dir}/${dir}/RPMS.${label}"
+		mkdir -p "${repo_dir}/${dir}/base"
+		stat "${orig_dir}/${dir}/"*.rpm &>/dev/null &&
+			cp "${orig_dir}/${dir}/"*.rpm "${repo_dir}/${dir}/RPMS.${label}"/
 	done
 
 	mkdir -p "${TMPWORKINGDIRECTORY}/cache"
@@ -95,14 +95,14 @@ generaterepository() {
 			--origin="$origin" \
 			--suite="$suite" \
 			--version="$version" \
-			--topdir="$REPO_DIR" \
+			--topdir="$repo_dir" \
 			--changelog-since='@1' \
 			--flat --no-oldhashfile $compression_opts --mapi \
 			$dir $comps
 
-		if [ -n "$REPO_DATE" ] ; then
-			touch -t $(date --date=@${REPO_DATE} '+%Y%m%d%H%M.%S') \
-				  "${REPO_DIR}/${dir}/base/"*
+		if [ -n "$repo_date" ] ; then
+			touch -t $(date --date=@${repo_date} '+%Y%m%d%H%M.%S') \
+				  "${repo_dir}/${dir}/base/"*
 		fi
 	done
 }
