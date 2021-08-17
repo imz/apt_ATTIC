@@ -42,22 +42,19 @@ set_regex_quote_str() {
 case "$APT_TEST_METHOD" in
 	cdrom*)
 		readonly ENCODED_URI_RE="Distribution[^/_$NL]+Disk"
-		readonly SITE_RE="Distribution$ANY+Disk"
 		;;
 	http*)
 		ENCODED_URI="$(encode_uri_for_apt_lists "$NGINX_HOST:$NGINX_PORT")"
 		readonly ENCODED_URI
 		set_regex_quote_str ENCODED_URI_RE "$ENCODED_URI"
 		readonly ENCODED_URI_RE
-		set_regex_quote_str SITE_RE "$NGINX_HOST"
-		readonly SITE_RE
 		;;
 	*)
 		readonly ENCODED_URI_RE="${FNAME}_usr_src_RPM_REPO"
-		set_regex_quote_str SITE_RE ''
-		readonly SITE_RE
 		;;
 esac
+set_regex_quote_str APT_SOURCES_SITE_RE "$APT_SOURCES_SITE"
+readonly APT_SOURCES_SITE_RE
 set_regex_quote_str APT_LISTS_DIR_RE "$APT_LISTS_DIR"
 readonly APT_LISTS_DIR_RE
 readonly PKGLIST_NOARCH_RE="$APT_LISTS_DIR_RE/${ENCODED_URI_RE}_noarch_base_pkglist\.apt-tests"
@@ -146,7 +143,7 @@ case "$APT_TEST_METHOD" in
  Component: \(null\)
  Version: \(null\)
  Origin: \(null\)
- Site: $SITE_RE
+ Site: $APT_SOURCES_SITE_RE
  Label: \(null\)
  Architecture: \(null\)"
 
@@ -160,7 +157,7 @@ case "$APT_TEST_METHOD" in
  Component: \(null\)
  Version: \(null\)
  Origin: \(null\)
- Site: $SITE_RE
+ Site: $APT_SOURCES_SITE_RE
  Label: \(null\)
  Architecture: \(null\)"
 
@@ -178,7 +175,7 @@ case "$APT_TEST_METHOD" in
  Component: apt-tests
  Version: [0-9]+
  Origin: ALT Linux Team
- Site: $SITE_RE
+ Site: $APT_SOURCES_SITE_RE
  Label: apt-tests
  Architecture: noarch"
 
@@ -192,7 +189,7 @@ case "$APT_TEST_METHOD" in
  Component: apt-tests
  Version: [0-9]+
  Origin: ALT Linux Team
- Site: $SITE_RE
+ Site: $APT_SOURCES_SITE_RE
  Label: apt-tests
  Architecture: $APT_TEST_USED_ARCH"
 
