@@ -39,26 +39,16 @@ set_regex_quote_str() {
 }
 
 # paths occuring many times:
-case "$APT_TEST_METHOD" in
-	cdrom*)
-		readonly ENCODED_URI_RE="Distribution[^/_$NL]+Disk"
-		;;
-	http*)
-		ENCODED_URI="$(encode_uri_for_apt_lists "$NGINX_HOST:$NGINX_PORT")"
-		readonly ENCODED_URI
-		set_regex_quote_str ENCODED_URI_RE "$ENCODED_URI"
-		readonly ENCODED_URI_RE
-		;;
-	*)
-		readonly ENCODED_URI_RE="${FNAME}_usr_src_RPM_REPO"
-		;;
-esac
 set_regex_quote_str APT_SOURCES_SITE_RE "$APT_SOURCES_SITE"
 readonly APT_SOURCES_SITE_RE
+ENCODED_APT_SOURCES_URI="$(encode_uri_for_apt_lists "$APT_SOURCES_URI")"
+readonly ENCODED_APT_SOURCES_URI
+set_regex_quote_str ENCODED_APT_SOURCES_URI_RE "$ENCODED_APT_SOURCES_URI"
+readonly ENCODED_APT_SOURCES_URI_RE
 set_regex_quote_str APT_LISTS_DIR_RE "$APT_LISTS_DIR"
 readonly APT_LISTS_DIR_RE
-readonly PKGLIST_NOARCH_RE="$APT_LISTS_DIR_RE/${ENCODED_URI_RE}_noarch_base_pkglist\.apt-tests"
-readonly PKGLIST_MYARCH_RE="$APT_LISTS_DIR_RE/${ENCODED_URI_RE}_[^/_$NL]+_base_pkglist\.apt-tests"
+readonly PKGLIST_NOARCH_RE="$APT_LISTS_DIR_RE/${ENCODED_APT_SOURCES_URI_RE}_noarch_base_pkglist\.apt-tests"
+readonly PKGLIST_MYARCH_RE="$APT_LISTS_DIR_RE/${ENCODED_APT_SOURCES_URI_RE}_[^/_$NL]+_base_pkglist\.apt-tests"
 
 readonly -a dump_pkgs=(
 	"Package: conflicting-package-two
