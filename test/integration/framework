@@ -120,6 +120,8 @@ generaterepository() {
 # * files in $REPO_STORAGE
 # * server started to give the data to apt
 #   (or other actions, according to $APT_TEST_METHOD)
+# * global vars APT_SOURCES_SITE -- how apt sees its source repo:
+#   - APT_SOURCES_SITE is shown as "Site:" by apt-cache dump
 # * sources.list configured accordingly
 #
 # (The global vars are convenient for other scripts to refer to these values.)
@@ -219,25 +221,33 @@ generaterepository_and_switch_sources() {
 	esac
 
 	# Overwrite old sources.list.
+	#
+	# And set APT_SOURCES_SITE accordingly.
 	case "$APT_TEST_METHOD" in
 
 		cdrom*)
 			# overwrite old sources.list
 			echo >| rootdir/etc/apt/sources.list
 			aptcdrom add <<<$'\n'
+
+			APT_SOURCES_SITE="$(<"$MOCKUP_CDROM_STORAGE"/.disk/info)"
 			;;
 
 		file)
+			APT_SOURCES_SITE=''
+
 			cat >| rootdir/etc/apt/sources.list <<- END
-				rpm $APT_TEST_METHOD://$REPO_STORAGE $APT_TEST_USED_ARCH apt-tests
-				rpm $APT_TEST_METHOD://$REPO_STORAGE noarch apt-tests
+				rpm $APT_TEST_METHOD://$APT_SOURCES_SITE$REPO_STORAGE $APT_TEST_USED_ARCH apt-tests
+				rpm $APT_TEST_METHOD://$APT_SOURCES_SITE$REPO_STORAGE noarch apt-tests
 			END
 			;;
 
 		http*)
+			APT_SOURCES_SITE="$NGINX_HOST"
+
 			cat >| rootdir/etc/apt/sources.list <<- END
-				rpm ${APT_TEST_METHOD%%_*}://$NGINX_HOST:$NGINX_PORT/ $APT_TEST_USED_ARCH apt-tests
-				rpm ${APT_TEST_METHOD%%_*}://$NGINX_HOST:$NGINX_PORT/ noarch apt-tests
+				rpm ${APT_TEST_METHOD%%_*}://$APT_SOURCES_SITE:$NGINX_PORT/ $APT_TEST_USED_ARCH apt-tests
+				rpm ${APT_TEST_METHOD%%_*}://$APT_SOURCES_SITE:$NGINX_PORT/ noarch apt-tests
 			END
 			;;
 
