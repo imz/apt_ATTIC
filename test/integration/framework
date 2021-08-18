@@ -148,7 +148,7 @@ generaterepository_and_switch_sources() {
 					openssl req -x509 \
 						-newkey rsa:4096 \
 						-keyout $NGINX_KEY \
-						-out $TMPWORKINGDIRECTORY/nginx/cert.crt \
+						-out $NGINX_CRT \
 						-nodes \
 						-days 365 \
 						-subj "/CN=$cert_hostname" \
@@ -156,11 +156,11 @@ generaterepository_and_switch_sources() {
 
 					# add key to apt's config. Also pin the key
 					cat > $TMPWORKINGDIRECTORY/rootdir/etc/apt/apt.conf.d/80https.conf <<- END
-					Acquire::https::CaInfo	"$TMPWORKINGDIRECTORY/nginx/cert.crt";
+					Acquire::https::CaInfo	"$NGINX_CRT";
 					END
 
 					cat > $TMPWORKINGDIRECTORY/rootdir/etc/apt/apt.conf.d/81https-pinning.conf <<- END
-					Acquire::https::PinnedCert	"$TMPWORKINGDIRECTORY/nginx/cert.crt";
+					Acquire::https::PinnedCert	"$NGINX_CRT";
 					END
 					;;
 			esac
@@ -259,13 +259,14 @@ ENDCONFIG
 # Output/effects:
 # * global vars representing the actual configuration of the server
 #   (convenient for use in other scripts):
-#   NGINX_KEY, NGINX_PIDFILE
+#   NGINX_KEY, NGINX_CRT, NGINX_PIDFILE
 # * the server configured, ready for nginxrestart() (except for the key)
 nginxsetuphttps() {
 	mkdir -p $TMPWORKINGDIRECTORY/nginx
 	mkdir -p $TMPWORKINGDIRECTORY/nginx/tmp
 
 	NGINX_KEY=$TMPWORKINGDIRECTORY/nginx/cert.key
+	NGINX_CRT=$TMPWORKINGDIRECTORY/nginx/cert.crt
 	NGINX_PIDFILE=$TMPWORKINGDIRECTORY/nginx/nginx.pid
 
 	cat >| $TMPWORKINGDIRECTORY/nginx/nginx.conf << ENDCONFIG
@@ -300,7 +301,7 @@ http {
 		listen $((8080+PARALLEL_SLOT)) ssl;
 		server_name localhost localhost.localdomain;
 
-		ssl_certificate	$TMPWORKINGDIRECTORY/nginx/cert.crt;
+		ssl_certificate	$NGINX_CRT;
 		ssl_certificate_key	$NGINX_KEY;
 
 		ssl_session_cache	builtin:1000	shared:SSL:10m;
