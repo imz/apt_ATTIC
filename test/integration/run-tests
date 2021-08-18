@@ -97,9 +97,9 @@ fi
 TOTAL="$(ls $DIR | egrep '^test-' | wc -l)"
 for testcase in $(ls $DIR | egrep '^test-'); do
 	if [ "$MSGLEVEL" -le 2 ]; then
-		printf "($(($ALL+1))/${TOTAL}) ${CTEST}Testcase ${CHIGH}$testcase${CRESET}: "
+		printf >&2 "($(($ALL+1))/${TOTAL}) ${CTEST}Testcase ${CHIGH}$testcase${CRESET}: "
 	else
-		printf "${CTEST}Run Testcase ($(($ALL+1))/${TOTAL}) ${CHIGH}$testcase${CRESET}\n"
+		printf >&2 "${CTEST}Run Testcase ($(($ALL+1))/${TOTAL}) ${CHIGH}$testcase${CRESET}\n"
 	fi
 	./${testcase} && PASS=$((PASS+1)) || {
 			if ! [ $? -eq 255 ]; then
