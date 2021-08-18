@@ -204,14 +204,21 @@ generaterepository_and_switch_sources() {
 	esac
 }
 
+# Output/effects:
+# * global vars representing the actual configuration of the server
+#   (convenient for use in other scripts):
+#   NGINX_PIDFILE
+# * the server configured, ready for nginxrestart()
 nginxsetuphttp() {
 	mkdir -p $TMPWORKINGDIRECTORY/nginx
 	mkdir -p $TMPWORKINGDIRECTORY/nginx/tmp
 
+	NGINX_PIDFILE=$TMPWORKINGDIRECTORY/nginx/nginx.pid
+
 	cat >| $TMPWORKINGDIRECTORY/nginx/nginx.conf << ENDCONFIG
 error_log stderr;
 worker_processes 1;
-pid $TMPWORKINGDIRECTORY/nginx/nginx.pid;
+pid $NGINX_PIDFILE;
 
 events {
 	worker_connections  1024;
@@ -249,14 +256,21 @@ http {
 ENDCONFIG
 }
 
+# Output/effects:
+# * global vars representing the actual configuration of the server
+#   (convenient for use in other scripts):
+#   NGINX_PIDFILE
+# * the server configured, ready for nginxrestart() (except for the key)
 nginxsetuphttps() {
 	mkdir -p $TMPWORKINGDIRECTORY/nginx
 	mkdir -p $TMPWORKINGDIRECTORY/nginx/tmp
 
+	NGINX_PIDFILE=$TMPWORKINGDIRECTORY/nginx/nginx.pid
+
 	cat >| $TMPWORKINGDIRECTORY/nginx/nginx.conf << ENDCONFIG
 error_log stderr;
 worker_processes 1;
-pid $TMPWORKINGDIRECTORY/nginx/nginx.pid;
+pid $NGINX_PIDFILE;
 
 events {
 	worker_connections  1024;
@@ -314,14 +328,13 @@ wait_for_file() {
 }
 
 nginxrestart() {
-	local -r NGINXPIDFILE=$TMPWORKINGDIRECTORY/nginx/nginx.pid
 	local -r NGINXLOG=$TMPWORKINGDIRECTORY/nginx/process-stderr.log
 
-	! [ -s "$NGINXPIDFILE" ] || {
+	! [ -s "$NGINX_PIDFILE" ] || {
 		echo 'Stopping nginx with a signal (before a restart).'
-		kill -TERM "$(cat "$NGINXPIDFILE")"
+		kill -TERM "$(cat "$NGINX_PIDFILE")"
 	} &>>"$NGINXLOG"
-	rm -f "$NGINXPIDFILE"
+	rm -f "$NGINX_PIDFILE"
 
 	# The wait_for_file workaround would not be needed if nginx fully conformed
 	# to the "traditional UNIX forking daemon" behavior described
@@ -331,8 +344,8 @@ nginxrestart() {
 	# [1]: https://trac.nginx.org/nginx/ticket/1897
 	# [2]: http://mailman.nginx.org/pipermail/nginx-ru/2017-November/060628.html
 	/usr/sbin/nginx -c $TMPWORKINGDIRECTORY/nginx/nginx.conf -p $TMPWORKINGDIRECTORY &>>"$NGINXLOG" &&
-		wait_for_file "$NGINXPIDFILE" &&
-		local -r NGINXPID="$(cat "$NGINXPIDFILE" 2>>"$NGINXLOG")" &&
+		wait_for_file "$NGINX_PIDFILE" &&
+		local -r NGINXPID="$(cat "$NGINX_PIDFILE" 2>>"$NGINXLOG")" &&
 		[ -n "$NGINXPID" ] ||
 			{ { echo NGINXLOG:; cat "$NGINXLOG"; } >&2 ||:
 			  msgdie 'nginx failed to start normally'
