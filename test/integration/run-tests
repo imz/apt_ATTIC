@@ -104,9 +104,9 @@ runtest() {
 
 	local -r testcase="$testscript${method:+_via_$method}"
 	if [ "$MSGLEVEL" -le 2 ]; then
-		printf "($(($ALL+1))/${TOTAL}) ${CTEST}Testcase ${CHIGH}$testcase${CRESET}: "
+		printf >&2 "($(($ALL+1))/${TOTAL}) ${CTEST}Testcase ${CHIGH}$testcase${CRESET}: "
 	else
-		printf "${CTEST}Run Testcase ($(($ALL+1))/${TOTAL}) ${CHIGH}$testcase${CRESET}\n"
+		printf >&2 "${CTEST}Run Testcase ($(($ALL+1))/${TOTAL}) ${CHIGH}$testcase${CRESET}\n"
 	fi
         APT_TEST_METHOD="${method:-}" \
 		./${testscript} && PASS=$((PASS+1)) || {
