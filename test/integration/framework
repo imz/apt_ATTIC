@@ -205,8 +205,8 @@ generaterepository_and_switch_sources() {
 }
 
 nginxsetuphttp() {
-	mkdir -p $TMPWORKINGDIRECTORY/nginx ||:
-	mkdir -p $TMPWORKINGDIRECTORY/nginx/tmp ||:
+	mkdir -p $TMPWORKINGDIRECTORY/nginx
+	mkdir -p $TMPWORKINGDIRECTORY/nginx/tmp
 
 	cat >| $TMPWORKINGDIRECTORY/nginx/nginx.conf << ENDCONFIG
 error_log stderr;
@@ -250,8 +250,8 @@ ENDCONFIG
 }
 
 nginxsetuphttps() {
-	mkdir -p $TMPWORKINGDIRECTORY/nginx ||:
-	mkdir -p $TMPWORKINGDIRECTORY/nginx/tmp ||:
+	mkdir -p $TMPWORKINGDIRECTORY/nginx
+	mkdir -p $TMPWORKINGDIRECTORY/nginx/tmp
 
 	cat >| $TMPWORKINGDIRECTORY/nginx/nginx.conf << ENDCONFIG
 error_log stderr;
