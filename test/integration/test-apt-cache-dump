@@ -45,11 +45,10 @@ case "$APT_TEST_METHOD" in
 		readonly SITE_RE="Distribution$ANY+Disk"
 		;;
 	http*)
-		ENCODED_NGINX_HOST="$(encode_uri_for_apt_lists "$NGINX_HOST")"
-		readonly ENCODED_NGINX_HOST
-		set_regex_quote_str ENCODED_NGINX_HOST_RE "$ENCODED_NGINX_HOST"
-		readonly ENCODED_NGINX_HOST_RE
-		readonly ENCODED_URI_RE="$ENCODED_NGINX_HOST_RE(:[0-9]+)?"
+		ENCODED_URI="$(encode_uri_for_apt_lists "$NGINX_HOST:$NGINX_PORT")"
+		readonly ENCODED_URI
+		set_regex_quote_str ENCODED_URI_RE "$ENCODED_URI"
+		readonly ENCODED_URI_RE
 		set_regex_quote_str SITE_RE "$NGINX_HOST"
 		readonly SITE_RE
 		;;
