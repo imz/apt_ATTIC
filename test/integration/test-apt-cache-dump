@@ -25,6 +25,19 @@ readonly NL=$'\n'
 readonly ANY="[^$NL]"
 readonly FNAME="[^/$NL]+"
 
+set_regex_quote_str() {
+	local -r regex_var="$1"; shift
+	local -r str="$1"; shift
+
+	# FIXME: %q is not the correct quotation for regexes.
+	if [ -n "$str" ]; then
+		printf -v "$regex_var" '%q' "$str"
+	else
+		# workaround a problem of %q
+		printf -v "$regex_var" ''
+	fi
+}
+
 # paths occuring many times:
 case "$APT_TEST_METHOD" in
 	cdrom*)
@@ -33,11 +46,13 @@ case "$APT_TEST_METHOD" in
 		;;
 	http*)
 		readonly ENCODED_URI_RE='localhost(:[0-9]+)?'
-		readonly SITE_RE='localhost'
+		set_regex_quote_str SITE_RE 'localhost'
+		readonly SITE_RE
 		;;
 	*)
 		readonly ENCODED_URI_RE="${FNAME}_usr_src_RPM_REPO"
-		readonly SITE_RE=''
+		set_regex_quote_str SITE_RE ''
+		readonly SITE_RE
 		;;
 esac
 readonly NOARCH_PKGLIST="/$ANY*/rootdir/var/lib/apt/lists/${ENCODED_URI_RE}_noarch_base_pkglist\.apt-tests"
