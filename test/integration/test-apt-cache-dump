@@ -23,7 +23,6 @@ testsuccess aptget update
 # useful regexes:
 readonly NL=$'\n'
 readonly ANY="[^$NL]"
-readonly FNAME="[^/$NL]+"
 
 set_regex_quote_str() {
 	local -r regex_var="$1"; shift
@@ -39,53 +38,55 @@ set_regex_quote_str() {
 }
 
 # paths occuring many times:
+
 set_regex_quote_str APT_SOURCES_SITE_RE "$APT_SOURCES_SITE"
 readonly APT_SOURCES_SITE_RE
-ENCODED_APT_SOURCES_URI="$(encode_uri_for_apt_lists "$APT_SOURCES_URI")"
-readonly ENCODED_APT_SOURCES_URI
-set_regex_quote_str ENCODED_APT_SOURCES_URI_RE "$ENCODED_APT_SOURCES_URI"
-readonly ENCODED_APT_SOURCES_URI_RE
-set_regex_quote_str APT_LISTS_DIR_RE "$APT_LISTS_DIR"
-readonly APT_LISTS_DIR_RE
-readonly PKGLIST_NOARCH_RE="$APT_LISTS_DIR_RE/${ENCODED_APT_SOURCES_URI_RE}_noarch_base_pkglist\.apt-tests"
-readonly PKGLIST_MYARCH_RE="$APT_LISTS_DIR_RE/${ENCODED_APT_SOURCES_URI_RE}_[^/_$NL]+_base_pkglist\.apt-tests"
+
+readonly NOARCH_PKGLIST_URI="$APT_SOURCES_URI/$NOARCH_DISTRO/base/pkglist.apt-tests"
+readonly MYARCH_PKGLIST_URI="$APT_SOURCES_URI/$MYARCH_DISTRO/base/pkglist.apt-tests"
+readonly APT_FETCHED_NOARCH_PKGLIST="$APT_LISTS_DIR/$(encode_uri_for_apt_lists "$NOARCH_PKGLIST_URI")"
+readonly APT_FETCHED_MYARCH_PKGLIST="$APT_LISTS_DIR/$(encode_uri_for_apt_lists "$MYARCH_PKGLIST_URI")"
+set_regex_quote_str APT_FETCHED_NOARCH_PKGLIST_RE "$APT_FETCHED_NOARCH_PKGLIST"
+readonly APT_FETCHED_NOARCH_PKGLIST_RE
+set_regex_quote_str APT_FETCHED_MYARCH_PKGLIST_RE "$APT_FETCHED_MYARCH_PKGLIST"
+readonly APT_FETCHED_MYARCH_PKGLIST_RE
 
 readonly -a dump_pkgs=(
 	"Package: conflicting-package-two
  Version: 1-alt1@[0-9]+
-     File: $PKGLIST_MYARCH_RE
+     File: $APT_FETCHED_MYARCH_PKGLIST_RE
   Depends: conflicting-package-one \(null\)"
 
 	"Package: no-such-package"
 
 	"Package: simple-package-noarch
  Version: 1-alt1@[0-9]+
-     File: $PKGLIST_NOARCH_RE"
+     File: $APT_FETCHED_NOARCH_PKGLIST_RE"
 
 	"Package: simple-package-new
  Version: 3-alt1@[0-9]+
-     File: $PKGLIST_MYARCH_RE
+     File: $APT_FETCHED_MYARCH_PKGLIST_RE
   Depends: simple-package 3-alt1
   Depends: simple-package 3-alt1"
 
 	"Package: missing-dependency
  Version: 1-alt1@[0-9]+
-     File: $PKGLIST_MYARCH_RE
+     File: $APT_FETCHED_MYARCH_PKGLIST_RE
   Depends: no-such-package \(null\)"
 
 	"Package: simple-package
  Version: 2-alt1@[0-9]+
-     File: $PKGLIST_MYARCH_RE
+     File: $APT_FETCHED_MYARCH_PKGLIST_RE
  Version: 1-alt1@[0-9]+
-     File: $PKGLIST_MYARCH_RE"
+     File: $APT_FETCHED_MYARCH_PKGLIST_RE"
 
 	"Package: conflicting-package-one
  Version: 2-alt1@[0-9]+
-     File: $PKGLIST_MYARCH_RE
+     File: $APT_FETCHED_MYARCH_PKGLIST_RE
   Depends: conflicting-package-two \(null\)
   Depends: simple-package \(null\)
  Version: 1-alt1@[0-9]+
-     File: $PKGLIST_MYARCH_RE
+     File: $APT_FETCHED_MYARCH_PKGLIST_RE
   Depends: conflicting-package-two \(null\)"
 
 )
@@ -123,7 +124,7 @@ readonly dump_rpmdb="File: /$ANY*/var/lib/rpm/Packages
 case "$APT_TEST_METHOD" in
 	cdrom_missing_release)
 		readonly -a dump_lists=(
-			"File: $PKGLIST_NOARCH_RE
+			"File: $APT_FETCHED_NOARCH_PKGLIST_RE
  Type: RPM Package Index
  Size: [0-9]+
  ID: [01]
@@ -137,7 +138,7 @@ case "$APT_TEST_METHOD" in
  Label: \(null\)
  Architecture: \(null\)"
 
-			"File: $PKGLIST_MYARCH_RE
+			"File: $APT_FETCHED_MYARCH_PKGLIST_RE
  Type: RPM Package Index
  Size: [0-9]+
  ID: [01]
@@ -155,7 +156,7 @@ case "$APT_TEST_METHOD" in
 		;;
 	*)
 		readonly -a dump_lists=(
-			"File: $PKGLIST_NOARCH_RE
+			"File: $APT_FETCHED_NOARCH_PKGLIST_RE
  Type: RPM Package Index
  Size: [0-9]+
  ID: [01]
@@ -169,7 +170,7 @@ case "$APT_TEST_METHOD" in
  Label: apt-tests
  Architecture: noarch"
 
-			"File: $PKGLIST_MYARCH_RE
+			"File: $APT_FETCHED_MYARCH_PKGLIST_RE
  Type: RPM Package Index
  Size: [0-9]+
  ID: [01]
