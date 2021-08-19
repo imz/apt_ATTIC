@@ -28,20 +28,20 @@ readonly FNAME="[^/$NL]+"
 # paths occuring many times:
 case "$APT_TEST_METHOD" in
 	cdrom*)
-		readonly ESCAPED_REPO="Distribution[^/_$NL]+Disk"
-		readonly SITE="Distribution$ANY+Disk"
+		readonly ENCODED_URI_RE="Distribution[^/_$NL]+Disk"
+		readonly SITE_RE="Distribution$ANY+Disk"
 		;;
 	http*)
-		readonly ESCAPED_REPO='localhost(:[0-9]+)?'
-		readonly SITE='localhost'
+		readonly ENCODED_URI_RE='localhost(:[0-9]+)?'
+		readonly SITE_RE='localhost'
 		;;
 	*)
-		readonly ESCAPED_REPO="${FNAME}_usr_src_RPM_REPO"
-		readonly SITE='[ ]*'
+		readonly ENCODED_URI_RE="${FNAME}_usr_src_RPM_REPO"
+		readonly SITE_RE='[ ]*'
 		;;
 esac
-readonly NOARCH_PKGLIST="/$ANY*/rootdir/var/lib/apt/lists/${ESCAPED_REPO}_noarch_base_pkglist\.apt-tests"
-readonly MYARCH_PKGLIST="/$ANY*/rootdir/var/lib/apt/lists/${ESCAPED_REPO}_[^/_$NL]+_base_pkglist\.apt-tests"
+readonly NOARCH_PKGLIST="/$ANY*/rootdir/var/lib/apt/lists/${ENCODED_URI_RE}_noarch_base_pkglist\.apt-tests"
+readonly MYARCH_PKGLIST="/$ANY*/rootdir/var/lib/apt/lists/${ENCODED_URI_RE}_[^/_$NL]+_base_pkglist\.apt-tests"
 
 readonly -a dump_pkgs=(
 	"Package: conflicting-package-two
@@ -126,7 +126,7 @@ case "$APT_TEST_METHOD" in
  Component: \(null\)
  Version: \(null\)
  Origin: \(null\)
- Site: $SITE
+ Site: $SITE_RE
  Label: \(null\)
  Architecture: \(null\)"
 
@@ -140,7 +140,7 @@ case "$APT_TEST_METHOD" in
  Component: \(null\)
  Version: \(null\)
  Origin: \(null\)
- Site: $SITE
+ Site: $SITE_RE
  Label: \(null\)
  Architecture: \(null\)"
 
@@ -158,7 +158,7 @@ case "$APT_TEST_METHOD" in
  Component: apt-tests
  Version: [0-9]+
  Origin: ALT Linux Team
- Site: $SITE
+ Site: $SITE_RE
  Label: apt-tests
  Architecture: noarch"
 
@@ -172,7 +172,7 @@ case "$APT_TEST_METHOD" in
  Component: apt-tests
  Version: [0-9]+
  Origin: ALT Linux Team
- Site: $SITE
+ Site: $SITE_RE
  Label: apt-tests
  Architecture: $APT_TEST_USED_ARCH"
 
