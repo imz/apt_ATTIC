@@ -107,78 +107,92 @@ generaterepository() {
 	done
 }
 
+# Input:
+# * args ORIG_DIR [REPO_DATE]
+# * files in $ORIG_DIR
+# * global var APT_TEST_METHOD
+#
+# Output/effects:
+# * server configured to give the data to apt
+#   (or other actions, according to $APT_TEST_METHOD)
+# * global var REPO_STORAGE -- where we physically store the data given to apt
+#   (it will be set depending on $APT_TEST_METHOD)
+# * files in $REPO_STORAGE
+# * server started to give the data to apt
+#   (or other actions, according to $APT_TEST_METHOD)
+# * sources.list configured accordingly
+#
+# (The global vars are convenient for other scripts to refer to these values.)
 generaterepository_and_switch_sources() {
 	local -r ORIG_DIR="$1"
-	local REPO_DIR # will be set depending on the method
 	local -r REPO_DATE="${2-}"
 
+	# Configure the server to give the data to apt
+	# (or other actions, according to $APT_TEST_METHOD).
+	#
+	# And set REPO_STORAGE accordingly.
 	case "$APT_TEST_METHOD" in
 
 		file)
-			REPO_DIR="$TMPWORKINGDIRECTORY/usr/src/RPM/REPO"
-
-			generaterepository "$ORIG_DIR" "$REPO_DIR" "$REPO_DATE"
-
-			# overwrite old sources.list
-			cat >| rootdir/etc/apt/sources.list <<- END
-				rpm $APT_TEST_METHOD://$REPO_DIR $APT_TEST_USED_ARCH apt-tests
-				rpm $APT_TEST_METHOD://$REPO_DIR noarch apt-tests
-			END
+			REPO_STORAGE="$TMPWORKINGDIRECTORY/usr/src/RPM/REPO"
 			;;
 
-		http|https|https_invalid_cert_hostname)
-			case "$APT_TEST_METHOD" in
-				http)
-					nginxsetuphttp
-					;;
-				https*)
-					nginxsetuphttps
+		http)
+			nginxsetuphttp
+			REPO_STORAGE="$NGINX_STORAGE"
+			;;
 
-					# generate key
-					case "$APT_TEST_METHOD" in
-						https_invalid_cert_hostname)
-							local -r cert_hostname=wrong-"$NGINX_HOST"
-							;;
-						*)
-							local -r cert_hostname="$NGINX_HOST"
-							;;
-					esac
-					openssl req -x509 \
-						-newkey rsa:4096 \
-						-keyout $NGINX_KEY \
-						-out $NGINX_CRT \
-						-nodes \
-						-days 365 \
-						-subj "/CN=$cert_hostname" \
-					    &>/dev/null
-
-					# add key to apt's config. Also pin the key
-					cat > $TMPWORKINGDIRECTORY/rootdir/etc/apt/apt.conf.d/80https.conf <<- END
-					Acquire::https::CaInfo	"$NGINX_CRT";
-					END
-
-					cat > $TMPWORKINGDIRECTORY/rootdir/etc/apt/apt.conf.d/81https-pinning.conf <<- END
-					Acquire::https::PinnedCert	"$NGINX_CRT";
-					END
-					;;
-			esac
-
-			REPO_DIR="$NGINX_STORAGE"
-
-			generaterepository "$ORIG_DIR" "$REPO_DIR" "$REPO_DATE"
-
-			# overwrite old sources.list
-			cat >| rootdir/etc/apt/sources.list <<- END
-				rpm ${APT_TEST_METHOD%%_*}://$NGINX_HOST:$NGINX_PORT/ $APT_TEST_USED_ARCH apt-tests
-				rpm ${APT_TEST_METHOD%%_*}://$NGINX_HOST:$NGINX_PORT/ noarch apt-tests
-			END
-
-			nginxrestart
+		https|https_invalid_cert_hostname)
+			nginxsetuphttps
+			REPO_STORAGE="$NGINX_STORAGE"
 			;;
 
 		cdrom|cdrom_missing_release)
+			REPO_STORAGE="$MOCKUP_CDROM_STORAGE"
+			;;
 
-			generaterepository "$ORIG_DIR" "$MOCKUP_CDROM_STORAGE" "$REPO_DATE"
+		*)
+			msgdie 'unknown $APT_TEST_METHOD'
+			;;
+
+	esac
+
+	# Put the files into $REPO_STORAGE.
+	generaterepository "$ORIG_DIR" "$REPO_STORAGE" "$REPO_DATE"
+
+	# Additional configuration for the server or other methods.
+	case "$APT_TEST_METHOD" in
+
+		https*)
+			# generate key
+			case "$APT_TEST_METHOD" in
+				https_invalid_cert_hostname)
+					local -r cert_hostname=wrong-"$NGINX_HOST"
+					;;
+				*)
+					local -r cert_hostname="$NGINX_HOST"
+					;;
+			esac
+			openssl req -x509 \
+				-newkey rsa:4096 \
+				-keyout $NGINX_KEY \
+				-out $NGINX_CRT \
+				-nodes \
+				-days 365 \
+				-subj "/CN=$cert_hostname" \
+			    &>/dev/null
+
+			# add key to apt's config. Also pin the key
+			cat >| $TMPWORKINGDIRECTORY/rootdir/etc/apt/apt.conf.d/80https.conf <<- END
+			Acquire::https::CaInfo	"$NGINX_CRT";
+			END
+
+			cat >| $TMPWORKINGDIRECTORY/rootdir/etc/apt/apt.conf.d/81https-pinning.conf <<- END
+			Acquire::https::PinnedCert	"$NGINX_CRT";
+			END
+			;;
+
+		cdrom*)
 			mkdir "$MOCKUP_CDROM_STORAGE"/.disk
 			# trailing whitespace here might be misinterpreted
 			echo "Distribution $REPO_DATE Disk" >"$MOCKUP_CDROM_STORAGE"/.disk/info
@@ -191,14 +205,40 @@ generaterepository_and_switch_sources() {
 					find "$MOCKUP_CDROM_STORAGE"/*/base -name 'release*' -print -delete
 					;;
 			esac
+			;;
 
+	esac
+
+	# Start the server.
+	case "$APT_TEST_METHOD" in
+
+		http*)
+			nginxrestart
+			;;
+
+	esac
+
+	# Overwrite old sources.list.
+	case "$APT_TEST_METHOD" in
+
+		cdrom*)
 			# overwrite old sources.list
 			echo >| rootdir/etc/apt/sources.list
 			aptcdrom add <<<$'\n'
 			;;
 
-		*)
-			msgdie 'unknown $APT_TEST_METHOD'
+		file)
+			cat >| rootdir/etc/apt/sources.list <<- END
+				rpm $APT_TEST_METHOD://$REPO_STORAGE $APT_TEST_USED_ARCH apt-tests
+				rpm $APT_TEST_METHOD://$REPO_STORAGE noarch apt-tests
+			END
+			;;
+
+		http*)
+			cat >| rootdir/etc/apt/sources.list <<- END
+				rpm ${APT_TEST_METHOD%%_*}://$NGINX_HOST:$NGINX_PORT/ $APT_TEST_USED_ARCH apt-tests
+				rpm ${APT_TEST_METHOD%%_*}://$NGINX_HOST:$NGINX_PORT/ noarch apt-tests
+			END
 			;;
 
 	esac
