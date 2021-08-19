@@ -169,8 +169,8 @@ generaterepository_and_switch_sources() {
 
 			# overwrite old sources.list
 			cat >| rootdir/etc/apt/sources.list <<- END
-				rpm ${APT_TEST_METHOD%%_*}://$NGINX_HOST:$((8080+PARALLEL_SLOT))/ $APT_TEST_USED_ARCH apt-tests
-				rpm ${APT_TEST_METHOD%%_*}://$NGINX_HOST:$((8080+PARALLEL_SLOT))/ noarch apt-tests
+				rpm ${APT_TEST_METHOD%%_*}://$NGINX_HOST:$NGINX_PORT/ $APT_TEST_USED_ARCH apt-tests
+				rpm ${APT_TEST_METHOD%%_*}://$NGINX_HOST:$NGINX_PORT/ noarch apt-tests
 			END
 
 			nginxrestart
@@ -207,13 +207,14 @@ generaterepository_and_switch_sources() {
 # Output/effects:
 # * global vars representing the actual configuration of the server
 #   (convenient for use in other scripts):
-#   NGINX_HOST, NGINX_PIDFILE
+#   NGINX_HOST, NGINX_PORT, NGINX_PIDFILE
 # * the server configured, ready for nginxrestart()
 nginxsetuphttp() {
 	mkdir -p $TMPWORKINGDIRECTORY/nginx
 	mkdir -p $TMPWORKINGDIRECTORY/nginx/tmp
 
 	NGINX_HOST=localhost
+	NGINX_PORT=$((8080+PARALLEL_SLOT))
 	NGINX_PIDFILE=$TMPWORKINGDIRECTORY/nginx/nginx.pid
 
 	cat >| $TMPWORKINGDIRECTORY/nginx/nginx.conf << ENDCONFIG
@@ -245,7 +246,7 @@ http {
 	error_log stderr;
 
 	server {
-		listen $((8080+PARALLEL_SLOT));
+		listen $NGINX_PORT;
 		server_name $NGINX_HOST localhost.localdomain;
 
 		location / {
@@ -260,13 +261,14 @@ ENDCONFIG
 # Output/effects:
 # * global vars representing the actual configuration of the server
 #   (convenient for use in other scripts):
-#   NGINX_HOST, NGINX_KEY, NGINX_CRT, NGINX_PIDFILE
+#   NGINX_HOST, NGINX_PORT, NGINX_KEY, NGINX_CRT, NGINX_PIDFILE
 # * the server configured, ready for nginxrestart() (except for the key)
 nginxsetuphttps() {
 	mkdir -p $TMPWORKINGDIRECTORY/nginx
 	mkdir -p $TMPWORKINGDIRECTORY/nginx/tmp
 
 	NGINX_HOST=localhost
+	NGINX_PORT=$((8080+PARALLEL_SLOT))
 	NGINX_KEY=$TMPWORKINGDIRECTORY/nginx/cert.key
 	NGINX_CRT=$TMPWORKINGDIRECTORY/nginx/cert.crt
 	NGINX_PIDFILE=$TMPWORKINGDIRECTORY/nginx/nginx.pid
@@ -300,7 +302,7 @@ http {
 	error_log stderr;
 
 	server {
-		listen $((8080+PARALLEL_SLOT)) ssl;
+		listen $NGINX_PORT ssl;
 		server_name $NGINX_HOST localhost.localdomain;
 
 		ssl_certificate	$NGINX_CRT;
