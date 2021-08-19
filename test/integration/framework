@@ -127,8 +127,6 @@ generaterepository_and_switch_sources() {
 			;;
 
 		http|https|https_invalid_cert_hostname)
-			REPO_DIR="$TMPWORKINGDIRECTORY/nginx/repo"
-
 			case "$APT_TEST_METHOD" in
 				http)
 					nginxsetuphttp
@@ -164,6 +162,8 @@ generaterepository_and_switch_sources() {
 					END
 					;;
 			esac
+
+			REPO_DIR="$NGINX_STORAGE"
 
 			generaterepository "$ORIG_DIR" "$REPO_DIR" "$REPO_DATE"
 
@@ -207,7 +207,7 @@ generaterepository_and_switch_sources() {
 # Output/effects:
 # * global vars representing the actual configuration of the server
 #   (convenient for use in other scripts):
-#   NGINX_HOST, NGINX_PORT, NGINX_PIDFILE
+#   NGINX_HOST, NGINX_PORT, NGINX_STORAGE, NGINX_PIDFILE
 # * the server configured, ready for nginxrestart()
 nginxsetuphttp() {
 	mkdir -p $TMPWORKINGDIRECTORY/nginx
@@ -215,6 +215,7 @@ nginxsetuphttp() {
 
 	NGINX_HOST=localhost
 	NGINX_PORT=$((8080+PARALLEL_SLOT))
+	NGINX_STORAGE=$TMPWORKINGDIRECTORY/nginx/repo
 	NGINX_PIDFILE=$TMPWORKINGDIRECTORY/nginx/nginx.pid
 
 	cat >| $TMPWORKINGDIRECTORY/nginx/nginx.conf << ENDCONFIG
@@ -250,7 +251,7 @@ http {
 		server_name $NGINX_HOST localhost.localdomain;
 
 		location / {
-			root $TMPWORKINGDIRECTORY/nginx/repo;
+			root $NGINX_STORAGE;
 			autoindex on;
 		}
 	}
@@ -261,7 +262,7 @@ ENDCONFIG
 # Output/effects:
 # * global vars representing the actual configuration of the server
 #   (convenient for use in other scripts):
-#   NGINX_HOST, NGINX_PORT, NGINX_KEY, NGINX_CRT, NGINX_PIDFILE
+#   NGINX_HOST, NGINX_PORT, NGINX_KEY, NGINX_CRT, NGINX_STORAGE, NGINX_PIDFILE
 # * the server configured, ready for nginxrestart() (except for the key)
 nginxsetuphttps() {
 	mkdir -p $TMPWORKINGDIRECTORY/nginx
@@ -271,6 +272,7 @@ nginxsetuphttps() {
 	NGINX_PORT=$((8080+PARALLEL_SLOT))
 	NGINX_KEY=$TMPWORKINGDIRECTORY/nginx/cert.key
 	NGINX_CRT=$TMPWORKINGDIRECTORY/nginx/cert.crt
+	NGINX_STORAGE=$TMPWORKINGDIRECTORY/nginx/repo
 	NGINX_PIDFILE=$TMPWORKINGDIRECTORY/nginx/nginx.pid
 
 	cat >| $TMPWORKINGDIRECTORY/nginx/nginx.conf << ENDCONFIG
@@ -314,7 +316,7 @@ http {
 		ssl_prefer_server_ciphers on;
 
 		location / {
-			root $TMPWORKINGDIRECTORY/nginx/repo;
+			root $NGINX_STORAGE;
 			autoindex on;
 		}
 	}
