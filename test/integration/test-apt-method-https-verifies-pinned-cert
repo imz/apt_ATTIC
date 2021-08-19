@@ -24,7 +24,7 @@ openssl req -x509 \
 	-out "$ANOTHER_CRT" \
 	-nodes \
 	-days 365 \
-	-subj '/CN=localhost' \
+	-subj "/CN=$NGINX_HOST" \
     &>/dev/null
 
 cat >| $TMPWORKINGDIRECTORY/rootdir/etc/apt/apt.conf.d/81https-pinning.conf << END
