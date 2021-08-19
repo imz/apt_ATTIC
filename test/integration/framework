@@ -139,10 +139,10 @@ generaterepository_and_switch_sources() {
 					# generate key
 					case "$APT_TEST_METHOD" in
 						https_invalid_cert_hostname)
-							local -r cert_hostname=wronghost
+							local -r cert_hostname=wrong-"$NGINX_HOST"
 							;;
 						*)
-							local -r cert_hostname=localhost
+							local -r cert_hostname="$NGINX_HOST"
 							;;
 					esac
 					openssl req -x509 \
@@ -169,8 +169,8 @@ generaterepository_and_switch_sources() {
 
 			# overwrite old sources.list
 			cat >| rootdir/etc/apt/sources.list <<- END
-				rpm ${APT_TEST_METHOD%%_*}://localhost:$((8080+PARALLEL_SLOT))/ $APT_TEST_USED_ARCH apt-tests
-				rpm ${APT_TEST_METHOD%%_*}://localhost:$((8080+PARALLEL_SLOT))/ noarch apt-tests
+				rpm ${APT_TEST_METHOD%%_*}://$NGINX_HOST:$((8080+PARALLEL_SLOT))/ $APT_TEST_USED_ARCH apt-tests
+				rpm ${APT_TEST_METHOD%%_*}://$NGINX_HOST:$((8080+PARALLEL_SLOT))/ noarch apt-tests
 			END
 
 			nginxrestart
@@ -207,12 +207,13 @@ generaterepository_and_switch_sources() {
 # Output/effects:
 # * global vars representing the actual configuration of the server
 #   (convenient for use in other scripts):
-#   NGINX_PIDFILE
+#   NGINX_HOST, NGINX_PIDFILE
 # * the server configured, ready for nginxrestart()
 nginxsetuphttp() {
 	mkdir -p $TMPWORKINGDIRECTORY/nginx
 	mkdir -p $TMPWORKINGDIRECTORY/nginx/tmp
 
+	NGINX_HOST=localhost
 	NGINX_PIDFILE=$TMPWORKINGDIRECTORY/nginx/nginx.pid
 
 	cat >| $TMPWORKINGDIRECTORY/nginx/nginx.conf << ENDCONFIG
@@ -245,7 +246,7 @@ http {
 
 	server {
 		listen $((8080+PARALLEL_SLOT));
-		server_name localhost localhost.localdomain;
+		server_name $NGINX_HOST localhost.localdomain;
 
 		location / {
 			root $TMPWORKINGDIRECTORY/nginx/repo;
@@ -259,12 +260,13 @@ ENDCONFIG
 # Output/effects:
 # * global vars representing the actual configuration of the server
 #   (convenient for use in other scripts):
-#   NGINX_KEY, NGINX_CRT, NGINX_PIDFILE
+#   NGINX_HOST, NGINX_KEY, NGINX_CRT, NGINX_PIDFILE
 # * the server configured, ready for nginxrestart() (except for the key)
 nginxsetuphttps() {
 	mkdir -p $TMPWORKINGDIRECTORY/nginx
 	mkdir -p $TMPWORKINGDIRECTORY/nginx/tmp
 
+	NGINX_HOST=localhost
 	NGINX_KEY=$TMPWORKINGDIRECTORY/nginx/cert.key
 	NGINX_CRT=$TMPWORKINGDIRECTORY/nginx/cert.crt
 	NGINX_PIDFILE=$TMPWORKINGDIRECTORY/nginx/nginx.pid
@@ -299,7 +301,7 @@ http {
 
 	server {
 		listen $((8080+PARALLEL_SLOT)) ssl;
-		server_name localhost localhost.localdomain;
+		server_name $NGINX_HOST localhost.localdomain;
 
 		ssl_certificate	$NGINX_CRT;
 		ssl_certificate_key	$NGINX_KEY;

@@ -711,3 +711,9 @@ ENDSCRIPT
 
 	chmod +x $TMPWORKINGDIRECTORY/bash/scripts/${SCRIPTFILENAME}.sh
 }
+
+encode_uri_for_apt_lists() {
+	local -r uri="$1"; shift
+
+	sed -Ee 's: :%20:g; s:_:%5f:g; s:/:_:g;' <<<"$uri"
+}
