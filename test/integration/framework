@@ -118,8 +118,9 @@ generaterepository() {
 # * global var REPO_STORAGE -- where we physically store the data given to apt
 #   (it will be set depending on $APT_TEST_METHOD)
 # * files in $REPO_STORAGE
-# * global vars {NO,MY}ARCH_DISTRO -- the paths under $REPO_STORAGE or
-#   $APT_SOURCES_URI; the final part specified in sources.list after the URI
+# * global vars NOARCH_DISTRO, MYARCH_DISTRO, DISTRO_COMPONENT
+#   -- the paths under $REPO_STORAGE or $APT_SOURCES_URI; the final part
+#   specified in sources.list after the URI with the component/"label"
 # * server started to give the data to apt
 #   (or other actions, according to $APT_TEST_METHOD)
 # * global vars APT_SOURCES_SITE, APT_SOURCES_URI -- how apt sees its source repo:
@@ -168,6 +169,7 @@ generaterepository_and_switch_sources() {
 	generaterepository "$ORIG_DIR" "$REPO_STORAGE" "$REPO_DATE"
 	NOARCH_DISTRO=noarch
 	MYARCH_DISTRO="$APT_TEST_USED_ARCH"
+	DISTRO_COMPONENT=apt-tests
 
 	# Additional configuration for the server or other methods.
 	case "$APT_TEST_METHOD" in
@@ -246,8 +248,8 @@ generaterepository_and_switch_sources() {
 			APT_SOURCES_URI="$APT_SOURCES_SITE$REPO_STORAGE"
 
 			cat >| rootdir/etc/apt/sources.list <<- END
-				rpm $APT_TEST_METHOD://$APT_SOURCES_URI $MYARCH_DISTRO apt-tests
-				rpm $APT_TEST_METHOD://$APT_SOURCES_URI $NOARCH_DISTRO apt-tests
+				rpm $APT_TEST_METHOD://$APT_SOURCES_URI $MYARCH_DISTRO $DISTRO_COMPONENT
+				rpm $APT_TEST_METHOD://$APT_SOURCES_URI $NOARCH_DISTRO $DISTRO_COMPONENT
 			END
 			;;
 
@@ -256,8 +258,8 @@ generaterepository_and_switch_sources() {
 			APT_SOURCES_URI="$APT_SOURCES_SITE:$NGINX_PORT"
 
 			cat >| rootdir/etc/apt/sources.list <<- END
-				rpm ${APT_TEST_METHOD%%_*}://$APT_SOURCES_URI/ $MYARCH_DISTRO apt-tests
-				rpm ${APT_TEST_METHOD%%_*}://$APT_SOURCES_URI/ $NOARCH_DISTRO apt-tests
+				rpm ${APT_TEST_METHOD%%_*}://$APT_SOURCES_URI/ $MYARCH_DISTRO $DISTRO_COMPONENT
+				rpm ${APT_TEST_METHOD%%_*}://$APT_SOURCES_URI/ $NOARCH_DISTRO $DISTRO_COMPONENT
 			END
 			;;
 
