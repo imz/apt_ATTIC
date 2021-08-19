@@ -264,6 +264,15 @@ generaterepository_and_switch_sources() {
 			;;
 
 	esac
+
+	NOARCH_PKGLIST_URI="$APT_SOURCES_URI/$NOARCH_DISTRO/base/pkglist.$DISTRO_COMPONENT"
+	MYARCH_PKGLIST_URI="$APT_SOURCES_URI/$MYARCH_DISTRO/base/pkglist.$DISTRO_COMPONENT"
+	local encoded_noarch_pkglist_uri encoded_myarch_pkglist_uri
+	encoded_noarch_pkglist_uri="$(encode_uri_for_apt_lists "$NOARCH_PKGLIST_URI")"
+	encoded_myarch_pkglist_uri=$(encode_uri_for_apt_lists "$MYARCH_PKGLIST_URI")
+	local -r encoded_noarch_pkglist_uri encoded_myarch_pkglist_uri
+	APT_FETCHED_NOARCH_PKGLIST="$APT_LISTS_DIR/$encoded_noarch_pkglist_uri"
+	APT_FETCHED_MYARCH_PKGLIST="$APT_LISTS_DIR/$encoded_myarch_pkglist_uri"
 }
 
 # Output/effects:
