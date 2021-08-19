@@ -37,13 +37,16 @@ set_regex_quote_str() {
 	fi
 }
 
-# paths occuring many times:
+# values occurring many times in the dump:
 
 set_regex_quote_str APT_SOURCES_SITE_RE "$APT_SOURCES_SITE"
 readonly APT_SOURCES_SITE_RE
 
-readonly NOARCH_PKGLIST_URI="$APT_SOURCES_URI/$NOARCH_DISTRO/base/pkglist.apt-tests"
-readonly MYARCH_PKGLIST_URI="$APT_SOURCES_URI/$MYARCH_DISTRO/base/pkglist.apt-tests"
+set_regex_quote_str DISTRO_COMPONENT_RE "$DISTRO_COMPONENT"
+readonly DISTRO_COMPONENT_RE
+
+readonly NOARCH_PKGLIST_URI="$APT_SOURCES_URI/$NOARCH_DISTRO/base/pkglist.$DISTRO_COMPONENT"
+readonly MYARCH_PKGLIST_URI="$APT_SOURCES_URI/$MYARCH_DISTRO/base/pkglist.$DISTRO_COMPONENT"
 readonly APT_FETCHED_NOARCH_PKGLIST="$APT_LISTS_DIR/$(encode_uri_for_apt_lists "$NOARCH_PKGLIST_URI")"
 readonly APT_FETCHED_MYARCH_PKGLIST="$APT_LISTS_DIR/$(encode_uri_for_apt_lists "$MYARCH_PKGLIST_URI")"
 set_regex_quote_str APT_FETCHED_NOARCH_PKGLIST_RE "$APT_FETCHED_NOARCH_PKGLIST"
@@ -162,12 +165,12 @@ case "$APT_TEST_METHOD" in
  ID: [01]
  Flags: 0
  Time: $ANY*
- Archive: ALT Linux apt-tests
- Component: apt-tests
+ Archive: ALT Linux $DISTRO_COMPONENT_RE
+ Component: $DISTRO_COMPONENT_RE
  Version: [0-9]+
  Origin: ALT Linux Team
  Site: $APT_SOURCES_SITE_RE
- Label: apt-tests
+ Label: $DISTRO_COMPONENT_RE
  Architecture: noarch"
 
 			"File: $APT_FETCHED_MYARCH_PKGLIST_RE
@@ -176,12 +179,12 @@ case "$APT_TEST_METHOD" in
  ID: [01]
  Flags: 0
  Time: $ANY*
- Archive: ALT Linux apt-tests
- Component: apt-tests
+ Archive: ALT Linux $DISTRO_COMPONENT_RE
+ Component: $DISTRO_COMPONENT_RE
  Version: [0-9]+
  Origin: ALT Linux Team
  Site: $APT_SOURCES_SITE_RE
- Label: apt-tests
+ Label: $DISTRO_COMPONENT_RE
  Architecture: $APT_TEST_USED_ARCH"
 
 		)
