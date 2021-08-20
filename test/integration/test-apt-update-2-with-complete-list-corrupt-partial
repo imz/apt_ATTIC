@@ -1,0 +1,27 @@
+#!/bin/bash
+set -eu
+
+TESTDIR=$(readlink -f $(dirname $0))
+
+# Test apt-get update the 1st time.
+
+. $TESTDIR/framework-without-repo
+prereq $TESTDIR/test-apt-update-simple
+
+# Our assumptions concerning the fetched list
+# (one of the tested pkgs is definitely noarch; so care about noarch only):
+[ -s "$APT_FETCHED_NOARCH_PKGLIST" ]
+! [ -s "$APT_FETCHED_PARTIAL_NOARCH_PKGLIST" ]
+
+# Inject (if bad, apt-get update should refetch):
+readonly REPO_NOARCH_PKGLIST="$REPO_STORAGE/$NOARCH_DISTRO/base/pkglist.$DISTRO_COMPONENT$REPO_COMPR_EXT"
+cp -a "$REPO_NOARCH_PKGLIST" \
+   -T "$APT_FETCHED_PARTIAL_NOARCH_PKGLIST"
+touch -r "$REPO_NOARCH_PKGLIST" -- "$APT_FETCHED_PARTIAL_NOARCH_PKGLIST"
+
+# Test apt-get update the 2nd time.
+
+testsuccess aptget update
+testsuccess aptcache show simple-package
+testsuccess aptcache show simple-package-noarch
+testfailure aptcache show nosuchpkg
