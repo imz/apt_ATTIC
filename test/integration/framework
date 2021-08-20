@@ -273,6 +273,8 @@ generaterepository_and_switch_sources() {
 	local -r encoded_noarch_pkglist_uri encoded_myarch_pkglist_uri
 	APT_FETCHED_NOARCH_PKGLIST="$APT_LISTS_DIR/$encoded_noarch_pkglist_uri"
 	APT_FETCHED_MYARCH_PKGLIST="$APT_LISTS_DIR/$encoded_myarch_pkglist_uri"
+	APT_FETCHED_PARTIAL_NOARCH_PKGLIST="$APT_LISTS_DIR/partial/$encoded_noarch_pkglist_uri"
+	APT_FETCHED_PARTIAL_MYARCH_PKGLIST="$APT_LISTS_DIR/partial/$encoded_myarch_pkglist_uri"
 }
 
 # Output/effects:
