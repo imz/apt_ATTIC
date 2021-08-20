@@ -2,16 +2,18 @@
 set -eu
 
 TESTDIR=$(readlink -f $(dirname $0))
-. $TESTDIR/framework
 
-setupenvironment
+# Test apt-get update the 1st time.
 
-buildpackage 'simple-package'
-buildpackage 'simple-package-noarch'
-buildpackage 'conflicting-package-one'
-buildpackage 'conflicting-package-two'
+. $TESTDIR/framework-without-repo
+prereq $TESTDIR/test-apt-update-simple
 
-generaterepository_and_switch_sources "$TMPWORKINGDIRECTORY/usr/src/RPM/RPMS"
+# Our assumptions concerning the fetched list
+# (one of the tested pkgs is definitely noarch; so care about noarch only):
+[ -s "$APT_FETCHED_NOARCH_PKGLIST" ]
+! [ -s "$APT_FETCHED_PARTIAL_NOARCH_PKGLIST" ]
+
+# Test apt-get update the 2nd time.
 
 testsuccess aptget update
 testsuccess aptcache show simple-package
