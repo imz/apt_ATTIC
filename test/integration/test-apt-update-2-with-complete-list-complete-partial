@@ -1,0 +1,20 @@
+#!/bin/bash
+set -eu
+
+TESTDIR=$(readlink -f $(dirname $0))
+
+# Test apt-get update the 1st time.
+
+. $TESTDIR/test-apt-update-simple
+
+# Our assumptions concerning the fetched list
+# (one of the tested pkgs is definitely noarch; so care about noarch only):
+[ -s "$APT_FETCHED_NOARCH_PKGLIST" ]
+! [ -s "$APT_FETCHED_PARTIAL_NOARCH_PKGLIST" ]
+
+# Test apt-get update the 2nd time.
+
+testsuccess aptget update
+testsuccess aptcache show simple-package
+testsuccess aptcache show simple-package-noarch
+testfailure aptcache show nosuchpkg
