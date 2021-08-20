@@ -11,6 +11,13 @@
 
 aptcdrom() { runapt apt-cdrom "${CDROM_OPTS[@]}" "$@"; }
 
+# Input:
+# * args: orig_dir repo_dir [repo_date]
+# * a few global vars
+#
+# Output/effects:
+# * files in $repo_dir
+# * global var REPO_COMPR_EXT (the extension for the compressed pkglists there)
 generaterepository() {
 	local orig_dir="$1"
 	local repo_dir="$2"
@@ -62,12 +69,15 @@ generaterepository() {
 		case "$APT_TEST_METHOD" in
 
 			http*) compression_opts='--no-bz2 --xz'
-			   ;;
+			       REPO_COMPR_EXT=.xz
+			       ;;
 
 			cdrom*) compression_opts='--bz2 --no-xz'
-			   ;;
+				REPO_COMPR_EXT=.bz2
+				;;
 
 			*) compression_opts='--no-bz2 --no-xz'
+			   REPO_COMPR_EXT=
 			   ;;
 
 		esac
