@@ -77,7 +77,8 @@ rm -- "$REPO_NOARCH_RELEASE".orig
 
 # Cksum verification shouldn't pass.
 
-testfailure aptget update
+testregexmatch '.*MD5Sum mismatch.*' aptget update
+testfailure
 testsuccess aptcache show simple-package
 testfailure aptcache show simple-package-noarch
 testfailure aptcache show nosuchpkg
