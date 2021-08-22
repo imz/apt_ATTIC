@@ -42,7 +42,6 @@
 #include <apt-pkg/version.h>
 #include <apt-pkg/cachefile.h>
 #include <apt-pkg/sptr.h>
-#include <apt-pkg/update.h>
 #include <apt-pkg/versionmatch.h>
 
 #include <apti18n.h>
@@ -1109,6 +1108,7 @@ pkgSrcRecords::Parser *FindSrc(const char *Name,pkgRecords &Recs,
 /* */
 bool DoUpdate(CommandLine &CmdL)
 {
+   bool Partial = false;
    pkgSourceList List;
 
    if (CmdL.FileSize() != 1)
@@ -1121,7 +1121,9 @@ bool DoUpdate(CommandLine &CmdL)
 	    Repo += ".list";
 	 if (FileExists(Repo) == true)
 	 {
-	    if (!List.ReadAppend(Repo))
+	    if (List.ReadAppend(Repo) == true)
+	       Partial = true;
+	    else
 	       return _error->Error(_("Sources list %s could not be read"),Repo.c_str());
 	 }
 	 else
@@ -1165,16 +1167,87 @@ bool DoUpdate(CommandLine &CmdL)
 
    // do the work
 
-   // Needed for the download object
+   // Create the download object
    AcqTextStatus Stat(ScreenWidth,_config->FindI("quiet",0));
+   pkgAcquire Fetcher(&Stat);
+
+   // Lock the list directory
+   FileFd Lock;
+   if (!_config->FindB("Debug::NoLocking", false))
+   {
+      Lock.Fd(GetLock(_config->FindDir("Dir::State::Lists") + "lock"));
+      if (_error->PendingError())
+         return _error->Error(_("Unable to lock the list directory"));
+   }
+
+// CNC:2003-03-19
+#ifdef WITH_LUA
+   if (_lua->HasScripts("Scripts::AptGet::Update::Pre")) {
+      _lua->RunScripts("Scripts::AptGet::Update::Pre");
+      LuaCacheControl *LuaCache = _lua->GetCacheControl();
+      LuaCache->Close();
+   }
+#endif
+
+   // CNC:2002-07-03
+   bool Failed = false;
+   // Populate it with release file URIs
+   if (!List.GetReleases(&Fetcher))
+      return false;
+
+   Fetcher.Run();
+   for (pkgAcquire::ItemIterator I = Fetcher.ItemsBegin(); I != Fetcher.ItemsEnd(); I++)
+   {
+      if ((*I)->Status == pkgAcquire::Item::StatDone)
+         continue;
+      (*I)->Finished();
+      Failed = true;
+   }
+   if (Failed)
+      _error->Warning(_("Release files for some repositories could not be retrieved or authenticated. Such repositories are being ignored."));
+
+   // Populate it with the source selection
+   if (!List.GetIndexes(&Fetcher))
+      return false;
+
+   // Run it
+   if (Fetcher.Run() == pkgAcquire::Failed)
+      return false;
+
+   for (pkgAcquire::ItemIterator I = Fetcher.ItemsBegin(); I != Fetcher.ItemsEnd(); I++)
+   {
+      if ((*I)->Status == pkgAcquire::Item::StatDone)
+	 continue;
+
+      (*I)->Finished();
+
+      fprintf(stderr,_("Failed to fetch %s  %s\n"),(*I)->DescURI().c_str(),
+	      (*I)->ErrorText.c_str());
+      Failed = true;
+   }
+
+   // Clean out any old list files if not in partial update
+   if (!Partial && _config->FindB("APT::Get::List-Cleanup", true))
+   {
+      if (!Fetcher.Clean(_config->FindDir("Dir::State::lists"))
+          || !Fetcher.Clean(_config->FindDir("Dir::State::lists") + "partial/"))
+      {
+         // something went wrong with the clean
+         return false;
+      }
+   }
+
    // Prepare the cache.
    CacheFile Cache(c1out, true /* WithLock */);
-
-   if (!ListUpdate(Stat, List, Cache))
-      return false;
-
    if (Cache.Open() == false)
       return false;
+
+#ifdef WITH_LUA
+   _lua->RunScripts("Scripts::AptGet::Update::Post");
+#endif
+
+   if (Failed)
+      return _error->Error(_("Some index files failed to download, they have been ignored, or old ones used instead."));
 
    return true;
 }
