@@ -1,0 +1,52 @@
+#!/bin/bash
+set -eu
+
+TESTDIR=$(readlink -f $(dirname $0))
+
+# Test apt-get update the 1st time.
+
+. $TESTDIR/framework-without-repo
+prereq $TESTDIR/test-apt-update-simple
+
+# Our assumptions concerning the fetched list
+# (one of the tested pkgs is definitely noarch; so care about noarch only):
+[ -s "$APT_FETCHED_NOARCH_PKGLIST" ]
+! [ -e "$APT_FETCHED_PARTIAL_NOARCH_PKGLIST" ]
+
+# Inject (if bad, apt-get update should refetch):
+readonly REPO_NOARCH_PKGLIST="$REPO_STORAGE/$NOARCH_DISTRO/base/pkglist.$DISTRO_COMPONENT$REPO_COMPR_EXT"
+cp -a "$REPO_NOARCH_PKGLIST" \
+   -T "$APT_FETCHED_PARTIAL_NOARCH_PKGLIST"
+shred -n 0 --zero --exact -- "$APT_FETCHED_PARTIAL_NOARCH_PKGLIST"
+touch -r "$REPO_NOARCH_PKGLIST" -- "$APT_FETCHED_PARTIAL_NOARCH_PKGLIST"
+
+# Test apt-get update the 2nd time.
+
+# Currently, apt is known to fail with an error in this situation.
+#
+# The problem (as a consequence of wrong sources.list) is
+# described at https://bugzilla.altlinux.org/show_bug.cgi?id=40746#c6
+# although the original issue's topic is about wrong sources.list.
+#
+# It's not a major problem since apt uses the old fetched pkglists in this
+# sutuation; so, the next test "aptcache show simple-package-noarch"
+# still succeeds.
+# TODO: test that updated pkglists can be fetched in this sutuation.
+# TODO: test that the old pkglists are not used they differ
+# from the ones listed in the newly fetched release file.
+#
+# Once fixed (i.e., apt refetches bad lists or simply uses
+# the already fetched complete ones), care should be taken
+# that it doesn't loop if it's really impossible to fetch
+# good lists and that there is no bad behavior
+# in the described situation with repeated entries.
+case "$APT_TEST_METHOD" in
+	# in our setup, other methods don't seem to fetch the compressed list...
+	http*) APT_TEST_XFAIL=yes
+	       ;;
+esac
+
+testsuccess aptget update
+testsuccess aptcache show simple-package
+testsuccess aptcache show simple-package-noarch
+testfailure aptcache show nosuchpkg
