@@ -662,6 +662,9 @@ testfailure() {
 		cat >&2 $OUTPUT
 	else
 		msgpass
+		if [ $MSGLEVEL -gt 3 ]; then # info
+			cat >&2 $OUTPUT
+		fi
 	fi
 }
 
