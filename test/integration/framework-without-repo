@@ -55,11 +55,11 @@ msgwarn() { printf "${CWARNING}W: $1${CNORMAL}\n" >&2; }
 msgmsg() { printf "${CMSG}$1${CNORMAL}\n"; }
 msginfo() { printf "${CINFO}I: $1${CNORMAL}\n"; }
 msgdebug() { printf "${CDEBUG}D: $1${CNORMAL}\n"; }
-msgdone() { printf "${CDONE}DONE${CNORMAL}\n"; }
+msgdone() { printf "${CDONE}DONE${CNORMAL}\n" >&2; }
 msgnwarn() { printf "${CWARNING}W: $1${CNORMAL}" >&2; }
-msgnmsg() { printf "${CMSG}$1${CNORMAL}"; }
-msgninfo() { printf "${CINFO}I: $1${CNORMAL}"; }
-msgndebug() { printf "${CDEBUG}D: $1${CNORMAL}"; }
+msgnmsg() { printf "${CMSG}$1${CNORMAL}" >&2; }
+msgninfo() { printf "${CINFO}I: $1${CNORMAL}" >&2; }
+msgndebug() { printf "${CDEBUG}D: $1${CNORMAL}" >&2; }
 msgtest() {
 	while [ $# -gt 0 ]; do
 		printf "${CINFO}%s${CCMD} %s${CNORMAL} " "$1" "$(sed -e 's#^apt\([cgfs]\)#apt-\1#' <<<"${2-}")"
@@ -118,7 +118,7 @@ msgdone() {
 	   [ "$1" = 'die' -a $MSGLEVEL -le 0 ]; then
 		true;
 	else
-		printf "${CDONE}DONE${CNORMAL}\n";
+		printf "${CDONE}DONE${CNORMAL}\n" >&2;
 	fi
 }
 getaptconfig() {
