@@ -45,6 +45,8 @@ case "$APT_TEST_METHOD" in
 	       ;;
 esac
 
+aptget update ||:
+aptget update ||:
 testsuccess aptget update
 testsuccess aptcache show simple-package
 testsuccess aptcache show simple-package-noarch
