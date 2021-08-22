@@ -616,18 +616,7 @@ testnopackage() {
 testpkginstalled() {
 	msgtest 'Test that package(s) are installed with' "rpm -q $*"
 
-	local result=0
-
-	set +e
-	rpm --dbpath="$TMPWORKINGDIRECTORY/var/lib/rpm" -q "$@" >/dev/null
-	result=$?
-	set -e
-
-	if [ $result -eq 0 ] ; then
-		msgpass
-	else
-		msgfail
-	fi
+	testsuccess --nomsg rpm --dbpath="$TMPWORKINGDIRECTORY/var/lib/rpm" -q "$@"
 }
 
 getpackageversion() {
@@ -645,18 +634,7 @@ getpackageversion() {
 testpkgnotinstalled() {
 	msgtest 'Test that package(s) are not installed with' "rpm -q $*"
 
-	local result=0
-
-	set +e
-	rpm --dbpath="$TMPWORKINGDIRECTORY/var/lib/rpm" -q "$@" >&2 2>/dev/null
-	result=$?
-	set -e
-
-	if [ $result -ne 0 ] ; then
-		msgpass
-	else
-		msgfail
-	fi
+	testfailure --nomsg rpm --dbpath="$TMPWORKINGDIRECTORY/var/lib/rpm" -q "$@"
 }
 
 testsuccess() {
