@@ -458,6 +458,10 @@ testscriptnooutput() {
 	[ ! -e "$1" ] && msgpass || msgfail
 }
 
+# Effects:
+#
+# * global vars OUTPUT, RESULT
+#   -- so that it can be followed up by test{success,failure}
 testregexmatch() {
 	local MSG='Test of regex match of'
 	if [ "$1" = '--nomsg' ]; then
@@ -472,19 +476,20 @@ testregexmatch() {
 		msgtest "$MSG" "$*"
 	fi
 
-	local RESULTFILE="${TMPWORKINGDIRECTORY}/rootdir/tmp/testregexmatch.resultfile"
+	OUTPUT="${TMPWORKINGDIRECTORY}/rootdir/tmp/testregexmatch.output"
 
 	set +e
-	"$@" &> $RESULTFILE
+	"$@" &> $OUTPUT
+	RESULT=$?
 	set -e
 
-	if [[ "$(cat $RESULTFILE)" =~ ^$COMPAREMSG$ ]] ; then
+	if [[ "$(cat $OUTPUT)" =~ ^$COMPAREMSG$ ]] ; then
 		msgpass
 	else
 		msgfail
 		local COMPAREFILE="${TMPWORKINGDIRECTORY}/rootdir/tmp/testregexmatch.comparefile"
 		echo "$COMPAREMSG" > $COMPAREFILE
-		checkdiff $COMPAREFILE $RESULTFILE || true
+		checkdiff $COMPAREFILE $OUTPUT || true
 		echo >&2 "$DIFFTEXT"
 	fi
 }
@@ -497,6 +502,10 @@ match_and_delete() {
 		printf -v "$VARNAME" '%s%s' "${BASH_REMATCH[1]}" "${BASH_REMATCH[-1]}"
 }
 
+# Effects:
+#
+# * global vars OUTPUT, RESULT
+#   -- so that it can be followed up by test{success,failure}
 testpartsexhaust() {
 	local MSG='Test that regex parts exhaust the output of'
 	if [ "$1" = '--nomsg' ]; then
@@ -516,21 +525,22 @@ testpartsexhaust() {
 		msgtest "$MSG" "$*"
 	fi
 
-	local RESULTFILE="${TMPWORKINGDIRECTORY}/rootdir/tmp/testregexmatch.resultfile"
+	OUTPUT="${TMPWORKINGDIRECTORY}/rootdir/tmp/testregexmatch.output"
 
 	set +e
-	"$@" &> $RESULTFILE
+	"$@" &> $OUTPUT
+	RESULT=$?
 	set -e
-	local RESULT="$(cat "$RESULTFILE")"
+	local OUTPUT_STR="$(cat "$OUTPUT")"
 
 	local REGEXPART
 	for REGEXPART in "${REGEXPARTS[@]}"; do
-		if ! match_and_delete "$REGEXPART" RESULT; then
+		if ! match_and_delete "$REGEXPART" OUTPUT_STR; then
 			msgfail
 			echo "${CINFO}*** During matching parts with the output result, a part couldn't be matched.${CNORMAL}"
-			echo "${CINFO}The remaining unmatched result:${CNORMAL}"
+			echo "${CINFO}The remaining unmatched output:${CNORMAL}"
 			echo "${CINFO}----------------------------------------${CNORMAL}"
-			echo "$RESULT"
+			echo "$OUTPUT_STR"
 			echo "${CINFO}----------------------------------------${CNORMAL}"
 			echo "${CINFO}The part that didn't match:${CNORMAL}"
 			echo "${CINFO}----------------------------------------${CNORMAL}"
@@ -538,10 +548,10 @@ testpartsexhaust() {
 			return
 		fi
 	done
-	if [ "$RESULT" != '' ]; then
+	if [ "$OUTPUT_STR" != '' ]; then
 		msgfail
-		echo "${CINFO}The remaining unmatched result:"
-		echo "$RESULT"
+		echo "${CINFO}The remaining unmatched output:"
+		echo "$OUTPUT_STR"
 	else
 		msgpass
 	fi
@@ -637,14 +647,28 @@ testpkgnotinstalled() {
 	testfailure --nomsg rpm --dbpath="$TMPWORKINGDIRECTORY/var/lib/rpm" -q "$@"
 }
 
+# If no args, don't run a command, but examine global vars OUTPUT, RESULT
+# (as a follow-up test after another test).
 testsuccess() {
-	if [ "$1" = '--nomsg' ]; then
+	if [ $# -gt 0 ] && [ "$1" = '--nomsg' ]; then
 		shift
 	else
-		msgtest 'Test for successful execution of' "$*"
+		if [ $# -gt 0 ]; then
+			msgtest 'Test for successful execution of' "$*"
+		else
+			msgtest 'Test for successful execution of the last cmd'
+		fi
 	fi
-	local OUTPUT="${TMPWORKINGDIRECTORY}/rootdir/tmp/testsuccess.output"
-	if "$@" >${OUTPUT} 2>&1; then
+
+	if [ $# -gt 0 ]; then
+		OUTPUT="${TMPWORKINGDIRECTORY}/rootdir/tmp/testsuccess.output"
+		set +e
+		"$@" &> $OUTPUT
+		RESULT=$?
+		set -e
+	fi
+
+	if [ $RESULT -eq 0 ]; then
 		msgpass
 	else
 		msgfail
@@ -652,14 +676,28 @@ testsuccess() {
 	fi
 }
 
+# If no args, don't run a command, but examine global vars OUTPUT, RESULT
+# (as a follow-up test after another test).
 testfailure() {
-	if [ "$1" = '--nomsg' ]; then
+	if [ $# -gt 0 ] && [ "$1" = '--nomsg' ]; then
 		shift
 	else
-		msgtest 'Test for failure in execution of' "$*"
+		if [ $# -gt 0 ]; then
+			msgtest 'Test for failure in execution of' "$*"
+		else
+			msgtest 'Test for failure in execution of the last cmd'
+		fi
 	fi
-	local OUTPUT="${TMPWORKINGDIRECTORY}/rootdir/tmp/testfailure.output"
-	if $@ >${OUTPUT} 2>&1; then
+
+	if [ $# -gt 0 ]; then
+		OUTPUT="${TMPWORKINGDIRECTORY}/rootdir/tmp/testfailure.output"
+		set +e
+		"$@" &> $OUTPUT
+		RESULT=$?
+		set -e
+	fi
+
+	if [ $RESULT -eq 0 ]; then
 		msgfail
 		cat >&2 $OUTPUT
 	else
