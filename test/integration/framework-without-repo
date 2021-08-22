@@ -62,7 +62,7 @@ msgninfo() { printf "${CINFO}I: $1${CNORMAL}" >&2; }
 msgndebug() { printf "${CDEBUG}D: $1${CNORMAL}" >&2; }
 msgtest() {
 	while [ $# -gt 0 ]; do
-		printf "${CINFO}%s${CCMD} %s${CNORMAL} " "$1" "$(sed -e 's#^apt\([cgfs]\)#apt-\1#' <<<"${2-}")"
+		printf "${CINFO}%s${CCMD} %s${CNORMAL} " "$1" "$(sed -e 's#^apt\([cgfs]\)#apt-\1#' <<<"${2-}")" >&2
 		shift
 		if [ $# -gt 0 ]; then
 			shift
@@ -70,9 +70,9 @@ msgtest() {
 			break
 		fi
 	done
-	printf "${CINFO}…${CNORMAL} "
+	printf "${CINFO}…${CNORMAL} " >&2
 }
-msgpass() { printf "${CPASS}PASS${CNORMAL}\n"; }
+msgpass() { printf "${CPASS}PASS${CNORMAL}\n" >&2; }
 msgskip() { printf "${CWARNING}SKIP${CNORMAL}\n" >&2; }
 msgfail() {
 	if [ $# -gt 0 ]; then printf "${CFAIL}FAIL: $*${CNORMAL}\n" >&2;
@@ -94,7 +94,7 @@ if [ $MSGLEVEL -le 2 ]; then
 	msgmsg() { true; }
 	msgnmsg() { true; }
 	msgtest() { true; }
-	msgpass() { printf " ${CPASS}P${CNORMAL}"; }
+	msgpass() { printf " ${CPASS}P${CNORMAL}" >&2; }
 	msgskip() { printf " ${CWARNING}S${CNORMAL}" >&2; }
 	if [ -n "$CFAIL" ]; then
 		msgfail() { printf " ${CFAIL}FAIL${CNORMAL}" >&2; one_more_failure; }
@@ -376,10 +376,8 @@ aptgetinstallpackage() {
 }
 
 checkdiff() {
-	local DIFFTEXT="$(command diff -u "$@" | sed -e '/^---/ d' -e '/^+++/ d' -e '/^@@/ d')"
+	DIFFTEXT="$(command diff -u "$@" | sed -e '/^---/ d' -e '/^+++/ d' -e '/^@@/ d')"
 	if [ -n "$DIFFTEXT" ]; then
-		echo >&2
-		echo >&2 "$DIFFTEXT"
 		return 1
 	else
 		return 0
@@ -391,10 +389,18 @@ testfileequal() {
 	shift
 	msgtest 'Test for correctness of file' "$FILE"
 	if [ -z "$*" ]; then
-		echo -n '' | checkdiff $FILE - && msgpass || msgfail
+		echo -n ''
 	else
-		echo "$*" | checkdiff $FILE - && msgpass || msgfail
-	fi
+		echo "$*"
+	fi | {
+		checkdiff $FILE - \
+		    && msgpass \
+		    || {
+			msgfail
+			echo >&2 "$DIFFTEXT"
+		    }
+	}
+
 }
 
 testempty() {
@@ -403,8 +409,8 @@ testempty() {
 	if $* >$COMPAREFILE 2>&1 && test ! -s $COMPAREFILE; then
 		msgpass
 	else
-		cat $COMPAREFILE
 		msgfail
+		cat >&2 $COMPAREFILE
 	fi
 }
 
@@ -422,7 +428,14 @@ testequal() {
 	if [ -n "$MSG" ]; then
 		msgtest "$MSG" "$*"
 	fi
-	"$@" 2>&1 | checkdiff $COMPAREFILE - && msgpass || msgfail
+	"$@" 2>&1 | {
+		checkdiff $COMPAREFILE - \
+		    && msgpass \
+		    || {
+			msgfail
+			echo >&2 "$DIFFTEXT"
+		    }
+	}
 }
 
 testscriptoutput() {
@@ -466,10 +479,11 @@ testregexmatch() {
 	if [[ "$(cat $RESULTFILE)" =~ ^$COMPAREMSG$ ]] ; then
 		msgpass
 	else
+		msgfail
 		local COMPAREFILE="${TMPWORKINGDIRECTORY}/rootdir/tmp/testregexmatch.comparefile"
 		echo "$COMPAREMSG" > $COMPAREFILE
 		checkdiff $COMPAREFILE $RESULTFILE || true
-		msgfail
+		echo >&2 "$DIFFTEXT"
 	fi
 }
 
@@ -510,22 +524,22 @@ testpartsexhaust() {
 	local REGEXPART
 	for REGEXPART in "${REGEXPARTS[@]}"; do
 		if ! match_and_delete "$REGEXPART" RESULT; then
-			echo -e "\n${CINFO}*** During matching parts with the output result, a part couldn't be matched.${CNORMAL}"
-			echo -e "${CINFO}The remaining unmatched result:${CNORMAL}"
-			echo -e "${CINFO}----------------------------------------${CNORMAL}"
-			echo "$RESULT"
-			echo -e "${CINFO}----------------------------------------${CNORMAL}"
-			echo -e "${CINFO}The part that didn't match:${CNORMAL}"
-			echo -e "${CINFO}----------------------------------------${CNORMAL}"
-			echo "$REGEXPART"
 			msgfail
+			echo "${CINFO}*** During matching parts with the output result, a part couldn't be matched.${CNORMAL}"
+			echo "${CINFO}The remaining unmatched result:${CNORMAL}"
+			echo "${CINFO}----------------------------------------${CNORMAL}"
+			echo "$RESULT"
+			echo "${CINFO}----------------------------------------${CNORMAL}"
+			echo "${CINFO}The part that didn't match:${CNORMAL}"
+			echo "${CINFO}----------------------------------------${CNORMAL}"
+			echo "$REGEXPART"
 			return
 		fi
 	done
 	if [ "$RESULT" != '' ]; then
-		echo -e "\n${CINFO}The remaining unmatched result:"
-		echo "$RESULT"
 		msgfail
+		echo "${CINFO}The remaining unmatched result:"
+		echo "$RESULT"
 	else
 		msgpass
 	fi
@@ -552,11 +566,13 @@ testequalor2() {
 	then
 		msgpass
 	else
-		echo -ne "\n${CINFO}Diff against OR 1${CNORMAL}"
-		checkdiff $COMPAREFILE1 $COMPAREAGAINST || true
-		echo -n "${CINFO}Diff against OR 2${CNORMAL}"
-		checkdiff $COMPAREFILE2 $COMPAREAGAINST || true
 		msgfail
+		echo "${CINFO}Diff against OR 1${CNORMAL}"
+		checkdiff $COMPAREFILE1 $COMPAREAGAINST || true
+		echo >&2 "$DIFFTEXT"
+		echo "${CINFO}Diff against OR 2${CNORMAL}"
+		checkdiff $COMPAREFILE2 $COMPAREAGAINST || true
+		echo >&2 "$DIFFTEXT"
 	fi
 }
 
@@ -574,17 +590,22 @@ N: Can't select versions from package '$1' as it is purely virtual"
 	VIRTUAL="${VIRTUAL}
 N: No packages found"
 	local COMPAREFILE="${TMPWORKINGDIRECTORY}/rootdir/tmp/testshowvirtual.comparefile"
-	aptcache show -q=0 $PACKAGE 2>&1 | checkdiff $COMPAREFILE - &&
-		msgpass || msgfail
+	aptcache show -q=0 $PACKAGE 2>&1 | {
+		checkdiff $COMPAREFILE - \
+		    && msgpass \
+		    || {
+			msgfail
+			echo >&2 "$DIFFTEXT"
+		    }
+	}
 }
 
 testnopackage() {
 	msgtest 'Test for non-existent packages' "apt-cache show $*"
 	local SHOWPKG="$(aptcache show "$@" 2>&1 | grep '^Package: ')"
 	if [ -n "$SHOWPKG" ]; then
-		echo >&2
-		echo >&2 "$SHOWPKG"
 		msgfail
+		echo >&2 "$SHOWPKG"
 	else
 		msgpass
 	fi
@@ -646,9 +667,8 @@ testsuccess() {
 	if "$@" >${OUTPUT} 2>&1; then
 		msgpass
 	else
-		echo >&2
-		cat >&2 $OUTPUT
 		msgfail
+		cat >&2 $OUTPUT
 	fi
 }
 
@@ -660,9 +680,8 @@ testfailure() {
 	fi
 	local OUTPUT="${TMPWORKINGDIRECTORY}/rootdir/tmp/testfailure.output"
 	if $@ >${OUTPUT} 2>&1; then
-		echo >&2
-		cat >&2 $OUTPUT
 		msgfail
+		cat >&2 $OUTPUT
 	else
 		msgpass
 	fi
