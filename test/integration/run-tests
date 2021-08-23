@@ -52,7 +52,7 @@ export APT_TEST_GPGPUBKEY="${APT_TEST_GPGPUBKEY-}"
 export APT_TEST_BASEDIR_COMPRESSION_OPTS="${APT_TEST_BASEDIR_COMPRESSION_OPTS-}"
 
 # Additional options for genbasedir.
-export APT_TEST_GENBASEDIR_OPTS="${APT_TEST_GENBASEDIR_OPTS-}"
+export APT_TEST_GENBASEDIR_OPTS="${APT_TEST_GENBASEDIR_OPTS---sha256}"
 
 # setupenvironment()'s parameters: if non-empty, they override the APT config.
 export METHODSDIR="${METHODSDIR-}" # could override Dir::Bin::methods
