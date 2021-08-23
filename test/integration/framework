@@ -108,6 +108,7 @@ generaterepository() {
 			--topdir="$repo_dir" \
 			--changelog-since='@1' \
 			--flat --no-oldhashfile $compression_opts --mapi \
+			$APT_TEST_GENBASEDIR_OPTS \
 			$dir $comps
 
 		if [ -n "$repo_date" ] ; then
