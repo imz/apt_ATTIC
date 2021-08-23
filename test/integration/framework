@@ -465,6 +465,8 @@ nginxrestart() {
 # may seemingly pass because of the other reason for the mismatch.
 #
 # 2. Another way could be to edit the cksum in the release file instead.
+# (This way is simpler, since we'd anyway have to edit the size
+# of the compressed fake pkglist.)
 
 # Input:
 # * args CMD [ARG..] -- stream editor
@@ -523,4 +525,22 @@ fake_repo_noarch_pkglist() {
 	fi
 
 	rm -- "$repo_noarch_pkglist".orig
+}
+
+# Here is an implementation of way 2:
+
+# Input:
+# * args CMD [ARG..] -- stream editor
+# * global vars REPO_STORAGE, NOARCH_DISTRO
+# * file $REPO_STORAGE/$NOARCH_DISTRO/base/release
+#
+# Output/effects:
+# * the file is edited; its time is unchanged
+fake_repo_noarch_pkglist_cksum() {
+	local bad_cksum
+	bad_cksum="$(md5sum /dev/null | cut -d' ' -f1)"
+	local -r bad_cksum
+
+	edit_repo_noarch_release \
+	    sed -Ee "/^MD5Sum:/,\$ { /pkglist/ s:^ [^ ]* : $bad_cksum :; }"
 }
