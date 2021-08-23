@@ -561,6 +561,10 @@ fake_repo_noarch_pkglist_cksum() {
 		bad_cksum="$(md5sum /dev/null | cut -d' ' -f1)"
 		;;
 
+	    SHA1Sum)
+		bad_cksum="$(sha1sum /dev/null | cut -d' ' -f1)"
+		;;
+
 	    *)
 		msgdie "Unknown cksum_type $cksum_type"
 		;;
