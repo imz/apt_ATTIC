@@ -1,0 +1,42 @@
+#!/bin/bash
+set -eu
+
+TESTDIR=$(readlink -f $(dirname $0))
+
+case "$APT_TEST_METHOD" in
+	cdrom*)
+		echo 'SKIP (not ready for apt-cdrom, because it fetches the lists earlier)' >&2
+		exit 0
+		;;
+esac
+
+. $TESTDIR/framework
+
+case "$APT_TEST_METHOD" in
+	file*) APT_TEST_XFAIL=yes
+	       ;;
+esac
+
+setupenvironment
+
+buildpackage 'simple-package'
+buildpackage 'simple-package-noarch'
+buildpackage 'conflicting-package-one'
+buildpackage 'conflicting-package-two'
+
+generaterepository_and_switch_sources "$TMPWORKINGDIRECTORY/usr/src/RPM/RPMS"
+
+# Fake pkglist (only noarch, since a noarch pkg is definitely present).
+#
+# (For faking individual cksums, see other tests,
+# like test-apt-update-verifies-cksum-of-pkglist-index.)
+fake_repo_noarch_pkglist \
+    sed -Ee 's:nobody:oooody:'
+
+# Cksum verification shouldn't pass.
+
+testregexmatch '.*MD5Sum mismatch.*' aptget update
+testfailure
+testsuccess aptcache show simple-package
+testfailure aptcache show simple-package-noarch
+testfailure aptcache show nosuchpkg
