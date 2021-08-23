@@ -17,15 +17,11 @@ case "$APT_TEST_METHOD" in
 	       ;;
 esac
 
-# Fake pkglist (only noarch, since a noarch pkg is definitely present).
+# Fake the cksum of pkglist (only noarch, since a noarch pkg is definitely present).
 #
-# It's simpler to edit the release file -- see the comments in
-# test-apt-update-verifies-cksum-of-pkglist-index.
-
-BAD_CKSUM="$(md5sum /dev/null | cut -d' ' -f1)"
-readonly BAD_CKSUM
-edit_repo_noarch_release \
-    sed -Ee "/^MD5Sum:/,\$ { /pkglist/ s:^ [^ ]* : $BAD_CKSUM :; }"
+# (For faking the pkglist itself, see other tests,
+# like test-apt-update-2-rejects-fake-pkglist-index.)
+fake_repo_noarch_pkglist_cksum
 
 # Cksum verification shouldn't pass.
 # apt should discard the old fetched pkglist, shouldn't it?
