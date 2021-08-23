@@ -138,6 +138,9 @@ class pkgAcqIndexRel : public pkgAcquire::Item
    virtual string Custom600Headers() override;
    virtual string DescURI() override {return RealURI;}
 
+   // LORG:2006-03-16
+   virtual string ChecksumType() override;
+
    // CNC:2002-07-03
    pkgAcqIndexRel(pkgAcquire *Owner,pkgRepository *Repository,string URI,
 		  string URIDesc,string ShortDesc,bool Master=false);
