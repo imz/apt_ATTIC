@@ -51,7 +51,7 @@ class pkgRepository
 	Acquire(1)
    {
       if (Vendor) FingerPrintList = Vendor->FingerPrintList;
-      CheckMethod = "MD5-Hash";
+      CheckMethod = "SHA256-Hash";
    }
 
 };
