@@ -561,7 +561,7 @@ fake_repo_noarch_pkglist_cksum() {
 		bad_cksum="$(md5sum /dev/null | cut -d' ' -f1)"
 		;;
 
-	    SHA1Sum)
+	    SHA1)
 		bad_cksum="$(sha1sum /dev/null | cut -d' ' -f1)"
 		;;
 
