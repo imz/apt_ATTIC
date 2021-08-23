@@ -10,21 +10,7 @@ case "$APT_TEST_METHOD" in
 		;;
 esac
 
-. $TESTDIR/framework
-
-case "$APT_TEST_METHOD" in
-	file*) APT_TEST_XFAIL=yes
-	       ;;
-esac
-
-setupenvironment
-
-buildpackage 'simple-package'
-buildpackage 'simple-package-noarch'
-buildpackage 'conflicting-package-one'
-buildpackage 'conflicting-package-two'
-
-generaterepository_and_switch_sources "$TMPWORKINGDIRECTORY/usr/src/RPM/RPMS"
+. $TESTDIR/test-apt-update-simple
 
 # Fake pkglist (only noarch, since a noarch pkg is definitely present).
 #
@@ -33,10 +19,13 @@ generaterepository_and_switch_sources "$TMPWORKINGDIRECTORY/usr/src/RPM/RPMS"
 fake_repo_noarch_pkglist \
     sed -Ee 's:nobody:oooody:'
 
-# Cksum verification shouldn't pass.
+# Cksum verification should pass actually!
+# Because the old fetched pkglist matches the cksum
+# (we haven't changed it in the release file).
+# And it is cached uncompressed, so the size matches, too.
 
-testregexmatch '.*MD5Sum mismatch.*' aptget update
-testfailure
+#testregexmatch '.*MD5Sum mismatch.*' aptget update
+testsuccess aptget update
 testsuccess aptcache show simple-package
-testfailure aptcache show simple-package-noarch
+testsuccess aptcache show simple-package-noarch
 testfailure aptcache show nosuchpkg
