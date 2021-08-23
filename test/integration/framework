@@ -560,6 +560,10 @@ fake_repo_noarch_pkglist_cksum() {
 		bad_cksum="$(md5sum /dev/null | cut -d' ' -f1)"
 		;;
 
+	    BLAKE2b)
+		bad_cksum="$(b2sum /dev/null | cut -d' ' -f1)"
+		;;
+
 	    *)
 		msgdie "Unknown cksum_type $cksum_type"
 		;;
