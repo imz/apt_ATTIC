@@ -67,13 +67,8 @@ if [ -n "$REPO_COMPR_EXT" ]; then
 
     NEW_SIZE="$(stat --format '%s' -- "$REPO_NOARCH_PKGLIST$REPO_COMPR_EXT")"
     readonly NEW_SIZE
-    readonly REPO_NOARCH_RELEASE="$REPO_STORAGE/$NOARCH_DISTRO/base/release"
-    mv "$REPO_NOARCH_RELEASE"{,.orig}
-    sed -Ee "/^MD5Sum:/,\$ { s:^( [^ ]* )[^ ]*( base/pkglist\.$DISTRO_COMPONENT$REPO_COMPR_EXT):\1$NEW_SIZE\2:; }" \
-	>"$REPO_NOARCH_RELEASE" \
-	<"$REPO_NOARCH_RELEASE".orig
-    touch -r "$REPO_NOARCH_RELEASE".orig -- "$REPO_NOARCH_RELEASE"
-    rm -- "$REPO_NOARCH_RELEASE".orig
+    edit_repo_noarch_release \
+	sed -Ee "/^MD5Sum:/,\$ { s:^( [^ ]* )[^ ]*( base/pkglist\.$DISTRO_COMPONENT$REPO_COMPR_EXT):\1$NEW_SIZE\2:; }"
 fi
 rm -- "$REPO_NOARCH_PKGLIST".orig
 
