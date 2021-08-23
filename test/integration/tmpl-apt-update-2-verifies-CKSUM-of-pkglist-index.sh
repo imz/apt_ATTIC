@@ -1,6 +1,8 @@
 #!/bin/bash
 set -eu
 
+readonly CKSUM_TYPE="$1"; shift
+
 TESTDIR=$(readlink -f $(dirname $0))
 
 case "$APT_TEST_METHOD" in
@@ -22,7 +24,7 @@ esac
 #
 # (For faking the pkglist itself, see other tests,
 # like test-apt-update-2-rejects-fake-pkglist-index.)
-fake_repo_noarch_pkglist_cksum 'MD5Sum'
+fake_repo_noarch_pkglist_cksum "$CKSUM_TYPE"
 
 # Cksum verification shouldn't pass.
 # apt should discard the old fetched pkglist, shouldn't it?

@@ -1,6 +1,8 @@
 #!/bin/bash
 set -eu
 
+readonly CKSUM_TYPE="$1"; shift
+
 TESTDIR=$(readlink -f $(dirname $0))
 
 case "$APT_TEST_METHOD" in
@@ -30,7 +32,7 @@ generaterepository_and_switch_sources "$TMPWORKINGDIRECTORY/usr/src/RPM/RPMS"
 #
 # (For faking the pkglist itself, see other tests,
 # like test-apt-update-rejects-fake-pkglist-index.)
-fake_repo_noarch_pkglist_cksum 'MD5Sum'
+fake_repo_noarch_pkglist_cksum "$CKSUM_TYPE"
 
 # Cksum verification shouldn't pass.
 
