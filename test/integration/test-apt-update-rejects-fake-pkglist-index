@@ -1,0 +1,85 @@
+#!/bin/bash
+set -eu
+
+TESTDIR=$(readlink -f $(dirname $0))
+
+case "$APT_TEST_METHOD" in
+	cdrom*)
+		echo 'SKIP (not ready for apt-cdrom, because it fetches the lists earlier)' >&2
+		exit 0
+		;;
+esac
+
+. $TESTDIR/framework
+
+# The "file" method doesn't compute and pass the cksums to apt.
+case "$APT_TEST_METHOD" in
+	file*) APT_TEST_XFAIL=yes
+	       ;;
+esac
+
+setupenvironment
+
+buildpackage 'simple-package'
+buildpackage 'simple-package-noarch'
+buildpackage 'conflicting-package-one'
+buildpackage 'conflicting-package-two'
+
+generaterepository_and_switch_sources "$TMPWORKINGDIRECTORY/usr/src/RPM/RPMS"
+
+# Fake pkglist (only noarch, since a noarch pkg is definitely present).
+#
+# There are two ways to go (so that there is a mismatch with
+# the checksum in the release file):
+#
+# 1. Faking the pkglist itself. It is more realistic, but less reliable as
+# to understanding the cause of apt's failure: whether it's just the cksum or
+# another error in the format of the pkglist.
+#
+# To overcome the issue with the format, one could generate another real repo,
+# and copy the pkglist from there. But then it's the size that could mismatch...
+#
+# And even a simple recompression of a minimally changed pkglist
+# quite probably leads to a size mismatch. So, the test
+# may seemingly pass because of the other reason for the mismatch.
+#
+# 2. Another way could be to edit the cksum in the release file instead.
+
+# Here is an attempt to implement way 1:
+
+# readonly REPO_NOARCH_PKGLIST="$REPO_STORAGE/$NOARCH_DISTRO/base/pkglist.$DISTRO_COMPONENT"
+# mv "$REPO_NOARCH_PKGLIST"{,.orig}
+# rm -f "$REPO_NOARCH_PKGLIST$REPO_COMPR_EXT"
+# sed -Ee 's:simple:dimple:' \
+#     >"$REPO_NOARCH_PKGLIST" \
+#     <"$REPO_NOARCH_PKGLIST".orig
+# case "$REPO_COMPR_EXT" in
+#     .xz) xz --keep -- "$REPO_NOARCH_PKGLIST"
+# 	 ;;
+#     .bz2) bzip2 --keep -- "$REPO_NOARCH_PKGLIST"
+# 	  ;;
+# esac
+# touch -r "$REPO_NOARCH_PKGLIST".orig -- "$REPO_NOARCH_PKGLIST"
+# touch -r "$REPO_NOARCH_PKGLIST".orig -- "$REPO_NOARCH_PKGLIST$REPO_COMPR_EXT"
+# rm -- "$REPO_NOARCH_PKGLIST".orig
+
+# So, it'd be simpler to edit the release file (way 2), since we'd anyway
+# have to edit the size of the compressed fake pkglist.
+
+BAD_CKSUM="$(md5sum /dev/null | cut -d' ' -f1)"
+readonly BAD_CKSUM
+readonly REPO_NOARCH_RELEASE="$REPO_STORAGE/$NOARCH_DISTRO/base/release"
+mv "$REPO_NOARCH_RELEASE"{,.orig}
+sed -Ee "/^MD5Sum:/,\$ { /pkglist/ s:^ [^ ]* : $BAD_CKSUM :; }" \
+    >"$REPO_NOARCH_RELEASE" \
+    <"$REPO_NOARCH_RELEASE".orig
+touch -r "$REPO_NOARCH_RELEASE".orig -- "$REPO_NOARCH_RELEASE"
+rm -- "$REPO_NOARCH_RELEASE".orig
+
+# Cksum verification shouldn't pass.
+
+testregexmatch '.*MD5Sum mismatch.*' aptget update
+testfailure
+testsuccess aptcache show simple-package
+testfailure aptcache show simple-package-noarch
+testfailure aptcache show nosuchpkg
