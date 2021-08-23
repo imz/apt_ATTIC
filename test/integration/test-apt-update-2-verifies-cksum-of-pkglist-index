@@ -25,13 +25,8 @@ esac
 
 BAD_CKSUM="$(md5sum /dev/null | cut -d' ' -f1)"
 readonly BAD_CKSUM
-readonly REPO_NOARCH_RELEASE="$REPO_STORAGE/$NOARCH_DISTRO/base/release"
-mv "$REPO_NOARCH_RELEASE"{,.orig}
-sed -Ee "/^MD5Sum:/,\$ { /pkglist/ s:^ [^ ]* : $BAD_CKSUM :; }" \
-    >"$REPO_NOARCH_RELEASE" \
-    <"$REPO_NOARCH_RELEASE".orig
-touch -r "$REPO_NOARCH_RELEASE".orig -- "$REPO_NOARCH_RELEASE"
-rm -- "$REPO_NOARCH_RELEASE".orig
+edit_repo_noarch_release \
+    sed -Ee "/^MD5Sum:/,\$ { /pkglist/ s:^ [^ ]* : $BAD_CKSUM :; }"
 
 # Cksum verification shouldn't pass.
 # apt should discard the old fetched pkglist, shouldn't it?
