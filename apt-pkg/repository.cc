@@ -44,12 +44,12 @@ bool pkgRepository::ParseRelease(string File)
 
    GotRelease = true;
 
-   string Files = Section.FindS("MD5Sum");
+   string Files = Section.FindS("BLAKE2b");
    // Lack of checksum is only fatal if authentication is on
    if (Files.empty())
    {
       if (IsAuthenticated())
-	 return _error->Error(_("No MD5Sum data in Release file '%s'"),
+	 return _error->Error(_("No BLAKE2b data in Release file '%s'"),
 			      Files.c_str());
       else
 	 return true;
@@ -66,7 +66,7 @@ bool pkgRepository::ParseRelease(string File)
       if (ParseQuoteWord(C,Hash) == false || Hash.empty() == true ||
 	  ParseQuoteWord(C,Size) == false || atoi(Size.c_str()) < 0 ||
 	  ParseQuoteWord(C,Path) == false || Path.empty() == true)
-	 return _error->Error(_("Error parsing MD5Sum hash record on Release file '%s'"),
+	 return _error->Error(_("Error parsing BLAKE2b hash record on Release file '%s'"),
 			      File.c_str());
 
       // Parse the size and append the directory
