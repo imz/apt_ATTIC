@@ -473,6 +473,11 @@ pkgAcqIndexRel::pkgAcqIndexRel(pkgAcquire *Owner,pkgRepository *Repository,
    QueueURI(Desc);
 }
 									/*}}}*/
+string pkgAcqIndexRel::ChecksumType()
+{
+   return Repository->GetCheckMethod();
+}
+
 // AcqIndexRel::Custom600Headers - Insert custom request headers	/*{{{*/
 // ---------------------------------------------------------------------
 /* The only header we use is the last-modified header. */
