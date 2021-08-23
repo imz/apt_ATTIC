@@ -333,7 +333,7 @@ export APT_TEST_TARGET="$system_arch"
 	LD_LIBRARY_PATH=%buildroot%_libdir \\\
 	PATH=$PATH:%buildroot%_bindir \\\
 	METHODSDIR=%buildroot%_libdir/apt/methods \\\
-		./run-tests
+		./run-tests -v
 
 # A quick test with just one method for the case without APT_TEST_GPGPUBKEY.
 APT_TEST_METHODS='file' %runtests
