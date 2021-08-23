@@ -31,7 +31,7 @@ generaterepository_and_switch_sources "$TMPWORKINGDIRECTORY/usr/src/RPM/RPMS"
 #
 # (For faking the pkglist itself, see other tests,
 # like test-apt-update-rejects-fake-pkglist-index.)
-fake_repo_noarch_pkglist_cksum
+fake_repo_noarch_pkglist_cksum 'MD5Sum'
 
 # Cksum verification shouldn't pass.
 
