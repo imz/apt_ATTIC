@@ -447,3 +447,20 @@ nginxrestart() {
 			"$NGINXPID" \
 			"$NGINXLOG"
 }
+
+# Input:
+# * args CMD [ARG..] -- stream editor
+# * global vars REPO_STORAGE, NOARCH_DISTRO
+# * file $REPO_STORAGE/$NOARCH_DISTRO/base/release
+#
+# Output/effects:
+# * the file is edited; its time is unchanged
+edit_repo_noarch_release() {
+	local -r repo_noarch_release="$REPO_STORAGE/$NOARCH_DISTRO/base/release"
+	mv "$repo_noarch_release"{,.orig}
+	"$@" \
+	    >"$repo_noarch_release" \
+	    <"$repo_noarch_release".orig
+	touch -r "$repo_noarch_release".orig -- "$repo_noarch_release"
+	rm -- "$repo_noarch_release".orig
+}
