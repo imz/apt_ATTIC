@@ -478,9 +478,16 @@ nginxrestart() {
 edit_repo_noarch_release() {
 	local -r repo_noarch_release="$REPO_STORAGE/$NOARCH_DISTRO/base/release"
 	mv "$repo_noarch_release"{,.orig}
+
 	"$@" \
 	    >"$repo_noarch_release" \
 	    <"$repo_noarch_release".orig
+
+	if [ $MSGLEVEL -gt 3 ]; then # info
+		echo "Edited $repo_noarch_release:"
+		diff -u --text "$repo_noarch_release"{.orig,} && echo '(no diff)' ||:
+	fi >&2
+
 	touch -r "$repo_noarch_release".orig -- "$repo_noarch_release"
 	rm -- "$repo_noarch_release".orig
 }
@@ -500,9 +507,16 @@ fake_repo_noarch_pkglist() {
 	local -r repo_noarch_pkglist="$REPO_STORAGE/$NOARCH_DISTRO/base/pkglist.$DISTRO_COMPONENT"
 	mv "$repo_noarch_pkglist"{,.orig}
 	rm -f "$repo_noarch_pkglist$REPO_COMPR_EXT"
+
 	"$@" \
 	    >"$repo_noarch_pkglist" \
 	    <"$repo_noarch_pkglist".orig
+
+	if [ $MSGLEVEL -gt 3 ]; then # info
+		echo "Edited $repo_noarch_pkglist:"
+		diff --report-identical-files --brief "$repo_noarch_pkglist"{.orig,} ||:
+	fi >&2
+
 	touch -r "$repo_noarch_pkglist".orig -- "$repo_noarch_pkglist"
 
 	if [ -n "$REPO_COMPR_EXT" ]; then
