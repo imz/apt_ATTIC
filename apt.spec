@@ -418,6 +418,8 @@ popd
 * Tue Aug 24 2021 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt73
 - (source code; ABI) Got rid of virtual methods with default parameters
   (because they are confusing for the programmer).
+- (%%check) Done more extensive testing of how apt works with "rpm" repos
+  via any of the file, http(s), cdrom methods.
 
 * Thu Mar 18 2021 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt72
 - Cleaned up the code (thx Dmitry V. Levin ldv@; including
