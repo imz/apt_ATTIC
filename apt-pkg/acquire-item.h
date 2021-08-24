@@ -171,8 +171,8 @@ class pkgAcqIndexRel : public pkgAcquire::Item
 
    // Specialized action members
    virtual void Failed(string Message,pkgAcquire::MethodConfig *Cnf) override;
-   virtual void Done(string Message,unsigned long Size,string Md5Hash,
-		     pkgAcquire::MethodConfig *Cnf) override;
+   virtual void DoneByWorker(const string &Message,unsigned long Size,
+                             pkgAcquire::MethodConfig *Cnf) override;
    virtual string Custom600Headers() override;
    virtual string DescURI() override {return RealURI;}
 
