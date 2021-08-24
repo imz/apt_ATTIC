@@ -522,6 +522,8 @@ seq 0 $((TRIES-1)) | xargs -I'{}' ${NPROCS:+-P$NPROCS --process-slot-var=PARALLE
       matter which hashing algorithm is used.)
 - (source code; ABI) Reverted a lot of inessential optimizations
   from 0.5.15lorg2-alt72.
+- (source code; ABI) Got rid of virtual methods with default parameters
+  (because they are confusing for the programmer).
 
 * Thu Mar 18 2021 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt72
 - Cleaned up the code (thx Dmitry V. Levin ldv@; including
