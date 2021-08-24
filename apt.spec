@@ -503,6 +503,8 @@ seq 0 $((TRIES-1)) | xargs -I'{}' ${NPROCS:+-P$NPROCS --process-slot-var=PARALLE
       it in the meta-data: for MD5, SHA1, SHA256, BLAKE2b.
     * Simply testing that a faked rpm file of the same size is rejected--no
       matter which hashing algorithm is used.)
+- (source code; ABI) Reverted a lot of inessential optimizations
+  from 0.5.15lorg2-alt72.
 
 * Thu Mar 18 2021 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt72
 - Cleaned up the code (thx Dmitry V. Levin ldv@; including
