@@ -527,7 +527,8 @@ seq 0 $((TRIES-1)) | xargs -I'{}' ${NPROCS:+-P$NPROCS --process-slot-var=PARALLE
 - (source code; ABI) Backported some pieces of the support for the multiplicity
   of checksum (and compression) types from apt-rpm:
   + the type of the compression for "pkglist" indices;
-  + the type of the checksum for "pkglist" indices.
+  + the type of the checksum for "pkglist" indices;
+  + the type of the checksum for "rpm" archives.
   (WIP: for now, their type is determined by the repo type.)
 
 * Thu Mar 18 2021 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt72
