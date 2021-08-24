@@ -492,9 +492,11 @@ seq 0 $((TRIES-1)) | xargs -I'{}' ${NPROCS:+-P$NPROCS --process-slot-var=PARALLE
   + re-fetching if the saved complete or partial pkglist indices are corrupt
     (see https://bugzilla.altlinux.org/show_bug.cgi?id=40746#c9 );
   + the verification of the checksums of pkglist indices. (The verification
-    is tested in the following way:
+    is tested in two ways:
     * The verification of the checksum of a specific type is tested by faking
-      it in the meta-data: for MD5.)
+      it in the meta-data: for MD5, BLAKE2b.
+    * Simply testing that a faked pkglist file of the same size is rejected--no
+      matter which hashing algorithm is used.)
 
 * Thu Mar 18 2021 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt72
 - Cleaned up the code (thx Dmitry V. Levin ldv@; including
