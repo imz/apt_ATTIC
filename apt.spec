@@ -7,7 +7,7 @@
 
 Name: apt
 Version: 0.5.15lorg2
-Release: alt72
+Release: alt73
 
 Summary: Debian's Advanced Packaging Tool with RPM support
 Summary(ru_RU.UTF-8): Debian APT - Усовершенствованное средство управления пакетами с поддержкой RPM
@@ -406,6 +406,8 @@ popd
 %_datadir/%name/tests/
 
 %changelog
+* Tue Aug 24 2021 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt73
+
 * Thu Mar 18 2021 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt72
 - Cleaned up the code (thx Dmitry V. Levin ldv@; including
   quite a few commits cherry-picked from http://apt-rpm.org/scm/apt.git):
