@@ -73,7 +73,7 @@ class pkgAcquire::Item
    virtual void Finished() {}
 
    // LORG:2006-03-16
-   virtual string ChecksumType() {return "MD5-Hash";};
+   virtual string ChecksumType() = 0;
 
    // Inquire functions
    virtual string MD5Sum() {return string();}
@@ -194,6 +194,9 @@ class pkgAcqFile : public pkgAcquire::Item
 		     pkgAcquire::MethodConfig *Cnf) override;
    virtual string MD5Sum() override {return Md5Hash;}
    virtual string DescURI() override {return Desc.URI;}
+
+   // LORG:2006-03-16
+   virtual string ChecksumType() override {return "MD5-Hash";};
 
    pkgAcqFile(pkgAcquire *Owner,string URI,string MD5,unsigned long Size,
 		  string Desc,string ShortDesc);
