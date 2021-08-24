@@ -423,7 +423,9 @@ popd
 - (source code; ABI) Reverted a lot of inessential optimizations
   from 0.5.15lorg2-alt72.
 - (%%check) Done more extensive testing of how apt works with "rpm" repos
-  via any of the file, http(s), cdrom methods.
+  via any of the file, http(s), cdrom methods; including:
+  + re-fetching if the saved complete or partial pkglist indices are corrupt
+    (see https://bugzilla.altlinux.org/show_bug.cgi?id=40746#c9 ).
 
 * Thu Mar 18 2021 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt72
 - Cleaned up the code (thx Dmitry V. Levin ldv@; including
