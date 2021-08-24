@@ -146,10 +146,14 @@ done
 
 echo >&2 "Statistics: $ALL tests were run: $PASS successfully and $FAIL failed and $XFAIL xfailed"
 if [ -n "$XFAILED_TESTS" ]; then
-	echo >&2 "XFailed tests: $XFAILED_TESTS"
+	echo >&2 "XFailed tests:"
+        for t in $XFAILED_TESTS; do echo "$t"; done >&2
+	echo >&2
 fi
 if [ -n "$FAILED_TESTS" ]; then
 	echo >&2 "Failed tests: $FAILED_TESTS"
+        for t in $FAILED_TESTS; do echo "$t"; done >&2
+	echo >&2
 else
 	echo >&2 'All tests seem to have been run successfully. What could possibly go wrong?'
 fi
