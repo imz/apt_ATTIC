@@ -487,6 +487,8 @@ seq 0 $((TRIES-1)) | xargs -I'{}' ${NPROCS:+-P$NPROCS --process-slot-var=PARALLE
 - (tests) Run them not in %%check, but in *-checkinstall subpkgs. (To break
   build-dep cycle with apt-repo-tools, whose features are required by the tests,
   but which needs to be recompiled to be linked with libapt.)
+- (tests) Done more extensive testing of how apt works with "rpm" repos
+  via any of the file, http(s), cdrom methods.
 
 * Thu Mar 18 2021 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt72
 - Cleaned up the code (thx Dmitry V. Levin ldv@; including
