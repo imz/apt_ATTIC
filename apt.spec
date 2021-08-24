@@ -427,7 +427,8 @@ popd
 - (source code; ABI) Backported some pieces of the support for the multiplicity
   of checksum (and compression) types from apt-rpm:
   + the type of the compression for "pkglist" indices;
-  + the type of the checksum for "pkglist" indices.
+  + the type of the checksum for "pkglist" indices;
+  + the type of the checksum for "rpm" archives.
 
 * Thu Mar 18 2021 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt72
 - Cleaned up the code (thx Dmitry V. Levin ldv@; including
