@@ -425,6 +425,10 @@ popd
 - (%%check) Done more extensive testing of how apt works with "rpm" repos
   via any of the file, http(s), cdrom methods; including:
   + the verification of the checksums of pkglist indices.
+- (source code; ABI) Backported some pieces of the support for the multiplicity
+  of checksum (and compression) types from apt-rpm:
+  + the type of the compression for "pkglist" indices;
+  (WIP: for now, their type is determined by the repo type.)
 
 * Thu Mar 18 2021 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt72
 - Cleaned up the code (thx Dmitry V. Levin ldv@; including
