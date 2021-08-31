@@ -148,11 +148,6 @@ aptmark() { runapt apt-mark "$@"; }
 
 
 exitwithstatus() {
-        # error if we about to overflow, but ...
-        #   "255 failures ought to be enough for everybody"
-        if [ $EXIT_CODE -gt 254 ]; then
-            msgdie "Total failure count $EXIT_CODE too big"
-        fi
 		if [ $EXIT_CODE -gt 0 ]; then
 			exit $((EXIT_CODE <= 254 ? EXIT_CODE : 254));
 		elif [ $XFAILED -gt 0 ]; then
