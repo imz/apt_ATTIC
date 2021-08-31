@@ -10,7 +10,8 @@ case "$APT_TEST_METHOD" in
 		;;
 esac
 
-. $TESTDIR/test-apt-update-simple
+. $TESTDIR/framework-without-repo
+prereq $TESTDIR/test-apt-update-simple
 
 # Fake pkglist (only noarch, since a noarch pkg is definitely present).
 #
