@@ -68,8 +68,8 @@ generaterepository() {
 		# (FIXME: fix APT so that the used compression doesn't matter!)
 		case "$APT_TEST_METHOD" in
 
-			http*) compression_opts='--no-bz2 --no-xz'
-			       REPO_COMPR_EXT=
+			http*) compression_opts='--bz2 --no-xz'
+			       REPO_COMPR_EXT=.bz2
 			       ;;
 
 			cdrom*) compression_opts='--bz2 --no-xz'
