@@ -85,7 +85,7 @@ bool pkgSourceList::Type::ParseLine(vector<pkgIndexFile *> &List,
 				    Vendor const *Vendor,
 				    const char *Buffer,
 				    unsigned long CurLine,
-				    const string File) const
+				    string File) const
 {
    string URI;
    string Dist;
@@ -135,7 +135,7 @@ pkgSourceList::pkgSourceList()
 {
 }
 
-pkgSourceList::pkgSourceList(const string File)
+pkgSourceList::pkgSourceList(string File)
 {
    Read(File);
 }
@@ -299,7 +299,7 @@ void pkgSourceList::Reset()
 // SourceList::Read - Parse the sourcelist file				/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-bool pkgSourceList::Read(const string File)
+bool pkgSourceList::Read(string File)
 {
    Reset();
    return ReadAppend(File);
@@ -308,7 +308,7 @@ bool pkgSourceList::Read(const string File)
 // SourceList::ReadAppend - Parse a sourcelist file			/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-bool pkgSourceList::ReadAppend(const string File)
+bool pkgSourceList::ReadAppend(string File)
 {
    // Open the stream for reading
    ifstream F(File.c_str(),ios::in /*| ios::nocreate*/);
@@ -436,7 +436,7 @@ bool pkgSourceList::GetReleases(pkgAcquire *Owner) const
 // Based on ReadConfigDir()						/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-bool pkgSourceList::ReadSourceDir(const string Dir)
+bool pkgSourceList::ReadSourceDir(string Dir)
 {
    DIR *D = opendir(Dir.c_str());
    if (D == 0)
