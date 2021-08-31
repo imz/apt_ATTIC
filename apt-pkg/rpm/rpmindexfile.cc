@@ -676,7 +676,7 @@ class rpmSLTypeRpm : public rpmSLTypeGen
    public:
 
    bool CreateItem(vector<pkgIndexFile *> &List,
-		   const string URI, const string Dist, const string Section,
+		   string URI, string Dist, string Section,
 		   pkgSourceList::Vendor const *Vendor) const override
    {
       pkgRepository *Rep = GetRepository(URI,Dist,Vendor);
@@ -696,7 +696,7 @@ class rpmSLTypeSrpm : public rpmSLTypeGen
    public:
 
    bool CreateItem(vector<pkgIndexFile *> &List,
-		   const string URI, const string Dist, const string Section,
+		   string URI, string Dist, string Section,
 		   pkgSourceList::Vendor const *Vendor) const override
    {
       pkgRepository *Rep = GetRepository(URI,Dist,Vendor);
@@ -716,7 +716,7 @@ class rpmSLTypeRpmDir : public rpmSLTypeGen
    public:
 
    bool CreateItem(vector<pkgIndexFile *> &List,
-		   const string URI, const string Dist, const string Section,
+		   string URI, string Dist, string Section,
 		   pkgSourceList::Vendor const *Vendor) const override
    {
       pkgRepository *Rep = GetRepository(URI,Dist,Vendor);
@@ -736,7 +736,7 @@ class rpmSLTypeSrpmDir : public rpmSLTypeGen
    public:
 
    bool CreateItem(vector<pkgIndexFile *> &List,
-		   const string URI, const string Dist, const string Section,
+		   string URI, string Dist, string Section,
 		   pkgSourceList::Vendor const *Vendor) const override
    {
       pkgRepository *Rep = GetRepository(URI,Dist,Vendor);

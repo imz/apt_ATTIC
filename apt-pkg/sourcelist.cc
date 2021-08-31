@@ -85,7 +85,7 @@ bool pkgSourceList::Type::ParseLine(vector<pkgIndexFile *> &List,
 				    Vendor const *Vendor,
 				    const char *Buffer,
 				    unsigned long CurLine,
-				    const string File) const
+				    string File) const
 {
    string URI;
    string Dist;

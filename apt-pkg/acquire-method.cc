@@ -345,7 +345,7 @@ bool pkgAcqMethod::NeedAuth(string Description,string &User,string &Pass)
 // ---------------------------------------------------------------------
 /* This parses each configuration entry and puts it into the _config
    Configuration class. */
-bool pkgAcqMethod::Configuration(const string Message)
+bool pkgAcqMethod::Configuration(string Message)
 {
    ::Configuration &Cnf = *_config;
 
