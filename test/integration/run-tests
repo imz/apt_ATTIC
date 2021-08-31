@@ -151,7 +151,7 @@ if [ -n "$XFAILED_TESTS" ]; then
 	echo >&2
 fi
 if [ -n "$FAILED_TESTS" ]; then
-	echo >&2 "Failed tests: $FAILED_TESTS"
+	echo >&2 "Failed tests:"
         for t in $FAILED_TESTS; do echo "$t"; done >&2
 	echo >&2
 else
