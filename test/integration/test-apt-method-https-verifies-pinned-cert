@@ -13,7 +13,8 @@ case "$APT_TEST_METHOD" in
 		;;
 esac
 
-. $TESTDIR/test-apt-install-simple
+. $TESTDIR/framework-without-repo
+prereq $TESTDIR/test-apt-install-simple
 
 # generate another key, and pin apt to it. Check cert pinning
 msgmsg 'Pinning invalid cert in apt'
