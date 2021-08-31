@@ -60,7 +60,7 @@ class rpmRecordParser : public pkgRecords::Parser
 
    virtual bool HasFile(const char *File) override;
 
-   rpmRecordParser(const string &File,pkgCache &Cache);
+   rpmRecordParser(string File,pkgCache &Cache);
    ~rpmRecordParser();
 };
 
