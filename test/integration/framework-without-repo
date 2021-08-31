@@ -148,8 +148,6 @@ exitwithstatus() {
 			exit 255
 		elif [ -n "$APT_TEST_XFAIL" ]; then
 			exit 254 # XPASS: uneXpected PASS
-		else
-			exit 0
 		fi
 }
 
@@ -173,7 +171,16 @@ addtrap() {
 		local -r fmt="$1"; shift
 		printf -v CURRENTTRAP "$fmt %s" "$@" "$CURRENTTRAP"
 	fi
-	trap "shellsetedetector; $CURRENTTRAP exitwithstatus;" 0 HUP INT QUIT ILL ABRT FPE SEGV PIPE TERM
+	trap "shellsetedetector; $CURRENTTRAP exitwithstatus; exit 0;" 0 HUP INT QUIT ILL ABRT FPE SEGV PIPE TERM
+}
+
+# Source a script whose effect is a prerequisite.
+# Do not continue, if that script has failed or x-failed.
+prereq() {
+	. "$1"
+	if [ $EXIT_CODE -gt 0 ] || [ $XFAILED -gt 0 ]; then
+	    exit
+	fi
 }
 
 setupenvironment() {
