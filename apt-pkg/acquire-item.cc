@@ -487,9 +487,11 @@ string pkgAcqIndexRel::Custom600Headers()
 /* The release file was not placed into the download directory then
    a copy URI is generated and it is copied there otherwise the file
    in the partial directory is moved into .. and the URI is finished. */
-void pkgAcqIndexRel::Done(const string Message,unsigned long Size,const string MD5,
+void pkgAcqIndexRel::Done(const string Message, unsigned long Size, const string /* MD5 obsolete */,
 			  pkgAcquire::MethodConfig *Cfg)
 {
+   const string MD5 = LookupTag(Message,Repository->GetCheckMethod().c_str());
+
    Item::Done(Message,Size,MD5,Cfg);
 
    // CNC:2002-07-03
