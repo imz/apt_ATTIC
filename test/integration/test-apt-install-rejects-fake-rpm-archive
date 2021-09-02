@@ -1,6 +1,13 @@
 #!/bin/bash
 set -eu
 
+# The "file" (and seemingly "cdrom") method doesn't compute
+# and pass the cksums to apt.
+case "$APT_TEST_METHOD" in
+	file*|cdrom*) APT_TEST_XFAIL=yes
+	       ;;
+esac
+
 TESTDIR=$(readlink -f $(dirname $0))
 . $TESTDIR/framework
 
@@ -12,6 +19,16 @@ generaterepository_and_switch_sources "$TMPWORKINGDIRECTORY/usr/src/RPM/RPMS"
 
 testsuccess aptget update
 
+# Fake an rpm.
+#
+# (For faking individual cksums, see other tests,
+# like test-apt-install-verifies-CKSUM-of-rpm-archive.)
+fake_repo_noarch_rpm simple-package-noarch \
+    sed -Ee '1 s:simple:dimple:'
+
+# Cksum verification shouldn't pass.
+
 testpkgnotinstalled 'simple-package-noarch'
-testsuccess aptget install simple-package-noarch
-testpkginstalled 'simple-package-noarch'
+testregexmatch '.*MD5Sum mismatch.*' aptget install simple-package-noarch
+testfailure
+testpkgnotinstalled 'simple-package-noarch'
