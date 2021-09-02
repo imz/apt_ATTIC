@@ -263,11 +263,6 @@ pkgAcqIndex::pkgAcqIndex(pkgAcquire *Owner,pkgRepository *Repository,
    QueueURI(Desc);
 }
 									/*}}}*/
-string pkgAcqIndex::ChecksumType()
-{
-   return Repository->GetCheckMethod();
-}
-
 // AcqIndex::Custom600Headers - Insert custom request headers		/*{{{*/
 // ---------------------------------------------------------------------
 /* The only header we use is the last-modified header. */
@@ -290,9 +285,11 @@ string pkgAcqIndex::Custom600Headers()
    to the uncompressed version of the file. If this is so the file
    is copied into the partial directory. In all other cases the file
    is decompressed with a gzip uri. */
-void pkgAcqIndex::Done(string Message,unsigned long Size,string MD5,
+void pkgAcqIndex::Done(string Message,unsigned long Size, const string /* MD5 obsolete */,
 		       pkgAcquire::MethodConfig *Cfg)
 {
+   const string MD5 = LookupTag(Message,Repository->GetCheckMethod().c_str());
+
    Item::Done(Message,Size,MD5,Cfg);
 
    if (Decompression == true)
