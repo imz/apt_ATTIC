@@ -71,7 +71,7 @@ class RPMHandler
    virtual string Directory() const = 0;
    virtual off_t FileSize() const = 0;
    virtual string MD5Sum() const = 0;
-   virtual string SHA1Sum() const {return "";}
+   virtual string SHA1Sum() const = 0;
    virtual bool ProvideFileName() const {return false;}
 
    virtual string Name() const = 0;
