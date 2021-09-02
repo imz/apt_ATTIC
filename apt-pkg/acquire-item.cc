@@ -494,8 +494,9 @@ string pkgAcqIndexRel::Custom600Headers()
 /* The release file was not placed into the download directory then
    a copy URI is generated and it is copied there otherwise the file
    in the partial directory is moved into .. and the URI is finished. */
-void pkgAcqIndexRel::Done(string Message,unsigned long Size,string MD5,
-			  pkgAcquire::MethodConfig *Cfg)
+void pkgAcqIndexRel::DoneByWorker(const string &Message,
+                                  const unsigned long Size,
+                                  pkgAcquire::MethodConfig * const Cfg)
 {
    BaseItem_Done(Message,Size,Cfg);
 
@@ -616,6 +617,7 @@ void pkgAcqIndexRel::Done(string Message,unsigned long Size,string MD5,
 			    RealURI.c_str(), Size, FSize);
 	 return;
       }
+      const string MD5 = LookupTag(Message,Repository->GetCheckMethod().c_str());
       if (MD5.empty() == false && MD5Hash != MD5)
       {
 	 Status = StatError;
