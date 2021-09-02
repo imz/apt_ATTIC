@@ -72,9 +72,6 @@ class pkgAcquire::Item
    virtual string DescURI() = 0;
    virtual void Finished() {}
 
-   // LORG:2006-03-16
-   virtual string ChecksumType() {return "MD5-Hash";};
-
    // Inquire functions
    virtual string MD5Sum() {return string();}
    pkgAcquire *GetOwner() {return Owner;}
@@ -106,9 +103,6 @@ class pkgAcqIndex : public pkgAcquire::Item
 		     pkgAcquire::MethodConfig *Cnf) override;
    virtual string Custom600Headers() override;
    virtual string DescURI() override {return RealURI;} // CNC:2003-02-14
-
-   // LORG:2006-03-16
-   virtual string ChecksumType() override;
 
    // CNC:2002-07-03
    pkgAcqIndex(pkgAcquire *Owner,pkgRepository *Repository,const string &URI,
