@@ -604,3 +604,35 @@ fake_repo_noarch_pkglist_size() {
 	edit_repo_noarch_release \
 	    sed -Ee "/pkglist/ s:^( [^ ]*) [^ ]* :\1 $a_bad_size :"
 }
+
+# Input:
+# * args NAME CMD [ARG..] -- the name of the pkg and a stream editor (for the pkg file)
+# * global vars REPO_STORAGE, NOARCH_DISTRO, DISTRO_COMPONENT
+# * files $REPO_STORAGE/$NOARCH_DISTRO/RPMS.$DISTRO_COMPONENT/NAME-*.rpm
+#
+# Output/effects:
+# * the file is edited; its time is unchanged
+fake_repo_noarch_rpm() {
+	local -r name="$1"; shift
+
+	local pkgfile
+	pkgfile="$(builtpackagefile "$name")"
+	pkgfile="${pkgfile##*/}"
+	local -r pkgfile
+
+	local -r repo_noarch_pkgfile="$REPO_STORAGE/$NOARCH_DISTRO/RPMS.$DISTRO_COMPONENT/$pkgfile"
+	mv "$repo_noarch_pkgfile"{,.orig}
+
+	"$@" \
+	    >"$repo_noarch_pkgfile" \
+	    <"$repo_noarch_pkgfile".orig
+
+	if [ $MSGLEVEL -gt 3 ]; then # info
+		echo "Edited $repo_noarch_pkgfile:"
+		diff --report-identical-files --brief "$repo_noarch_pkgfile"{.orig,} ||:
+	fi >&2
+
+	touch -r "$repo_noarch_pkgfile".orig -- "$repo_noarch_pkgfile"
+
+	rm -- "$repo_noarch_pkgfile".orig
+}
