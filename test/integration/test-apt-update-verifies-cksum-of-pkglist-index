@@ -12,6 +12,7 @@ esac
 
 . $TESTDIR/framework
 
+# The "file" method doesn't compute and pass the cksums to apt.
 case "$APT_TEST_METHOD" in
 	file*) APT_TEST_XFAIL=yes
 	       ;;
