@@ -16,7 +16,7 @@ prereq $TESTDIR/test-apt-update-simple
 # Fake pkglist (only noarch, since a noarch pkg is definitely present).
 #
 # (For faking individual cksums, see other tests,
-# like test-apt-update-verifies-cksum-of-pkglist-index.)
+# like test-apt-update-verifies-CKSUM-of-pkglist-index.)
 fake_repo_noarch_pkglist \
     sed -Ee 's:nobody:oooody:'
 
