@@ -17,14 +17,13 @@ buildpackage 'simple-package-noarch'
 
 generaterepository_and_switch_sources "$TMPWORKINGDIRECTORY/usr/src/RPM/RPMS"
 
-testsuccess aptget update
-
-# Fake an rpm.
+# Fake the cksum of the rpm.
 #
-# (For faking individual cksums, see other tests,
-# like test-apt-install-verifies-CKSUM-of-rpm-archive.)
-fake_repo_noarch_rpm simple-package-noarch \
-    sed -Ee '1 s:simple:dimple:'
+# (For faking the rpm itself, see other tests,
+# like test-apt-install-rejects-fake-rpm-archive.)
+fake_repo_rpm_cksum MD5Sum simple-package-noarch
+
+testsuccess aptget update
 
 # Cksum verification shouldn't pass.
 
