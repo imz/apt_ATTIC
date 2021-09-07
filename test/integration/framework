@@ -544,6 +544,31 @@ fake_repo_noarch_pkglist() {
 
 # Here is an implementation of way 2:
 
+# a helper function
+bad_cksum() {
+	local -r cksum_type="$1"; shift
+
+	case "$cksum_type" in
+
+	    MD5Sum)
+	        md5sum /dev/null
+		;;
+
+	    SHA1)
+	        sha1sum /dev/null
+		;;
+
+	    BLAKE2b)
+	        b2sum /dev/null
+		;;
+
+	    *)
+		msgdie "Unknown cksum_type $cksum_type"
+		;;
+
+	esac | cut -d' ' -f1
+}
+
 # Input:
 # * args: cksum_type CMD [ARG..] -- stream editor
 # * global vars REPO_STORAGE, NOARCH_DISTRO
@@ -554,30 +579,12 @@ fake_repo_noarch_pkglist() {
 fake_repo_noarch_pkglist_cksum() {
 	local -r cksum_type="$1"; shift
 
-	local bad_cksum
-	case "$cksum_type" in
-
-	    MD5Sum)
-		bad_cksum="$(md5sum /dev/null | cut -d' ' -f1)"
-		;;
-
-	    SHA1)
-		bad_cksum="$(sha1sum /dev/null | cut -d' ' -f1)"
-		;;
-
-	    BLAKE2b)
-		bad_cksum="$(b2sum /dev/null | cut -d' ' -f1)"
-		;;
-
-	    *)
-		msgdie "Unknown cksum_type $cksum_type"
-		;;
-
-	esac
-	local -r bad_cksum
+	local a_bad_cksum
+	a_bad_cksum="$(bad_cksum "$cksum_type")"
+	local -r a_bad_cksum
 
 	edit_repo_noarch_release \
-	    sed -Ee "/^$cksum_type:/,/^[^ ]/ { /pkglist/ s:^ [^ ]* : $bad_cksum :; }"
+	    sed -Ee "/^$cksum_type:/,/^[^ ]/ { /pkglist/ s:^ [^ ]* : $a_bad_cksum :; }"
 }
 
 # Input:
