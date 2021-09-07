@@ -640,3 +640,42 @@ fake_repo_noarch_rpm() {
 
 	rm -- "$repo_noarch_pkgfile".orig
 }
+
+# Input:
+# * args: cksum_type NAME
+# * global vars REPO_STORAGE
+# * files in $TMPWORKINGDIRECTORY/cache/
+#
+# Output/effects:
+# * files in $TMPWORKINGDIRECTORY/cache/ are edited
+# * the index files in $REPO_STORAGE/*/base/ are regenerated
+#   with fake cksums for the NAME rpm
+#   (by calling generaterepository(), with all its effects)
+fake_repo_rpm_cksum() {
+	local -r cksum_type="$1"; shift
+	# FIXME: we ignore NAME, and simply change all cksums
+
+	local a_bad_cksum
+	a_bad_cksum="$(bad_cksum "$cksum_type")"
+	local -r a_bad_cksum
+
+	cp -a "$TMPWORKINGDIRECTORY"/cache{,.orig} -T
+
+	local cache_ext="$cksum_type"
+	cache_ext="${cache_ext%Sum}"
+	cache_ext="${cache_ext,,}"
+	cache_ext="${cache_ext}cache"
+	local -r cache_ext
+	find "$TMPWORKINGDIRECTORY"/cache/ -name "*.$cache_ext" -print0 \
+	    | xargs -0 \
+		    sed -Ee "{ s:^([^ ]*) [^ ]* :\1 $a_bad_cksum :; }" -i --
+
+	if [ $MSGLEVEL -gt 3 ]; then # info
+		echo "Edited *.$cache_ext"
+		diff -u --text -Nr "$TMPWORKINGDIRECTORY"/cache{.orig,} && echo '(no diff)' ||:
+	fi >&2
+	rm -r -- "$TMPWORKINGDIRECTORY"/cache.orig
+
+	# re-generate using the same rpms, but a cache with fake cksums
+	generaterepository '' "$REPO_STORAGE"
+}
