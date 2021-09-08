@@ -658,7 +658,7 @@ fake_repo_rpm_cksum() {
 	cache_ext="${cache_ext}cache"
 	local -r cache_ext
 	find "$TMPWORKINGDIRECTORY"/cache/ -name "*.$cache_ext" -print0 \
-	    | xargs -0 \
+	    | xargs -0 --no-run-if-empty \
 		    sed -Ee "/^$pkgfile_re / { s:^([^ ]*) [^ ]* :\1 $a_bad_cksum :; }" -i --
 
 	if [ $MSGLEVEL -gt 3 ]; then # info
