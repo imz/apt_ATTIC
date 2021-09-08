@@ -13,6 +13,7 @@ aptcdrom() { runapt apt-cdrom "${CDROM_OPTS[@]}" "$@"; }
 
 # Input:
 # * args: orig_dir repo_dir [repo_date]
+#   (orig_dir may be empty if we just need to re-generate without copying rpms.)
 # * a few global vars
 #
 # Output/effects:
@@ -83,13 +84,16 @@ generaterepository() {
 		esac
 	fi
 
-	rm -rf "$repo_dir"
-	for dir in ${arch} noarch ; do
-		mkdir -p "${repo_dir}/${dir}/RPMS.${label}"
-		mkdir -p "${repo_dir}/${dir}/base"
-		stat "${orig_dir}/${dir}/"*.rpm &>/dev/null &&
-			cp "${orig_dir}/${dir}/"*.rpm "${repo_dir}/${dir}/RPMS.${label}"/
-	done
+	if [ -n "$orig_dir" ]; then
+		# initial generation
+		rm -rf "$repo_dir"
+		for dir in ${arch} noarch ; do
+			mkdir -p "${repo_dir}/${dir}/RPMS.${label}"
+			mkdir -p "${repo_dir}/${dir}/base"
+			stat "${orig_dir}/${dir}/"*.rpm &>/dev/null &&
+				cp "${orig_dir}/${dir}/"*.rpm "${repo_dir}/${dir}/RPMS.${label}"/
+		done
+	fi
 
 	mkdir -p "${TMPWORKINGDIRECTORY}/cache"
 
