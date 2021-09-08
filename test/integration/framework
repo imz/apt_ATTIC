@@ -635,7 +635,16 @@ fake_repo_noarch_rpm() {
 #   (by calling generaterepository(), with all its effects)
 fake_repo_rpm_cksum() {
 	local -r cksum_type="$1"; shift
-	# FIXME: we ignore NAME, and simply change all cksums
+	local -r name="$1"; shift
+
+	local pkgfile
+	pkgfile="$(builtpackagefile "$name")"
+	pkgfile="${pkgfile##*/}"
+	local -r pkgfile
+
+	local pkgfile_re
+	set_regex_quote_str pkgfile_re "$pkgfile"
+	local -r pkgfile_re
 
 	local a_bad_cksum
 	a_bad_cksum="$(bad_cksum "$cksum_type")"
@@ -650,7 +659,7 @@ fake_repo_rpm_cksum() {
 	local -r cache_ext
 	find "$TMPWORKINGDIRECTORY"/cache/ -name "*.$cache_ext" -print0 \
 	    | xargs -0 \
-		    sed -Ee "{ s:^([^ ]*) [^ ]* :\1 $a_bad_cksum :; }" -i --
+		    sed -Ee "/^$pkgfile_re / { s:^([^ ]*) [^ ]* :\1 $a_bad_cksum :; }" -i --
 
 	if [ $MSGLEVEL -gt 3 ]; then # info
 		echo "Edited *.$cache_ext"
