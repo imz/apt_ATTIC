@@ -1,6 +1,8 @@
 #!/bin/bash
 set -eu
 
+readonly CKSUM_TYPE="$1"; shift
+
 # The "file" (and seemingly "cdrom") method doesn't compute
 # and pass the cksums to apt.
 case "$APT_TEST_METHOD" in
@@ -21,7 +23,7 @@ generaterepository_and_switch_sources "$TMPWORKINGDIRECTORY/usr/src/RPM/RPMS"
 #
 # (For faking the rpm itself, see other tests,
 # like test-apt-install-rejects-fake-rpm-archive.)
-fake_repo_rpm_cksum MD5Sum simple-package-noarch
+fake_repo_rpm_cksum "$CKSUM_TYPE" simple-package-noarch
 
 testsuccess aptget update
 
