@@ -6,4 +6,7 @@ TESTDIR=$(readlink -f $(dirname $0))
 # Currently, in apt, the cksum type is bound to the repo type.
 export APT_TEST_XFAIL=yes
 
-exec $TESTDIR/tmpl-apt-install-verifies-CKSUM-of-rpm-archive.sh 'BLAKE2b'
+# apt-repo-tools (post 0.8.0 sha2 branch) implements it, but needs an option.
+export APT_TEST_GENBASEDIR_OPTS="${APT_TEST_GENBASEDIR_OPTS} --sha1"
+
+exec $TESTDIR/tmpl-apt-install-verifies-CKSUM-of-rpm-archive.sh 'SHA1'
