@@ -24,19 +24,6 @@ testsuccess aptget update
 readonly NL=$'\n'
 readonly ANY="[^$NL]"
 
-set_regex_quote_str() {
-	local -r regex_var="$1"; shift
-	local -r str="$1"; shift
-
-	# FIXME: %q is not the correct quotation for regexes.
-	if [ -n "$str" ]; then
-		printf -v "$regex_var" '%q' "$str"
-	else
-		# workaround a problem of %q
-		printf -v "$regex_var" ''
-	fi
-}
-
 # values occurring many times in the dump:
 
 set_regex_quote_str APT_SOURCES_SITE_RE "$APT_SOURCES_SITE"
