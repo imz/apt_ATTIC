@@ -426,7 +426,8 @@ popd
   via any of the file, http(s), cdrom methods; including:
   + re-fetching if the saved complete or partial pkglist indices are corrupt
     (see https://bugzilla.altlinux.org/show_bug.cgi?id=40746#c9 );
-  + the verification of the checksums of pkglist indices.
+  + the verification of the checksums of pkglist indices;
+  + the verification of the checksums of rpm archives.
 - (source code; ABI) Backported some pieces of the support for the multiplicity
   of checksum (and compression) types from apt-rpm:
   + the type of the compression for "pkglist" indices;
