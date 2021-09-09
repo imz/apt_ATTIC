@@ -198,6 +198,7 @@ class RPMDBHandler : public RPMHdrHandler
 
    // not available in the DB (probably, because it's for the original file)
    virtual string MD5Sum() const override {return "";}
+   virtual string SHA1Sum() const override {return "";}
 
    public:
 
