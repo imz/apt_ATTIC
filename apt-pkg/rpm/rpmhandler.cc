@@ -494,6 +494,17 @@ string RPMDirHandler::MD5Sum() const
    return MD5.Result().Value();
 }
 
+string RPMDirHandler::SHA1Sum() const
+{
+   if (Dir == NULL)
+      return "";
+   SHA1Summation SHA1;
+   FileFd File(sFilePath, FileFd::ReadOnly);
+   SHA1.AddFD(File.Fd(), File.Size());
+   File.Close();
+   return SHA1.Result().Value();
+}
+
 
 RPMDBHandler::RPMDBHandler(bool WriteLock)
    : Handler(0), WriteLock(WriteLock)
