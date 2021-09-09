@@ -176,6 +176,7 @@ class RPMSingleFileHandler : public RPMFileHandler
    virtual string Directory() const override {return "";}
    virtual off_t FileSize() const override;
    virtual string MD5Sum() const override;
+   virtual string SHA1Sum() const override;
    virtual bool ProvideFileName() const override {return true;}
 
    RPMSingleFileHandler(string File) : RPMFileHandler(File), sFilePath(File) {}
