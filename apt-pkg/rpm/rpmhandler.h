@@ -154,6 +154,7 @@ class RPMFileHandler : public RPMHdrHandler
    virtual string Directory() const override {return GetSTag(CRPMTAG_DIRECTORY);}
    virtual off_t FileSize() const override {return GetITag(CRPMTAG_FILESIZE);}
    virtual string MD5Sum() const override {return GetSTag(CRPMTAG_MD5);}
+   virtual string SHA1Sum() const override {return GetSTag(CRPMTAG_SHA1);}
 
    RPMFileHandler(FileFd *File);
    RPMFileHandler(string File);
