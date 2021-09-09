@@ -24,6 +24,7 @@
 #include <apt-pkg/error.h>
 #include <apt-pkg/configuration.h>
 #include <apt-pkg/md5.h>
+#include <apt-pkg/sha1.h>
 
 #include "rpmhandler.h"
 #include "rpmpackagedata.h"
@@ -357,6 +358,15 @@ string RPMSingleFileHandler::MD5Sum() const
    MD5.AddFD(File.Fd(), File.Size());
    File.Close();
    return MD5.Result();
+}
+
+string RPMSingleFileHandler::SHA1Sum() const
+{
+   SHA1Summation SHA1;
+   FileFd File(sFilePath, FileFd::ReadOnly);
+   SHA1.AddFD(File.Fd(), File.Size());
+   File.Close();
+   return SHA1.Result();
 }
 
 RPMDirHandler::RPMDirHandler(string DirName)
