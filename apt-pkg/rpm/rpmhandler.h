@@ -112,7 +112,6 @@ class RPMHdrHandler : public RPMHandler
    virtual string FileName() const override {return "";}
    virtual string Directory() const override {return "";}
    virtual off_t FileSize() const override {return 1;}
-   virtual string MD5Sum() const override {return "";}
 
    virtual string Name() const override {return GetSTag(RPMTAG_NAME);}
    virtual string Arch() const override {return GetSTag(RPMTAG_ARCH);}
@@ -191,6 +190,9 @@ class RPMDBHandler : public RPMHdrHandler
 
    time_t DbFileMtime;
    unsigned long DbFileMnanotime;
+
+   // not available in the DB (probably, because it's for the original file)
+   virtual string MD5Sum() const override {return "";}
 
    public:
 
