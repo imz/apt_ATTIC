@@ -235,6 +235,7 @@ class RPMDirHandler : public RPMHdrHandler
    virtual string FileName() const override {return (Dir == NULL)?"":sFileName;}
    virtual off_t FileSize() const override;
    virtual string MD5Sum() const override;
+   virtual string SHA1Sum() const override;
 
    RPMDirHandler(string DirName);
    virtual ~RPMDirHandler();
