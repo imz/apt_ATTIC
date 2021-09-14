@@ -57,14 +57,14 @@ using std::string;
 /* Returns false only if the checksums fail (the file not existing is not
    a checksum mismatch) */
 static bool VerifyChecksums(string File,
-                            unsigned long Size, const Cksum & Expected)
+                            const Cksum & Expected)
 {
    struct stat Buf;
 
    if (stat(File.c_str(),&Buf) != 0)
       return true;
 
-   if (zero_extend_signed_to_ull(Buf.st_size) != Size)
+   if (zero_extend_signed_to_ull(Buf.st_size) != Expected.size)
    {
       if (_config->FindB("Acquire::Verbose", false) == true)
 	 cout << "Size of "<<File<<" did not match what's in the checksum list and was redownloaded."<<endl;
@@ -284,12 +284,12 @@ pkgAcqIndex::pkgAcqIndex(pkgAcquire *Owner,pkgRepository *Repository,
 			       RealURI.c_str());
 	 }
 
-         const Cksum ExpectedCksum(Repository->GetCheckMethod(),MD5Hash);
+         const Cksum ExpectedCksum(Size,Repository->GetCheckMethod(),MD5Hash);
 
 	 string FinalFile = _config->FindDir("Dir::State::lists");
 	 FinalFile += URItoFileName(RealURI);
 
-	 if (VerifyChecksums(FinalFile,Size,ExpectedCksum) == false)
+	 if (VerifyChecksums(FinalFile,ExpectedCksum) == false)
 	 {
 	    unlink(FinalFile.c_str());
 	    unlink(DestFile.c_str());
@@ -359,7 +359,7 @@ void pkgAcqIndex::DoneByWorker(const string &Message,
 	    return;
 	 }
 
-         const Cksum ExpectedCksum(Repository->GetCheckMethod(),MD5Hash);
+         const Cksum ExpectedCksum(FSize,Repository->GetCheckMethod(),MD5Hash);
          if (! VerifyChecksumsFromWorker(Message,
                                          ExpectedCksum,
                                          "index file", RealURI,
@@ -495,12 +495,12 @@ pkgAcqIndexRel::pkgAcqIndexRel(pkgAcquire *Owner,pkgRepository *Repository,
 			       RealURI.c_str());
 	 }
 
-         const Cksum ExpectedCksum(Repository->GetCheckMethod(),MD5Hash);
+         const Cksum ExpectedCksum(Size,Repository->GetCheckMethod(),MD5Hash);
 
 	 string FinalFile = _config->FindDir("Dir::State::lists");
 	 FinalFile += URItoFileName(RealURI);
 
-	 if (VerifyChecksums(FinalFile,Size,ExpectedCksum) == false)
+	 if (VerifyChecksums(FinalFile,ExpectedCksum) == false)
 	 {
 	    unlink(FinalFile.c_str());
 	    unlink(DestFile.c_str()); // Necessary?
@@ -664,7 +664,7 @@ void pkgAcqIndexRel::DoneByWorker(const string &Message,
 			    RealURI.c_str(), Size, FSize);
 	 return;
       }
-      const Cksum ExpectedCksum(Repository->GetCheckMethod(), MD5Hash);
+      const Cksum ExpectedCksum(FSize,Repository->GetCheckMethod(),MD5Hash);
       if (! VerifyChecksumsFromWorker(Message,
                                       ExpectedCksum,
                                       "index file", RealURI,
@@ -932,7 +932,7 @@ void pkgAcqArchive::DoneByWorker(const string &Message,
    }
 
    // Check the md5
-   const Cksum ExpectedCksum(ChkType,MD5);
+   const Cksum ExpectedCksum(Version->Size,ChkType,MD5);
    if (! VerifyChecksumsFromWorker(Message,
                                    ExpectedCksum,
                                    "archive", "" /* URI */,
@@ -1077,7 +1077,7 @@ void pkgAcqFile::DoneByWorker(const string &Message,
                               pkgAcquire::MethodConfig * const Cnf)
 {
    // Check the md5
-   const Cksum ExpectedCksum("MD5-Hash",Md5Hash);
+   const Cksum ExpectedCksum(FileSize,"MD5-Hash",Md5Hash);
    if (! VerifyChecksumsFromWorker(Message,
                                    ExpectedCksum,
                                    "file", "" /* URI */,

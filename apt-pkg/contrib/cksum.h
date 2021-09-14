@@ -5,10 +5,15 @@
 
 class Cksum {
    public:
+
+   unsigned long size;
+
    string method;
    string hash;
 
-   Cksum(const string & m, const string & h):
+   Cksum(const unsigned long s,
+         const string & m, const string & h):
+      size(s),
       method(m), hash(h)
    {}
 };
