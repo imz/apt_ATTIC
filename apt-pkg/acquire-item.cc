@@ -790,6 +790,13 @@ bool pkgAcqArchive::QueueNext()
 	 return false;
 
       string PkgFile = Parse.FileName();
+      if (PkgFile.empty() == true)
+	 return _error->Error(_("The package index files are corrupted. No Filename: "
+			      "field for package %s."),
+			      Version.ParentPkg().Name());
+
+      FileSize = Version->Size;
+
       // LORG:2006-03-16
       // Repomd uses SHA checksums for packages wheras others use MD5..
       ChkType = Index->ChecksumType();
@@ -799,13 +806,7 @@ bool pkgAcqArchive::QueueNext()
 	 MD5 = Parse.MD5Hash();
       }
 
-      if (PkgFile.empty() == true)
-	 return _error->Error(_("The package index files are corrupted. No Filename: "
-			      "field for package %s."),
-			      Version.ParentPkg().Name());
-
       // See if we already have the file. (Legacy filenames)
-      FileSize = Version->Size;
       string FinalFile = _config->FindDir("Dir::Cache::Archives") + flNotDir(PkgFile);
       struct stat Buf;
       if (stat(FinalFile.c_str(),&Buf) == 0)
