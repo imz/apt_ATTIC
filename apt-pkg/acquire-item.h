@@ -158,8 +158,7 @@ class pkgAcqArchive : public pkgAcquire::Item
    pkgAcquire::ItemDesc Desc;
    pkgSourceList *Sources;
    pkgRecords *Recs;
-   string MD5;
-   string ChkType;
+   Cksum ExpectedCksum;
    string &StoreFilename;
    pkgCache::VerFileIterator Vf;
    unsigned int Retries;
@@ -173,7 +172,7 @@ class pkgAcqArchive : public pkgAcquire::Item
    virtual void Failed(string Message,pkgAcquire::MethodConfig *Cnf) override;
    virtual void DoneByWorker(string Message,unsigned long Size,
 		     pkgAcquire::MethodConfig *Cnf) override;
-   virtual string MD5Sum() override {return MD5;}
+   virtual string MD5Sum() override {return ExpectedCksum.hash;} // FIXME: generalize method name to any cksum
    virtual string DescURI() override {return Desc.URI;}
    virtual void Finished() override;
 
