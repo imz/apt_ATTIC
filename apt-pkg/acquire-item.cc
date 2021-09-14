@@ -24,6 +24,7 @@
 // CNC:2002-07-03
 #include <apt-pkg/repository.h>
 #include <apt-pkg/rhash.h>
+#include <apt-pkg/cksum.h>
 #include <apt-pkg/luaiface.h>
 #include <iostream>
 #include <assert.h>
@@ -55,7 +56,8 @@ using std::string;
 // ---------------------------------------------------------------------
 /* Returns false only if the checksums fail (the file not existing is not
    a checksum mismatch) */
-static bool VerifyChecksums(string File,unsigned long Size,string MD5, string method)
+static bool VerifyChecksums(string File,
+                            unsigned long Size, const Cksum & Expected)
 {
    struct stat Buf;
 
@@ -69,15 +71,15 @@ static bool VerifyChecksums(string File,unsigned long Size,string MD5, string me
       return false;
    }
 
-   if (MD5.empty() == false)
+   if (Expected.hash.empty() == false)
    {
-      raptHash hash = raptHash(method);
+      raptHash hash = raptHash(Expected.method);
       FileFd F(File, FileFd::ReadOnly);
 
       hash.AddFD(F.Fd(), F.Size());
-      if (hash.Result() != MD5) {
+      if (hash.Result() != Expected.hash) {
 	 if (_config->FindB("Acquire::Verbose", false) == true)
-	    cout << method << " of "<<File<<" did not match what's in the checksum list and was redownloaded."<<endl;
+	    cout << Expected.method << " of "<<File<<" did not match what's in the checksum list and was redownloaded."<<endl;
 	 return false;
       }
    }
@@ -224,10 +226,12 @@ pkgAcqIndex::pkgAcqIndex(pkgAcquire *Owner,pkgRepository *Repository,
 			       RealURI.c_str());
 	 }
 
+         const Cksum Expected(Repository->GetCheckMethod(),MD5Hash);
+
 	 string FinalFile = _config->FindDir("Dir::State::lists");
 	 FinalFile += URItoFileName(RealURI);
 
-	 if (VerifyChecksums(FinalFile,Size,MD5Hash,Repository->GetCheckMethod()) == false)
+	 if (VerifyChecksums(FinalFile,Size,Expected) == false)
 	 {
 	    unlink(FinalFile.c_str());
 	    unlink(DestFile.c_str());
@@ -434,10 +438,12 @@ pkgAcqIndexRel::pkgAcqIndexRel(pkgAcquire *Owner,pkgRepository *Repository,
 			       RealURI.c_str());
 	 }
 
+         const Cksum Expected(Repository->GetCheckMethod(),MD5Hash);
+
 	 string FinalFile = _config->FindDir("Dir::State::lists");
 	 FinalFile += URItoFileName(RealURI);
 
-	 if (VerifyChecksums(FinalFile,Size,MD5Hash,Repository->GetCheckMethod()) == false)
+	 if (VerifyChecksums(FinalFile,Size,Expected) == false)
 	 {
 	    unlink(FinalFile.c_str());
 	    unlink(DestFile.c_str()); // Necessary?
