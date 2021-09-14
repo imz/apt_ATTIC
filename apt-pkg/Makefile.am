@@ -15,6 +15,7 @@ endif
 libapt_pkg_la_SOURCES = \
 	contrib/cdromutl.cc \
 	contrib/cdromutl.h \
+	contrib/cksum.h \
 	contrib/cmndline.cc \
 	contrib/cmndline.h \
 	contrib/configuration.cc \
