@@ -1057,7 +1057,7 @@ pkgAcqFile::pkgAcqFile(pkgAcquire *Owner,string URI,string MD5,
    if (stat(DestFile.c_str(),&Buf) == 0)
    {
       // Hmm, the partial file is too big, erase it
-      if ((unsigned)Buf.st_size > Size)
+      if (zero_extend_signed_to_ull(Buf.st_size) > Size)
 	 unlink(DestFile.c_str());
       else
 	 PartialSize = Buf.st_size;
