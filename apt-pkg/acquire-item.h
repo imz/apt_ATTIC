@@ -23,6 +23,11 @@
 #include <apt-pkg/indexfile.h>
 #include <apt-pkg/pkgrecords.h>
 
+// For the compatibility DoneByWorker() inline implementation.
+// (Having it here as an inline function makes the complex idea
+// compatibility methods more clear.)
+#include <apt-pkg/strutl.h>
+
 // Item to acquire
 class pkgAcquire::Item
 {
@@ -38,9 +43,32 @@ class pkgAcquire::Item
    void Rename(string From,string To);
 
    // The common actions to be re-used in subclasses in the implementations
-   // of Done()
+   // of DoneByWorker() or of the analoguous deprecated Done()
    void BaseItem_Done(const string &Message,unsigned long Size,
                       const pkgAcquire::MethodConfig *Cnf /* unused for now */);
+   // To be overridden for specialization of the action (by older subclasses).
+   // Newer subclasses should override DoneByWorker() directly (which
+   // corresponds to the new API of the worker given multiple types of cksums).
+   //
+   // It is also called by some older subclasses instead of calling
+   // BaseItem_Done() directly.
+   //
+   // I.e., this deprecated method is present here for 2 different
+   // compatibility reasons:
+   // 1. to be overridden to provide specialized behavior for
+   //    the DoneByWorker() action;
+   // 2. to be called for the base handling of the action.
+   virtual void Done(const string Message,
+                     const unsigned long Size,
+                     string /* Md5Hash unused in the base implementation */,
+                     pkgAcquire::MethodConfig * const Cnf)
+   { /* For compatibility with old subclasses whose implementations of Done()
+        still call the base class's Item::Done() for the common actions.
+        Newer subclasses should call BaseItem_Done() directly,
+        because it is a cleaner API (namely, some unused parameters deleted).
+     */
+      BaseItem_Done(Message, Size, Cnf);
+   }
 
    public:
 
@@ -71,16 +99,17 @@ class pkgAcquire::Item
    // Action members invoked by the worker
    // (they are usually overridden in subclasses for specialization)
    virtual void Failed(string Message,pkgAcquire::MethodConfig *Cnf);
-   virtual void Done(const string Message,
-                     const unsigned long Size,
-                     string /* Md5Hash unused in the base implementation */,
-                     pkgAcquire::MethodConfig * const Cnf)
-   { /* For compatibility with old subclasses whose implementations of Done()
-        still call the base class's Item::Done() for the common actions.
-        Newer subclasses should call BaseItem_Done() directly,
-        because it is a cleaner API (namely, some unused parameters deleted).
+   // new API (with a new name) that is public and called by the worker;
+   // the old Done() method can be left protected for compatibility
+   // with some old subclasses that override it (not in the apt project)
+   virtual void DoneByWorker(const string &Message,
+			     const unsigned long Size,
+                             pkgAcquire::MethodConfig * const Cnf)
+   { /* Older subclasses may have overridden Done() instead of this new method.
+	For compatibility with such classes, we call their Done().
+	Newer subclasses should override this method directly.
      */
-      BaseItem_Done(Message, Size, Cnf);
+      Done(Message,Size,LookupTag(Message,"MD5-Hash"),Cnf);
    }
    virtual void Start(string Message,unsigned long Size);
    virtual string Custom600Headers() {return string();}
