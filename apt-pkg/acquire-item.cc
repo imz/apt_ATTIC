@@ -812,7 +812,7 @@ bool pkgAcqArchive::QueueNext()
       if (stat(FinalFile.c_str(),&Buf) == 0)
       {
 	 // Make sure the size matches
-	 if ((unsigned)Buf.st_size == Version->Size)
+	 if (zero_extend_signed_to_ull(Buf.st_size) == Version->Size)
 	 {
 	    Complete = true;
 	    Local = true;
