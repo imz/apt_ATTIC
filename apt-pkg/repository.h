@@ -5,8 +5,10 @@
 
 #include <string>
 #include <map>
+#include <optional>
 
 #include <apt-pkg/sourcelist.h>
+#include <apt-pkg/cksum.h>
 
 using std::map;
 
@@ -26,6 +28,8 @@ class pkgRepository
    bool GotRelease;
    string CheckMethod;
 
+   virtual string GetCheckMethod() {return CheckMethod;};
+
    public:
 
    string URI;
@@ -40,9 +44,8 @@ class pkgRepository
    virtual bool HasRelease() const { return GotRelease; }
 
    virtual bool IsAuthenticated() const { return !FingerPrintList.empty(); }
-   virtual bool FindChecksums(string URI,unsigned long &Size, string &MD5);
+   std::optional<Cksum> FindChecksums(string URI);
    // LORG:2006-02-23
-   virtual string GetCheckMethod() const {return CheckMethod;}
    virtual string GetComprMethod(string URI) const {return "bz2";}
 
    pkgRepository(string URI,string Dist, const pkgSourceList::Vendor *Vendor,

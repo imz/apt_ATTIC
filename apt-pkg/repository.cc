@@ -81,14 +81,14 @@ bool pkgRepository::ParseRelease(string File)
 // Repository::FindChecksums - Get checksum info for file		/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-bool pkgRepository::FindChecksums(string URI,unsigned long &Size, string &MD5)
+std::optional<Cksum> pkgRepository::FindChecksums(string URI)
 {
    string Path = string(URI,RootURI.size());
    if (IndexChecksums.find(Path) == IndexChecksums.end())
-      return false;
-   Size = IndexChecksums[Path].Size;
-   MD5 = IndexChecksums[Path].MD5;
-   return true;
+      return std::nullopt;
+   return Cksum(IndexChecksums[Path].Size,
+                GetCheckMethod(),
+                IndexChecksums[Path].MD5);
 }
 
 // vim:sts=3:sw=3
