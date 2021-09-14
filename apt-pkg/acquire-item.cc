@@ -88,11 +88,28 @@ static bool VerifyChecksums(string File,
 }
                                                                         /*}}}*/
 
-static bool VerifyChecksumsFromWorker(const string & MessageFromWorker,
+static bool VerifyChecksumsFromWorker(const string & MessageFromWorker, unsigned long ActualSize,
                                       const Cksum & Expected,
                                       const string & URIDesc, const string & URI,
                                       string & ErrorText)
 {
+   if (Expected.size != ActualSize)
+   {
+      ErrorText = _("Size mismatch");
+
+      if (URIDesc == "index file")
+      {
+         if (_config->FindB("Acquire::Verbose",false) == true)
+            _error->Warning("Size mismatch of %s %s: %lu was supposed to be %lu",
+                            URIDesc.c_str(),
+                            URI.c_str(),
+                            ActualSize,
+                            Expected.size);
+      }
+
+      return false;
+   }
+
    if (Expected.hash.empty())
    {
       /* If not checking it is fatal, its presence (non-emptiness) should be
@@ -112,37 +129,33 @@ static bool VerifyChecksumsFromWorker(const string & MessageFromWorker,
       return true;
    }
 
-   const bool Result = Expected.hash == ActualHash;
-
-   if (! Result)
+   if (Expected.hash != ActualHash)
    {
       ErrorText = _("MD5Sum mismatch");
 
       if (URIDesc == "index file")
       {
          if (_config->FindB("Acquire::Verbose",false) == true)
-         {
             _error->Warning("MD5Sum mismatch of %s %s: %s was supposed to be %s",
                             URIDesc.c_str(),
                             URI.c_str(),
                             ActualHash.c_str(),
                             Expected.hash.c_str());
-         }
       }
       else /* archive or file etc */
       {
 	if (_config->FindB("Debug::pkgAcquire::Auth", false))
-        {
            std::cerr << "md5 mismatch: "
                      << ActualHash
                      << " was supposed to be "
                      << Expected.hash
                      << std::endl;
-	}
       }
+
+      return false;
    }
 
-   return Result;
+   return true;
 }
 
 // Acquire::Item::Item - Constructor					/*{{{*/
@@ -347,20 +360,8 @@ void pkgAcqIndex::DoneByWorker(const string &Message,
 	  Repository->FindChecksums(RealURI,FSize,MD5Hash) == true)
       {
 	 // We must always get here if the repository is authenticated
-
-	 if (FSize != Size)
-	 {
-	    Status = StatError;
-	    ErrorText = _("Size mismatch");
-	    Rename(DestFile,DestFile + ".FAILED");
-	    if (_config->FindB("Acquire::Verbose",false) == true)
-	       _error->Warning("Size mismatch of index file %s: %lu was supposed to be %lu",
-			       RealURI.c_str(), Size, FSize);
-	    return;
-	 }
-
          const Cksum ExpectedCksum(FSize,Repository->GetCheckMethod(),MD5Hash);
-         if (! VerifyChecksumsFromWorker(Message,
+         if (! VerifyChecksumsFromWorker(Message, Size,
                                          ExpectedCksum,
                                          "index file", RealURI,
                                          ErrorText))
@@ -654,18 +655,8 @@ void pkgAcqIndexRel::DoneByWorker(const string &Message,
        && Repository->HasRelease() == true
        && Repository->FindChecksums(RealURI,FSize,MD5Hash) == true)
    {
-      if (FSize != Size)
-      {
-	 Status = StatError;
-	 ErrorText = _("Size mismatch");
-	 Rename(DestFile,DestFile + ".FAILED");
-	 if (_config->FindB("Acquire::Verbose",false) == true)
-	    _error->Warning("Size mismatch of index file %s: %lu was supposed to be %lu",
-			    RealURI.c_str(), Size, FSize);
-	 return;
-      }
       const Cksum ExpectedCksum(FSize,Repository->GetCheckMethod(),MD5Hash);
-      if (! VerifyChecksumsFromWorker(Message,
+      if (! VerifyChecksumsFromWorker(Message, Size,
                                       ExpectedCksum,
                                       "index file", RealURI,
                                       ErrorText))
@@ -923,23 +914,16 @@ void pkgAcqArchive::DoneByWorker(const string &Message,
 {
    BaseItem_Done(Message,Size,Cfg);
 
-   // Check the size
-   if (Size != Version->Size)
-   {
-      Status = StatError;
-      ErrorText = _("Size mismatch");
-      return;
-   }
-
-   // Check the md5
+   // Check the size and md5
    const Cksum ExpectedCksum(Version->Size,ChkType,MD5);
-   if (! VerifyChecksumsFromWorker(Message,
+   if (! VerifyChecksumsFromWorker(Message, Size,
                                    ExpectedCksum,
                                    "archive", "" /* URI */,
                                    ErrorText))
    {
       Status = StatError;
-      Rename(DestFile,DestFile + ".FAILED");
+      if (ErrorText != _("Size mismatch"))
+         Rename(DestFile,DestFile + ".FAILED");
       return;
    }
 
@@ -1078,13 +1062,14 @@ void pkgAcqFile::DoneByWorker(const string &Message,
 {
    // Check the md5
    const Cksum ExpectedCksum(FileSize,"MD5-Hash",Md5Hash);
-   if (! VerifyChecksumsFromWorker(Message,
+   if (! VerifyChecksumsFromWorker(Message, Size,
                                    ExpectedCksum,
                                    "file", "" /* URI */,
                                    ErrorText))
    {
       Status = StatError;
-      Rename(DestFile,DestFile + ".FAILED");
+      if (ErrorText != _("Size mismatch"))
+         Rename(DestFile,DestFile + ".FAILED");
       return;
    }
 
