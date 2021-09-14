@@ -23,6 +23,7 @@
 
 // CNC:2002-07-03
 #include <apt-pkg/repository.h>
+#include <apt-pkg/cksum.h>
 #include <apt-pkg/md5.h>
 #include <apt-pkg/sha1.h>
 #include <apt-pkg/luaiface.h>
@@ -56,39 +57,40 @@ using std::string;
 // ---------------------------------------------------------------------
 /* Returns false only if the checksums fail (the file not existing is not
    a checksum mismatch) */
-static bool VerifyChecksums(string File,unsigned long Size,string MD5, string method)
+static bool VerifyChecksums(string File,
+                            const Cksum & Expected)
 {
    struct stat Buf;
 
    if (stat(File.c_str(),&Buf) != 0)
       return true;
 
-   if (zero_extend_signed_to_ull(Buf.st_size) != Size)
+   if (zero_extend_signed_to_ull(Buf.st_size) != Expected.size)
    {
       if (_config->FindB("Acquire::Verbose", false) == true)
 	 cout << "Size of "<<File<<" did not match what's in the checksum list and was redownloaded."<<endl;
       return false;
    }
 
-   if (MD5.empty() == false)
+   if (Expected.hash.empty() == false)
    {
-      if (method == "MD5-Hash") {
+      if (Expected.method == "MD5-Hash") {
 	 MD5Summation md5sum = MD5Summation();
 	 FileFd F(File, FileFd::ReadOnly);
 
 	 md5sum.AddFD(F.Fd(), F.Size());
-	 if (md5sum.Result().Value() != MD5)
+	 if (md5sum.Result().Value() != Expected.hash)
 	 {
 	    if (_config->FindB("Acquire::Verbose", false) == true)
 	       cout << "MD5Sum of "<<File<<" did not match what's in the checksum list and was redownloaded."<<endl;
 	    return false;
 	 }
-      } else if (method == "SHA1-Hash") {
+      } else if (Expected.method == "SHA1-Hash") {
 	 SHA1Summation sha1sum = SHA1Summation();
 	 FileFd F(File, FileFd::ReadOnly);
 
 	 sha1sum.AddFD(F.Fd(), F.Size());
-	 if (sha1sum.Result().Value() != MD5)
+	 if (sha1sum.Result().Value() != Expected.hash)
 	 {
 	    if (_config->FindB("Acquire::Verbose", false) == true)
 	       cout << "SHA1Sum of "<<File<<" did not match what's in the checksum list and was redownloaded."<<endl;
@@ -241,10 +243,12 @@ pkgAcqIndex::pkgAcqIndex(pkgAcquire *Owner,pkgRepository *Repository,
 			       RealURI.c_str());
 	 }
 
+         const Cksum ExpectedCksum(Size,Repository->GetCheckMethod(),MD5Hash);
+
 	 string FinalFile = _config->FindDir("Dir::State::lists");
 	 FinalFile += URItoFileName(RealURI);
 
-	 if (VerifyChecksums(FinalFile,Size,MD5Hash,Repository->GetCheckMethod()) == false)
+	 if (VerifyChecksums(FinalFile,ExpectedCksum) == false)
 	 {
 	    unlink(FinalFile.c_str());
 	    unlink(DestFile.c_str());
@@ -449,10 +453,12 @@ pkgAcqIndexRel::pkgAcqIndexRel(pkgAcquire *Owner,pkgRepository *Repository,
 			       RealURI.c_str());
 	 }
 
+         const Cksum ExpectedCksum(Size,Repository->GetCheckMethod(),MD5Hash);
+
 	 string FinalFile = _config->FindDir("Dir::State::lists");
 	 FinalFile += URItoFileName(RealURI);
 
-	 if (VerifyChecksums(FinalFile,Size,MD5Hash,Repository->GetCheckMethod()) == false)
+	 if (VerifyChecksums(FinalFile,ExpectedCksum) == false)
 	 {
 	    unlink(FinalFile.c_str());
 	    unlink(DestFile.c_str()); // Necessary?
