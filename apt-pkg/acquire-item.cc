@@ -717,12 +717,12 @@ void pkgAcqIndexRel::Failed(string Message,pkgAcquire::MethodConfig *Cnf)
 pkgAcqArchive::pkgAcqArchive(pkgAcquire *Owner,pkgSourceList *Sources,
 			     pkgRecords *Recs,pkgCache::VerIterator const &Version,
 			     string &StoreFilename) :
-               Item(Owner), Version(Version), Sources(Sources), Recs(Recs),
-               StoreFilename(StoreFilename), Vf(Version.FileList())
+   Item(Owner), Version(Version), Sources(Sources), Recs(Recs),
+   /* FIXME: incomplete cksum, filled in QueueNext() */
+   ExpectedCksum(Version->Size,"",""),
+   StoreFilename(StoreFilename), Vf(Version.FileList())
 {
    Retries = _config->FindI("Acquire::Retries",0);
-
-   ChkType = "";
 
    if (Version.Arch() == 0)
    {
@@ -799,11 +799,11 @@ bool pkgAcqArchive::QueueNext()
 
       // LORG:2006-03-16
       // Repomd uses SHA checksums for packages wheras others use MD5..
-      ChkType = Index->ChecksumType();
+      const string ChkType = Index->ChecksumType();
       if (ChkType == "SHA1-Hash") {
-	 MD5 = Parse.SHA1Hash();
+	 ExpectedCksum = Cksum(FileSize, ChkType, Parse.SHA1Hash());
       } else {
-	 MD5 = Parse.MD5Hash();
+	 ExpectedCksum = Cksum(FileSize, ChkType, Parse.MD5Hash());
       }
 
       // See if we already have the file. (Legacy filenames)
@@ -908,7 +908,6 @@ void pkgAcqArchive::DoneByWorker(const string &Message,
    BaseItem_Done(Message,Size,Cfg);
 
    // Check the size and md5
-   const Cksum ExpectedCksum(Version->Size,ChkType,MD5);
    if (! VerifyChecksumsFromWorker(Message, Size,
                                    ExpectedCksum,
                                    "archive", "" /* URI */,
