@@ -297,9 +297,8 @@ pkgAcqIndex::pkgAcqIndex(pkgAcquire *Owner,pkgRepository *Repository,
          // CNC:2002-07-03
          // If we're verifying authentication, check whether the size and
          // checksums match, if not, delete the cached files and force redownload
-         string MD5Hash;
-         unsigned long Size;
-	 if (Repository->FindChecksums(RealURI,Size,MD5Hash) == false)
+         std::optional<Cksum> ExpectedCksum;
+	 if (! (ExpectedCksum = Repository->FindChecksums(RealURI)))
 	 {
 	    if (Repository->IsAuthenticated() == true)
 	    {
@@ -312,23 +311,17 @@ pkgAcqIndex::pkgAcqIndex(pkgAcquire *Owner,pkgRepository *Repository,
 			       RealURI.c_str());
 	 }
 
-         const Cksum ExpectedCksum(Size,Repository->GetCheckMethod(),MD5Hash);
-
 	 string FinalFile = _config->FindDir("Dir::State::lists");
 	 FinalFile += URItoFileName(RealURI);
 
-	 if (VerifyChecksums(FinalFile,ExpectedCksum) == false)
+	 if (VerifyChecksums(FinalFile,*ExpectedCksum) == false)
 	 {
 	    unlink(FinalFile.c_str());
 	    unlink(DestFile.c_str());
 	 }
 
-         {
-            unsigned long Size;
-            string MD5Hash;
-            if (Repository->FindChecksums(RealURI + ".xz", Size, MD5Hash) == true)
-               Desc.URI = URI + ".xz";
-         }
+	 if (Repository->FindChecksums(RealURI + ".xz"))
+	    Desc.URI = URI + ".xz";
       }
       else if (Repository->IsAuthenticated() == true)
       {
@@ -373,15 +366,13 @@ void pkgAcqIndex::DoneByWorker(string Message,unsigned long Size,
       if (Repository != NULL)
       {
          // CNC:2002-07-03
-         unsigned long FSize;
-         string MD5Hash;
+         std::optional<Cksum> ExpectedCksum;
          if (Repository->HasRelease() == true &&
-             Repository->FindChecksums(RealURI,FSize,MD5Hash) == true)
+             (ExpectedCksum = Repository->FindChecksums(RealURI)))
          {
             // We must always get here if the repository is authenticated
-            const Cksum ExpectedCksum(FSize,Repository->GetCheckMethod(),MD5Hash);
             if (! VerifyChecksumsFromWorker(Message, Size,
-                                            ExpectedCksum,
+                                            *ExpectedCksum,
                                             "index file", RealURI,
                                             ErrorText))
             {
@@ -500,9 +491,8 @@ pkgAcqIndexRel::pkgAcqIndexRel(pkgAcquire *Owner,pkgRepository *Repository,
       if (Repository->HasRelease() == true)
       {
          // CNC:2002-07-09
-         string MD5Hash;
-         unsigned long Size;
-	 if (Repository->FindChecksums(RealURI,Size,MD5Hash) == false)
+         std::optional<Cksum> ExpectedCksum;
+	 if (! (ExpectedCksum = Repository->FindChecksums(RealURI)))
 	 {
 	    if (Repository->IsAuthenticated() == true)
 	    {
@@ -515,12 +505,10 @@ pkgAcqIndexRel::pkgAcqIndexRel(pkgAcquire *Owner,pkgRepository *Repository,
 			       RealURI.c_str());
 	 }
 
-         const Cksum ExpectedCksum(Size,Repository->GetCheckMethod(),MD5Hash);
-
 	 string FinalFile = _config->FindDir("Dir::State::lists");
 	 FinalFile += URItoFileName(RealURI);
 
-	 if (VerifyChecksums(FinalFile,ExpectedCksum) == false)
+	 if (VerifyChecksums(FinalFile,*ExpectedCksum) == false)
 	 {
 	    unlink(FinalFile.c_str());
 	    unlink(DestFile.c_str()); // Necessary?
@@ -669,14 +657,12 @@ void pkgAcqIndexRel::DoneByWorker(string Message,unsigned long Size,
    if (Master == false && Repository != NULL)
    {
       // CNC:2002-07-03
-      unsigned long FSize;
-      string MD5Hash;
+      std::optional<Cksum> ExpectedCksum;
       if (Repository->HasRelease() == true
-          && Repository->FindChecksums(RealURI,FSize,MD5Hash) == true)
+          && (ExpectedCksum = Repository->FindChecksums(RealURI)))
       {
-         const Cksum ExpectedCksum(FSize, Repository->GetCheckMethod(), MD5Hash);
          if (! VerifyChecksumsFromWorker(Message, Size,
-                                         ExpectedCksum,
+                                         *ExpectedCksum,
                                          "index file", RealURI,
                                          ErrorText))
          {
