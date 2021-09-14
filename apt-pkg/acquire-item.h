@@ -22,6 +22,7 @@
 #include <apt-pkg/acquire.h>
 #include <apt-pkg/indexfile.h>
 #include <apt-pkg/pkgrecords.h>
+#include <apt-pkg/cksum.h>
 
 // For the compatibility DoneByWorker() inline implementation.
 // (Having it here as an inline function makes the complex idea
@@ -219,7 +220,7 @@ class pkgAcqArchive : public pkgAcquire::Item
 class pkgAcqFile : public pkgAcquire::Item
 {
    pkgAcquire::ItemDesc Desc;
-   string Md5Hash;
+   Cksum ExpectedCksum;
    unsigned int Retries;
 
    public:
@@ -228,7 +229,7 @@ class pkgAcqFile : public pkgAcquire::Item
    virtual void Failed(string Message,pkgAcquire::MethodConfig *Cnf) override;
    virtual void DoneByWorker(const string &Message,unsigned long Size,
                              pkgAcquire::MethodConfig *Cnf) override;
-   virtual string MD5Sum() override {return Md5Hash;}
+   virtual string MD5Sum() override {return ExpectedCksum.hash;} // FIXME: generalize method name to any cksum
    virtual string DescURI() override {return Desc.URI;}
 
    pkgAcqFile(pkgAcquire *Owner,string URI,string MD5,unsigned long Size,
