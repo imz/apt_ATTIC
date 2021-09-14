@@ -290,16 +290,15 @@ pkgAcqIndex::pkgAcqIndex(pkgAcquire *Owner,pkgRepository *Repository,
    Desc.Owner = this;
    Desc.ShortDesc = ShortDesc;
 
-   // CNC:2002-07-03
-   // If we're verifying authentication, check whether the size and
-   // checksums match, if not, delete the cached files and force redownload
-   string MD5Hash;
-   unsigned long Size;
-
    if (Repository != NULL)
    {
       if (Repository->HasRelease() == true)
       {
+         // CNC:2002-07-03
+         // If we're verifying authentication, check whether the size and
+         // checksums match, if not, delete the cached files and force redownload
+         string MD5Hash;
+         unsigned long Size;
 	 if (Repository->FindChecksums(RealURI,Size,MD5Hash) == false)
 	 {
 	    if (Repository->IsAuthenticated() == true)
@@ -324,8 +323,12 @@ pkgAcqIndex::pkgAcqIndex(pkgAcquire *Owner,pkgRepository *Repository,
 	    unlink(DestFile.c_str());
 	 }
 
-	 if (Repository->FindChecksums(RealURI + ".xz", Size, MD5Hash) == true)
-	    Desc.URI = URI + ".xz";
+         {
+            unsigned long Size;
+            string MD5Hash;
+            if (Repository->FindChecksums(RealURI + ".xz", Size, MD5Hash) == true)
+               Desc.URI = URI + ".xz";
+         }
       }
       else if (Repository->IsAuthenticated() == true)
       {
@@ -367,29 +370,31 @@ void pkgAcqIndex::DoneByWorker(string Message,unsigned long Size,
 
    if (Decompression == true)
    {
-      // CNC:2002-07-03
-      unsigned long FSize;
-      string MD5Hash;
-
-      if (Repository != NULL && Repository->HasRelease() == true &&
-	  Repository->FindChecksums(RealURI,FSize,MD5Hash) == true)
+      if (Repository != NULL)
       {
-	 // We must always get here if the repository is authenticated
-         const Cksum ExpectedCksum(FSize,Repository->GetCheckMethod(),MD5Hash);
-	 if (! VerifyChecksumsFromWorker(Message, Size,
-                                         ExpectedCksum,
-                                         "index file", RealURI,
-                                         ErrorText))
-	 {
-	    Status = StatError;
-	    Rename(DestFile,DestFile + ".FAILED");
-	    return;
-	 }
-      }
-      else
-      {
-	 // Redundant security check
-	 assert(Repository == NULL || Repository->IsAuthenticated() == false);
+         // CNC:2002-07-03
+         unsigned long FSize;
+         string MD5Hash;
+         if (Repository->HasRelease() == true &&
+             Repository->FindChecksums(RealURI,FSize,MD5Hash) == true)
+         {
+            // We must always get here if the repository is authenticated
+            const Cksum ExpectedCksum(FSize,Repository->GetCheckMethod(),MD5Hash);
+            if (! VerifyChecksumsFromWorker(Message, Size,
+                                            ExpectedCksum,
+                                            "index file", RealURI,
+                                            ErrorText))
+            {
+               Status = StatError;
+               Rename(DestFile,DestFile + ".FAILED");
+               return;
+            }
+         }
+         else
+         {
+            // Redundant security check
+            assert(Repository->IsAuthenticated() == false);
+         }
       }
 
       // Done, move it into position
@@ -490,13 +495,13 @@ pkgAcqIndexRel::pkgAcqIndexRel(pkgAcquire *Owner,pkgRepository *Repository,
    Desc.ShortDesc = ShortDesc;
    Desc.Owner = this;
 
-   // CNC:2002-07-09
-   string MD5Hash;
-   unsigned long Size;
    if (Master == false && Repository != NULL)
    {
       if (Repository->HasRelease() == true)
       {
+         // CNC:2002-07-09
+         string MD5Hash;
+         unsigned long Size;
 	 if (Repository->FindChecksums(RealURI,Size,MD5Hash) == false)
 	 {
 	    if (Repository->IsAuthenticated() == true)
@@ -661,22 +666,24 @@ void pkgAcqIndexRel::DoneByWorker(string Message,unsigned long Size,
       return;
    }
 
-   // CNC:2002-07-03
-   unsigned long FSize;
-   string MD5Hash;
-   if (Master == false && Repository != NULL
-       && Repository->HasRelease() == true
-       && Repository->FindChecksums(RealURI,FSize,MD5Hash) == true)
+   if (Master == false && Repository != NULL)
    {
-      const Cksum ExpectedCksum(FSize, Repository->GetCheckMethod(), MD5Hash);
-      if (! VerifyChecksumsFromWorker(Message, Size,
-                                      ExpectedCksum,
-                                      "index file", RealURI,
-                                      ErrorText))
+      // CNC:2002-07-03
+      unsigned long FSize;
+      string MD5Hash;
+      if (Repository->HasRelease() == true
+          && Repository->FindChecksums(RealURI,FSize,MD5Hash) == true)
       {
-	 Status = StatError;
-	 Rename(DestFile,DestFile + ".FAILED");
-	 return;
+         const Cksum ExpectedCksum(FSize, Repository->GetCheckMethod(), MD5Hash);
+         if (! VerifyChecksumsFromWorker(Message, Size,
+                                         ExpectedCksum,
+                                         "index file", RealURI,
+                                         ErrorText))
+         {
+            Status = StatError;
+            Rename(DestFile,DestFile + ".FAILED");
+            return;
+         }
       }
    }
 
