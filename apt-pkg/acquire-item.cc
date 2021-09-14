@@ -23,7 +23,6 @@
 
 // CNC:2002-07-03
 #include <apt-pkg/repository.h>
-#include <apt-pkg/cksum.h>
 #include <apt-pkg/md5.h>
 #include <apt-pkg/sha1.h>
 #include <apt-pkg/luaiface.h>
@@ -1037,7 +1036,7 @@ void pkgAcqArchive::Finished()
 /* The file is added to the queue */
 pkgAcqFile::pkgAcqFile(pkgAcquire *Owner,string URI,string MD5,
 		       unsigned long Size,string Dsc,string ShortDesc) :
-                       Item(Owner), Md5Hash(MD5)
+   Item(Owner), ExpectedCksum(Size,"MD5-Hash",MD5)
 {
    Retries = _config->FindI("Acquire::Retries",0);
 
@@ -1052,12 +1051,12 @@ pkgAcqFile::pkgAcqFile(pkgAcquire *Owner,string URI,string MD5,
    Desc.ShortDesc = ShortDesc;
 
    // Get the transfer sizes
-   FileSize = Size;
+   FileSize = ExpectedCksum.size;
    struct stat Buf;
    if (stat(DestFile.c_str(),&Buf) == 0)
    {
       // Hmm, the partial file is too big, erase it
-      if (zero_extend_signed_to_ull(Buf.st_size) > Size)
+      if (zero_extend_signed_to_ull(Buf.st_size) > ExpectedCksum.size)
 	 unlink(DestFile.c_str());
       else
 	 PartialSize = Buf.st_size;
@@ -1073,7 +1072,6 @@ void pkgAcqFile::DoneByWorker(string Message,unsigned long Size,
 		      pkgAcquire::MethodConfig *Cnf)
 {
    // Check the md5
-   const Cksum ExpectedCksum(FileSize,"MD5-Hash",Md5Hash);
    if (! VerifyChecksumsFromWorker(Message, Size,
                                    ExpectedCksum,
                                    "file", "" /* URI */,
