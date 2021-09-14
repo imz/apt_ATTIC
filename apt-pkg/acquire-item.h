@@ -65,12 +65,22 @@ class pkgAcquire::Item
 
    // Action members invoked by the worker
    virtual void Failed(string Message,pkgAcquire::MethodConfig *Cnf);
-   virtual void Done(string Message,unsigned long Size,string Md5Hash,
-		     pkgAcquire::MethodConfig *Cnf);
+   // new API (with a new name) that is public and called by the worker;
+   // the old Done() method can be left protected for compatibility
+   // with some old subclasses that override it (not in the apt project)
+   virtual void DoneByWorker(string Message,unsigned long Size,
+                             pkgAcquire::MethodConfig *Cnf) = 0;
    virtual void Start(string Message,unsigned long Size);
    virtual string Custom600Headers() {return string();}
    virtual string DescURI() = 0;
    virtual void Finished() {}
+
+   // Methods that are of interest for subclasses
+   protected:
+   // the common actions to be re-used in the implementations of DoneByWorker()
+   void BaseItem_Done(string Message,unsigned long Size,
+                      pkgAcquire::MethodConfig *Cnf);
+   public:
 
    // Inquire functions
    virtual string MD5Sum() {return string();}
@@ -99,7 +109,7 @@ class pkgAcqIndex : public pkgAcquire::Item
    public:
 
    // Specialized action members
-   virtual void Done(string Message,unsigned long Size,string Md5Hash,
+   virtual void DoneByWorker(string Message,unsigned long Size,
 		     pkgAcquire::MethodConfig *Cnf) override;
    virtual string Custom600Headers() override;
    virtual string DescURI() override {return RealURI;} // CNC:2003-02-14
@@ -127,7 +137,7 @@ class pkgAcqIndexRel : public pkgAcquire::Item
 
    // Specialized action members
    virtual void Failed(string Message,pkgAcquire::MethodConfig *Cnf) override;
-   virtual void Done(string Message,unsigned long Size,string Md5Hash,
+   virtual void DoneByWorker(string Message,unsigned long Size,
 		     pkgAcquire::MethodConfig *Cnf) override;
    virtual string Custom600Headers() override;
    virtual string DescURI() override {return RealURI;}
@@ -160,7 +170,7 @@ class pkgAcqArchive : public pkgAcquire::Item
 
    // Specialized action members
    virtual void Failed(string Message,pkgAcquire::MethodConfig *Cnf) override;
-   virtual void Done(string Message,unsigned long Size,string Md5Hash,
+   virtual void DoneByWorker(string Message,unsigned long Size,
 		     pkgAcquire::MethodConfig *Cnf) override;
    virtual string MD5Sum() override {return MD5;}
    virtual string DescURI() override {return Desc.URI;}
@@ -182,7 +192,7 @@ class pkgAcqFile : public pkgAcquire::Item
 
    // Specialized action members
    virtual void Failed(string Message,pkgAcquire::MethodConfig *Cnf) override;
-   virtual void Done(string Message,unsigned long Size,string Md5Hash,
+   virtual void DoneByWorker(string Message,unsigned long Size,
 		     pkgAcquire::MethodConfig *Cnf) override;
    virtual string MD5Sum() override {return Md5Hash;}
    virtual string DescURI() override {return Desc.URI;}

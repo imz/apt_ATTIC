@@ -311,8 +311,8 @@ bool pkgAcquire::Worker::RunMessages()
 
 	    // LORG:2006-03-09
 	    // Owner should look up the checksum if it needs another type
-	    Owner->Done(Message,atoi(LookupTag(Message,"Size","0").c_str()),
-			LookupTag(Message,"MD5-Hash"),Config);
+	    Owner->DoneByWorker(Message,atoi(LookupTag(Message,"Size","0").c_str()),
+			Config);
 
 	    ItemDone();
 

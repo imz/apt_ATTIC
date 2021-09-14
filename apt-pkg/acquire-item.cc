@@ -160,7 +160,7 @@ void pkgAcquire::Item::Start(string /*Message*/,unsigned long Size)
 // Acquire::Item::Done - Item downloaded OK				/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-void pkgAcquire::Item::Done(string Message,unsigned long Size,string,
+void pkgAcquire::Item::BaseItem_Done(string Message,unsigned long Size,
 			    pkgAcquire::MethodConfig *Cnf)
 {
    // We just downloaded something..
@@ -286,12 +286,10 @@ string pkgAcqIndex::Custom600Headers()
    to the uncompressed version of the file. If this is so the file
    is copied into the partial directory. In all other cases the file
    is decompressed with a gzip uri. */
-void pkgAcqIndex::Done(string Message,unsigned long Size, const string /* MD5 obsolete */,
+void pkgAcqIndex::DoneByWorker(string Message,unsigned long Size,
 		       pkgAcquire::MethodConfig *Cfg)
 {
-   const string MD5 = LookupTag(Message,Repository->GetCheckMethod().c_str());
-
-   Item::Done(Message,Size,MD5,Cfg);
+   BaseItem_Done(Message,Size,Cfg);
 
    if (Decompression == true)
    {
@@ -315,6 +313,7 @@ void pkgAcqIndex::Done(string Message,unsigned long Size, const string /* MD5 ob
 	    return;
 	 }
 
+         const string MD5 = LookupTag(Message,Repository->GetCheckMethod().c_str());
 	 if (MD5.empty() == false && MD5Hash != MD5)
 	 {
 	    Status = StatError;
@@ -494,12 +493,10 @@ string pkgAcqIndexRel::Custom600Headers()
 /* The release file was not placed into the download directory then
    a copy URI is generated and it is copied there otherwise the file
    in the partial directory is moved into .. and the URI is finished. */
-void pkgAcqIndexRel::Done(string Message,unsigned long Size, const string /* MD5 obsolete */,
+void pkgAcqIndexRel::DoneByWorker(string Message,unsigned long Size,
 			  pkgAcquire::MethodConfig *Cfg)
 {
-   const string MD5 = LookupTag(Message,Repository->GetCheckMethod().c_str());
-
-   Item::Done(Message,Size,MD5,Cfg);
+   BaseItem_Done(Message,Size,Cfg);
 
    // CNC:2002-07-03
    if (Authentication == true)
@@ -618,6 +615,7 @@ void pkgAcqIndexRel::Done(string Message,unsigned long Size, const string /* MD5
 			    RealURI.c_str(), Size, FSize);
 	 return;
       }
+      const string MD5 = LookupTag(Message,Repository->GetCheckMethod().c_str());
       if (MD5.empty() == false && MD5Hash != MD5)
       {
 	 Status = StatError;
@@ -871,12 +869,10 @@ static void ScriptsAcquireDone(const char *ConfKey,
 // AcqArchive::Done - Finished fetching					/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-void pkgAcqArchive::Done(string Message,unsigned long Size, const string /* Md5Hash obsolete */,
+void pkgAcqArchive::DoneByWorker(string Message,unsigned long Size,
 			 pkgAcquire::MethodConfig *Cfg)
 {
-   const string Md5Hash = LookupTag(Message,ChkType.c_str());
-
-   Item::Done(Message,Size,Md5Hash,Cfg);
+   BaseItem_Done(Message,Size,Cfg);
 
    // Check the size
    if (Size != Version->Size)
@@ -887,6 +883,7 @@ void pkgAcqArchive::Done(string Message,unsigned long Size, const string /* Md5H
    }
 
    // Check the md5
+   const string Md5Hash = LookupTag(Message,ChkType.c_str());
    if (Md5Hash.empty() == false && MD5.empty() == false)
    {
       if (Md5Hash != MD5)
@@ -1030,10 +1027,11 @@ pkgAcqFile::pkgAcqFile(pkgAcquire *Owner,string URI,string MD5,
 // AcqFile::Done - Item downloaded OK					/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-void pkgAcqFile::Done(string Message,unsigned long Size,string MD5,
+void pkgAcqFile::DoneByWorker(string Message,unsigned long Size,
 		      pkgAcquire::MethodConfig *Cnf)
 {
    // Check the md5
+   const string MD5 = LookupTag(Message,"MD5-Hash");
    if (Md5Hash.empty() == false && MD5.empty() == false)
    {
       if (Md5Hash != MD5)
@@ -1048,7 +1046,7 @@ void pkgAcqFile::Done(string Message,unsigned long Size,string MD5,
       }
    }
 
-   Item::Done(Message,Size,MD5,Cnf);
+   BaseItem_Done(Message,Size,Cnf);
 
    string FileName = LookupTag(Message,"Filename");
    if (FileName.empty() == true)
