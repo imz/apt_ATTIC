@@ -41,7 +41,7 @@ class pkgRepository
    virtual bool HasRelease() const { return GotRelease; }
 
    virtual bool IsAuthenticated() const { return !FingerPrintList.empty(); }
-   virtual bool FindChecksums(string URI,unsigned long &Size, string &MD5);
+   virtual bool FindChecksums(string URI,unsigned long &Size, string &MD5) const;
    // LORG:2006-02-23
    virtual string GetComprMethod() {return ComprMethod;};
    virtual string GetCheckMethod() {return CheckMethod;};
