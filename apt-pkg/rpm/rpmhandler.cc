@@ -108,6 +108,18 @@ bool RPMHandler::PutDep(const char *name, const char *ver, raptDepFlags flags,
    return true;
 }
 
+// follow-up on LORG:2006-03-16
+Cksum RPMHandler::Checksums() const
+{
+   const string ChkType = ChecksumType();
+   if (ChkType == "SHA1-Hash")
+      return Cksum(FileSize(), ChkType, SHA1Sum());
+   else if (ChkType == "MD5-Hash")
+      return Cksum(FileSize(), ChkType, MD5Sum());
+   else
+      return Cksum(FileSize(), "", ""); // FIXME: fail on unknown type
+}
+
 off_t RPMHdrHandler::GetITag(raptTag Tag) const
 {
    raptInt val = 0;
