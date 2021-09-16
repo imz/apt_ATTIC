@@ -799,12 +799,7 @@ bool pkgAcqArchive::QueueNext()
 
       // LORG:2006-03-16
       // Repomd uses SHA checksums for packages wheras others use MD5..
-      const string ChkType = Index->ChecksumType();
-      if (ChkType == "SHA1-Hash") {
-	 ExpectedCksum = Cksum(FileSize, ChkType, Parse.SHA1Hash());
-      } else {
-	 ExpectedCksum = Cksum(FileSize, ChkType, Parse.MD5Hash());
-      }
+      ExpectedCksum = Parse.Checksums();
 
       // See if we already have the file. (Legacy filenames)
       string FinalFile = _config->FindDir("Dir::Cache::Archives") + flNotDir(PkgFile);

@@ -303,6 +303,11 @@ bool rpmRecordParser::HasFile(const char *File)
    return Handler->HasFile(File);
 }
 
+Cksum rpmRecordParser::Checksums() const
+{
+   return Handler->Checksums();
+}
+
 #endif /* HAVE_RPM */
 
 // vim:sts=3:sw=3
