@@ -18,6 +18,7 @@
 
 #include <apt-pkg/pkgcache.h>
 #include <apt-pkg/fileutl.h>
+#include <apt-pkg/cksum.h>
 
 #include <vector>
 
@@ -52,8 +53,11 @@ class pkgRecords::Parser
 
    // These refer to the archive file for the Version
    virtual string FileName() = 0;
+   //protected:
    virtual string MD5Hash() = 0;
    virtual string SHA1Hash() = 0;
+   //public:
+   virtual Cksum Checksums() const = 0;
    virtual string SourcePkg() = 0;
 
    // These are some general stats about the package

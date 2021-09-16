@@ -11,6 +11,7 @@
 #define PKGLIB_RPMHANDLER_H
 
 #include <apt-pkg/fileutl.h>
+#include <apt-pkg/cksum.h>
 
 #include <rpm/rpmlib.h>
 #include <rpm/rpmmacro.h>
@@ -53,6 +54,10 @@ class RPMHandler
 	       unsigned int type, bool checkInternalDep,
 	       std::vector<Dependency*> &Deps) const;
 
+   // follow-up on LORG:2006-03-16
+   // Each handler type may choose its own cksum type.
+   virtual string ChecksumType() const {return "MD5-Hash";}
+
    public:
 
    // Return a unique ID for that handler. Actually, implemented used
@@ -70,6 +75,8 @@ class RPMHandler
    virtual string FileName() const = 0;
    virtual string Directory() const = 0;
    virtual off_t FileSize() const = 0;
+   // follow-up on LORG:2006-03-16
+   virtual Cksum Checksums() const;
    virtual string MD5Sum() const = 0;
    virtual string SHA1Sum() const = 0;
    virtual bool ProvideFileName() const {return false;}
