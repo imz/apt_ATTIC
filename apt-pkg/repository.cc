@@ -18,6 +18,7 @@
 #include <apt-pkg/configuration.h>
 #include <apt-pkg/strutl.h>
 #include <apt-pkg/tagfile.h>
+#include <apt-pkg/validate.h>
 #include <apt-pkg/acquire-item.h>
 
 #include <apti18n.h>
@@ -59,19 +60,26 @@ bool pkgRepository::ParseRelease(string File)
    const char *C = Files.c_str();
    while (*C != 0)
    {
-      string Hash = "";
-      string Size = "";
-      string Path = "";
-
-      if (ParseQuoteWord(C,Hash) == false || Hash.empty() == true ||
-	  ParseQuoteWord(C,Size) == false || atoll(Size.c_str()) < 0 ||
-	  ParseQuoteWord(C,Path) == false || Path.empty() == true)
-	 return _error->Error(_("Error parsing MD5Sum hash record on Release file '%s'"),
-			      File.c_str());
-
+      const auto Hash =
+         mbind(NonEmpty,
+               ParseQuoteWord_(C));
       // Parse the size and append the directory
-      IndexChecksums[Path].Size = atoll(Size.c_str());
-      IndexChecksums[Path].MD5 = Hash;
+      const auto Size =
+         Hash // otherwise (if already failed) skip
+         ? mbind(NonNegative<std::make_signed_t<decltype(Checksum::Size)>>,
+                 mbind(strtoll_,
+                       ParseQuoteWord_(C)))
+         : std::nullopt;
+      const auto Path =
+         Size // otherwise (if already failed) skip
+         ? mbind(NonEmpty,
+                 ParseQuoteWord_(C))
+         : std::nullopt;
+      if (! Path)
+         return _error->Error(_("Error parsing MD5Sum hash record on Release file '%s'"),
+                              File.c_str());
+      IndexChecksums[*Path].Size = *Size;
+      IndexChecksums[*Path].MD5 = *Hash;
    }
 
    return true;
