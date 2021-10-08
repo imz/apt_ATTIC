@@ -57,7 +57,7 @@ using std::string;
 /* Returns false only if the checksums fail (the file not existing is not
    a checksum mismatch) */
 static bool VerifyChecksums(const string & File,
-                            const unsigned long Size, const string & MD5, const string & method)
+                            const unsigned long long Size, const string & MD5, const string & method)
 {
    struct stat Buf;
 
@@ -223,7 +223,7 @@ pkgAcqIndex::pkgAcqIndex(pkgAcquire *Owner,pkgRepository *Repository,
    // If we're verifying authentication, check whether the size and
    // checksums match, if not, delete the cached files and force redownload
    string MD5Hash;
-   unsigned long Size;
+   unsigned long long Size;
 
    if (Repository != NULL)
    {
@@ -297,7 +297,7 @@ void pkgAcqIndex::Done(string Message,unsigned long Size, const string /* MD5 ob
    if (Decompression == true)
    {
       // CNC:2002-07-03
-      unsigned long FSize;
+      unsigned long long FSize;
       string MD5Hash;
 
       if (Repository != NULL && Repository->HasRelease() == true &&
@@ -311,7 +311,7 @@ void pkgAcqIndex::Done(string Message,unsigned long Size, const string /* MD5 ob
 	    ErrorText = _("Size mismatch");
 	    Rename(DestFile,DestFile + ".FAILED");
 	    if (_config->FindB("Acquire::Verbose",false) == true)
-	       _error->Warning("Size mismatch of index file %s: %lu was supposed to be %lu",
+	       _error->Warning("Size mismatch of index file %s: %lu was supposed to be %llu",
 			       RealURI.c_str(), Size, FSize);
 	    return;
 	 }
@@ -433,7 +433,7 @@ pkgAcqIndexRel::pkgAcqIndexRel(pkgAcquire *Owner,pkgRepository *Repository,
 
    // CNC:2002-07-09
    string MD5Hash;
-   unsigned long Size;
+   unsigned long long Size;
    if (Master == false && Repository != NULL)
    {
       if (Repository->HasRelease() == true)
@@ -603,7 +603,7 @@ void pkgAcqIndexRel::Done(string Message,unsigned long Size, const string /* MD5
    }
 
    // CNC:2002-07-03
-   unsigned long FSize;
+   unsigned long long FSize;
    string MD5Hash;
    if (Master == false && Repository != NULL
        && Repository->HasRelease() == true
@@ -615,7 +615,7 @@ void pkgAcqIndexRel::Done(string Message,unsigned long Size, const string /* MD5
 	 ErrorText = _("Size mismatch");
 	 Rename(DestFile,DestFile + ".FAILED");
 	 if (_config->FindB("Acquire::Verbose",false) == true)
-	    _error->Warning("Size mismatch of index file %s: %lu was supposed to be %lu",
+	    _error->Warning("Size mismatch of index file %s: %lu was supposed to be %llu",
 			    RealURI.c_str(), Size, FSize);
 	 return;
       }

@@ -16,7 +16,7 @@ class pkgRepository
 
 
    struct Checksum {
-      unsigned long Size;
+      unsigned long long Size;
       string MD5;
       string SHA1;
    };
