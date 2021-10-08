@@ -56,9 +56,9 @@ struct AFMap
 };
 
 #ifndef AF_INET6
-struct AFMap AFMap[] = {{AF_INET,1},{0,0}};
+struct AFMap AFMap[] = {{AF_INET,1},{}};
 #else
-struct AFMap AFMap[] = {{AF_INET,1},{AF_INET6,2},{0,0}};
+struct AFMap AFMap[] = {{AF_INET,1},{AF_INET6,2},{}};
 #endif
 
 unsigned long TimeOut = 120;
