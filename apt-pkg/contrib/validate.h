@@ -9,8 +9,9 @@
 
 // for implementations
 #include <apt-pkg/strutl.h>
-#include <cstdlib>
-#include <cerrno>
+// #include <cstdlib>
+// #include <cerrno>
+#include <charconv>
 
 /* Monadic bind operation implemented for the specific family of monad
    which is a trivial wrapper around values extended with "failure".
@@ -100,18 +101,34 @@ std::optional<std::make_unsigned_t<t>> NonNegative(const t X)
 
 // "Monadic" interface to strtol() from cstdlib.
 //template<Base = 10>
-std::optional<long> strtol_(const std::string & S)
+// std::optional<long> strtol_(const std::string & S)
+// {
+//    const int Base = 10;
+//    const char * const Begin = &S[0];
+//    char * End;
+//    int save_errno = 0;
+
+//    std::swap(errno, save_errno);
+//    const long Res = strtol(Begin, &End, Base);
+//    std::swap(errno, save_errno);
+
+//    if (save_errno != 0 || End != &S[S.length()])
+//       return std::nullopt;
+
+//    return Res;
+// }
+
+// "Monadic" interface to std::from_chars from charconv.
+template<typename t>
+std::optional<t> from_chars_(const std::string & S)
 {
-   const int Base = 10;
    const char * const Begin = &S[0];
-   char * End;
-   int save_errno = 0;
+   const char * const End = &S[S.length()];
+   t Res;
 
-   std::swap(errno, save_errno);
-   const long Res = strtol(Begin, &End, Base);
-   std::swap(errno, save_errno);
+   const std::from_chars_result Success = std::from_chars(Begin, End, Res);
 
-   if (save_errno != 0 || End != &S[S.length()])
+   if (Success.ec != std::errc() || Success.ptr != End)
       return std::nullopt;
 
    return Res;
