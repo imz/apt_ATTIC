@@ -81,7 +81,7 @@ bool pkgRepository::ParseRelease(string File)
 // ---------------------------------------------------------------------
 /* */
 bool pkgRepository::FindChecksums(const string URI,
-                                  unsigned long &Size, string &MD5) const
+                                  decltype(Checksum::Size) &Size, string &MD5) const
 {
    const string Path = string(URI,RootURI.size());
    const auto Found = IndexChecksums.find(Path);
