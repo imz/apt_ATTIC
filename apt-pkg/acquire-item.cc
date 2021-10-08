@@ -56,7 +56,8 @@ using std::string;
 // ---------------------------------------------------------------------
 /* Returns false only if the checksums fail (the file not existing is not
    a checksum mismatch) */
-static bool VerifyChecksums(string File,unsigned long Size,string MD5, string method)
+static bool VerifyChecksums(const string & File,
+                            const unsigned long Size, const string & MD5, const string & method)
 {
    struct stat Buf;
 
