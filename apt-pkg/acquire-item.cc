@@ -250,9 +250,6 @@ pkgAcqIndex::pkgAcqIndex(pkgAcquire *Owner,pkgRepository *Repository,
 	    unlink(FinalFile.c_str());
 	    unlink(DestFile.c_str());
 	 }
-
-	 if (Repository->FindChecksums(RealURI + ".xz", Size, MD5Hash) == true)
-	    Desc.URI = URI + ".xz";
       }
       else if (Repository->IsAuthenticated() == true)
       {
@@ -389,20 +386,16 @@ void pkgAcqIndex::Done(string Message,unsigned long Size, const string /* MD5 ob
    Decompression = true;
    DestFile += ".decomp";
    // LORG:2006-02-23 compression is a feature of repository type
-   // ALT: no, it's simply determined by the extension appended in ctor above.
-   const char *prog = nullptr;
-   const std::string ext = flExtension(Desc.URI);
-   if (ext == "xz")
-      prog = "xz";
-   else if (ext == "gz")
-      prog = "gzip";
-   else if (ext == "bz2")
-      prog = "bzip2";
-   else
+   if (Repository->GetComprMethod() == "gz") {
+      Desc.URI = "gzip:" + FileName;
+      Mode = "gzip";
+   } else if (Repository->GetComprMethod() == "bz2") {
+      Desc.URI = "bzip2:" + FileName;
+      Mode = "bzip2";
+   } else {
       _error->Warning(_("Uknown compression extension, trying uncompressed"));
-   Desc.URI = (prog ? std::string(prog) + ":" : std::string()) + FileName;
-   // CNC:2002-07-03
-   Mode = prog;
+      Desc.URI = FileName;
+   }
    QueueURI(Desc);
 }
 									/*}}}*/
