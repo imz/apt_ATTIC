@@ -481,7 +481,7 @@ string flNoExtension(string File)
 string flUnCompressed(string File)
 {
    string Ext = flExtension(File);
-   if (Ext == "gz" or Ext == "bz2") {
+   if (Ext == "xz" or Ext == "gz" or Ext == "bz2") {
       return flNoExtension(File);
    }
    return File;

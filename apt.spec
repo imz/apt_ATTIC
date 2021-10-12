@@ -71,7 +71,8 @@ Requires: RPMQ(EPOCH)
 Requires: RPMQ(BUILDTIME)
 Requires: RPMQ(DISTTAG)
 # for methods.
-Requires: bzip2, gzip, gnupg, alt-gpgkeys
+Requires: gzip, bzip2, xz
+Requires: gnupg, alt-gpgkeys
 
 # Older versions of update-kernel misunderstood the @-postfix (with buildtime
 # and disttag), which is now added by APT to verstrs and the names of
@@ -290,6 +291,7 @@ install -pm644 apt.conf %buildroot%_sysconfdir/%name/
 # This is still needed.
 ln -sf rsh %buildroot%_libdir/%name/methods/ssh
 ln -sf gzip %buildroot%_libdir/%name/methods/bzip2
+ln -sf gzip %buildroot%_libdir/%name/methods/xz
 
 # Cleanup
 rm %buildroot%_libdir/*.la
