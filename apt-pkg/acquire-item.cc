@@ -249,6 +249,9 @@ pkgAcqIndex::pkgAcqIndex(pkgAcquire *Owner,pkgRepository *Repository,
 	    unlink(FinalFile.c_str());
 	    unlink(DestFile.c_str());
 	 }
+
+	 if (Repository->FindChecksums(RealURI + ".xz", Size, MD5Hash) == true)
+	    Desc.URI = URI + ".xz";
       }
       else if (Repository->IsAuthenticated() == true)
       {
@@ -384,8 +387,13 @@ void pkgAcqIndex::Done(string Message,unsigned long Size, const string /* MD5 ob
 
    Decompression = true;
    DestFile += ".decomp";
-   string ComprMeth = Repository->GetComprMethod(RealURI);
-   if (ComprMeth == "gz") {
+   // LORG:2006-02-23 compression is a feature of repository type
+   // ALT: no, it's simply determined by the extension appended in ctor above.
+   const std::string ComprMeth = flExtension(Desc.URI);
+   if (ComprMeth == "xz") {
+      Desc.URI = "xz:" + FileName;
+      Mode = "xz";
+   } else if (ComprMeth == "gz") {
       Desc.URI = "gzip:" + FileName;
       Mode = "gzip";
    } else if (ComprMeth == "bz2") {
