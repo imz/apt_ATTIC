@@ -274,7 +274,7 @@ unsigned short rpmListParser::VersionHash()
    for (size_t i = 0; i < sizeof(DepSections)/sizeof(int); ++i) {
       vector<Dependency*> Deps;
 
-      if (!Handler->DepsList(DepSections[i], Deps))
+      if (!Handler->PRCO(DepSections[i], Deps))
 	 continue;
 
       std::sort(Deps.begin(), Deps.end(), depsort);
@@ -322,7 +322,7 @@ bool rpmListParser::ParseDepends(pkgCache::VerIterator &Ver, unsigned int Type)
 {
    vector<Dependency*> Deps;
 
-   if (!Handler->DepsList(Type, Deps))
+   if (!Handler->PRCO(Type, Deps))
       return false;
 
    bool rc = true;
@@ -373,7 +373,7 @@ bool rpmListParser::ParseProvides(pkgCache::VerIterator &Ver)
 {
    vector<Dependency*> Deps;
 
-   if (!Handler->DepsList(pkgCache::Dep::Provides, Deps))
+   if (!Handler->PRCO(pkgCache::Dep::Provides, Deps))
       return false;
 
    bool rc = true;
