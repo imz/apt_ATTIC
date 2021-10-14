@@ -10,16 +10,16 @@
 #ifndef PKGLIB_RPMHANDLER_H
 #define PKGLIB_RPMHANDLER_H
 
-#include <sys/types.h>
-#include <dirent.h>
-#include <vector>
-
 #include <apt-pkg/fileutl.h>
 
 #include <rpm/rpmlib.h>
 #include <rpm/rpmmacro.h>
-
 #include "rapttypes.h"
+
+#include <sys/types.h>
+#include <dirent.h>
+
+#include <vector>
 
 // Our Extra RPM tags. These should not be accessed directly. Use
 // the methods in RPMHandler instead.
@@ -96,7 +96,6 @@ class RPMHandler
    RPMHandler() : iOffset(0), iSize(0) {}
    virtual ~RPMHandler() {}
 };
-
 
 class RPMHdrHandler : public RPMHandler
 {
@@ -179,7 +178,6 @@ class RPMSingleFileHandler : public RPMFileHandler
    virtual ~RPMSingleFileHandler() {}
 };
 
-
 class RPMDBHandler : public RPMHdrHandler
 {
    protected:
@@ -213,7 +211,6 @@ class RPMDBHandler : public RPMHdrHandler
    virtual ~RPMDBHandler();
 };
 
-
 class RPMDirHandler : public RPMHdrHandler
 {
    protected:
@@ -242,3 +239,4 @@ class RPMDirHandler : public RPMHdrHandler
 };
 
 #endif
+// vim:sts=3:sw=3
