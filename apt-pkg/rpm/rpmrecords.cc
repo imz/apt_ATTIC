@@ -101,7 +101,7 @@ string rpmRecordParser::SHA1Hash()
 /* */
 string rpmRecordParser::Maintainer()
 {
-   return Handler->Maintainer();
+   return Handler->Packager();
 }
 									/*}}}*/
 // RecordParser::ShortDesc - Return a 1 line description		/*{{{*/
@@ -254,7 +254,7 @@ void rpmRecordParser::GetRec(const char *&Start,const char *&Stop)
    snprintf(buf, sizeof(buf), "%llu", (unsigned long long) Handler->InstalledSize());
    BufCatTag("\nInstalled Size: ", buf);
 
-   BufCatTag("\nMaintainer: ", Handler->Maintainer().c_str());
+   BufCatTag("\nMaintainer: ", Handler->Packager().c_str());
 
    BufCatTag("\nVersion: ", Handler->EVRDB().c_str());
 
