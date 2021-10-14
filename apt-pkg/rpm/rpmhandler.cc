@@ -149,7 +149,7 @@ string RPMHdrHandler::EVRDB() const
    return res.str();
 }
 
-string RPMHdrHandler::Maintainer() const
+string RPMHdrHandler::Packager() const
 {
    string str;
    raptHeader h(HeaderP);

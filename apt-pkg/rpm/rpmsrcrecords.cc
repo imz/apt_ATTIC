@@ -123,7 +123,7 @@ string rpmSrcRecordParser::Version() const
 /* */
 string rpmSrcRecordParser::Maintainer() const
 {
-   return Handler->Maintainer();
+   return Handler->Packager();
 }
 
 string rpmSrcRecordParser::Section() const
@@ -269,7 +269,7 @@ string rpmSrcRecordParser::AsStr()
    snprintf(buf, sizeof(buf), "%llu", (unsigned long long) Handler->InstalledSize());
    BufCatTag("\nInstalled Size: ", buf);
 
-   BufCatTag("\nMaintainer: ", Handler->Maintainer().c_str());
+   BufCatTag("\nMaintainer: ", Handler->Packager().c_str());
 
    BufCatTag("\nVersion: ", Handler->EVRDB().c_str());
 
