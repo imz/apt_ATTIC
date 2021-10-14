@@ -216,7 +216,7 @@ void rpmRecordParser::BufCatDepList(unsigned int Type, unsigned int SubType,
 				    const char *prefix)
 {
    vector<Dependency*> Deps;
-   if (!Handler->DepsList(Type, Deps, false))
+   if (!Handler->PRCO(Type, Deps, false))
       return;
 
    bool start = true;

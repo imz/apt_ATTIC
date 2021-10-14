@@ -236,7 +236,7 @@ void rpmSrcRecordParser::BufCatDepList(unsigned int Type, unsigned int SubType,
 				       const char *prefix)
 {
    vector<Dependency*> Deps;
-   if (!Handler->DepsList(Type, Deps, false))
+   if (!Handler->PRCO(Type, Deps, false))
       return;
 
    bool start = true;
@@ -311,7 +311,7 @@ bool rpmSrcRecordParser::BuildDepends(vector<pkgSrcRecords::Parser::BuildDepRec>
    vector<Dependency*>::const_iterator I;
 
    vector<Dependency*> Deps;
-   Handler->DepsList(pkgCache::Dep::Depends, Deps, false);
+   Handler->PRCO(pkgCache::Dep::Depends, Deps, false);
 
    for (I = Deps.begin(); I != Deps.end(); ++I) {
       BuildDepRec rec;
@@ -324,7 +324,7 @@ bool rpmSrcRecordParser::BuildDepends(vector<pkgSrcRecords::Parser::BuildDepRec>
    }
 
    vector<Dependency*> Conflicts;
-   Handler->DepsList(pkgCache::Dep::Conflicts, Conflicts, false);
+   Handler->PRCO(pkgCache::Dep::Conflicts, Conflicts, false);
 
    for (I = Conflicts.begin(); I != Conflicts.end(); ++I) {
       BuildDepRec rec;

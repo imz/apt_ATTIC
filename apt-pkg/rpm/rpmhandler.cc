@@ -203,7 +203,7 @@ bool RPMHdrHandler::FileList(vector<string> &FileList) const
    return true;
 }
 
-bool RPMHdrHandler::DepsList(unsigned int Type, vector<Dependency*> &Deps,
+bool RPMHdrHandler::PRCO(unsigned int Type, vector<Dependency*> &Deps,
 			     bool checkInternalDep) const
 {
    rpmTag deptype;
