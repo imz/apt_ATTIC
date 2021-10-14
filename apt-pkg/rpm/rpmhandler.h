@@ -81,7 +81,6 @@ class RPMHandler
    virtual string Packager() const = 0;
    virtual string Summary() const = 0;
    virtual string Description() const = 0;
-   virtual string Changelog() const = 0;
    virtual bool AutoInstalled() const = 0;
    virtual off_t InstalledSize() const = 0;
    virtual string SourceRpm() const = 0;
@@ -89,6 +88,7 @@ class RPMHandler
    virtual bool DepsList(unsigned int Type, std::vector<Dependency*> &Deps,
 			 bool checkInternalDep = true) const = 0;
    virtual bool FileList(std::vector<string> &FileList) const = 0;
+   virtual string Changelog() const = 0;
 
    virtual bool HasFile(const char *File) const;
 
@@ -120,7 +120,6 @@ class RPMHdrHandler : public RPMHandler
    virtual string Packager() const override;
    virtual string Summary() const override {return GetSTag(RPMTAG_SUMMARY);}
    virtual string Description() const override {return GetSTag(RPMTAG_DESCRIPTION);}
-   virtual string Changelog() const override;
    virtual bool AutoInstalled() const override {return GetITag(RPMTAG_AUTOINSTALLED);}
    virtual off_t InstalledSize() const override {return GetITag(RPMTAG_SIZE);}
    virtual string SourceRpm() const override {return GetSTag(RPMTAG_SOURCERPM);}
@@ -128,6 +127,7 @@ class RPMHdrHandler : public RPMHandler
    virtual bool DepsList(unsigned int Type, std::vector<Dependency*> &Deps,
 			 bool checkInternalDep = true) const override;
    virtual bool FileList(std::vector<string> &FileList) const override;
+   virtual string Changelog() const override;
 
    RPMHdrHandler() : RPMHandler(), HeaderP(0) {}
    virtual ~RPMHdrHandler() {}
