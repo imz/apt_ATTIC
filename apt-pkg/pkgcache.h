@@ -105,7 +105,7 @@ class pkgCache
 
    // CNC:2003-02-16 - Inlined here.
    inline unsigned long sHash(const char *S) const;
-   inline unsigned long sHash(const string &S) const {return sHash(S.c_str());}
+   inline unsigned long sHash(const string & S) const {return sHash(S.c_str());};
 
    public:
 
@@ -127,7 +127,7 @@ class pkgCache
 
    // String hashing function (512 range)
    inline unsigned long Hash(const char *S) const;
-   inline unsigned long Hash(const string &S) const {return Hash(S.c_str());}
+   inline unsigned long Hash(const string & S) const {return Hash(S.c_str());}
 
    // Usefull transformation things
    const char *Priority(unsigned char Priority);
