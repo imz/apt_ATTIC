@@ -36,17 +36,6 @@
 #include <rpm/rpmdb.h>
 #include <rpm/rpmlib.h>
 
-bool RPMHandler::HasFile(const char *File) const
-{
-   if (*File == '\0')
-      return false;
-
-   vector<string> Files;
-   FileList(Files);
-   vector<string>::const_iterator I = std::find(Files.begin(), Files.end(), File);
-   return I != Files.end();
-}
-
 string RPMHdrHandler::EVRDB() const
 {
    string str;
@@ -95,6 +84,17 @@ unsigned int RPMHandler::DepOp(raptDepFlags rpmflags) const
    }
 
    return Op;
+}
+
+bool RPMHandler::HasFile(const char *File) const
+{
+   if (*File == '\0')
+      return false;
+
+   vector<string> Files;
+   FileList(Files);
+   vector<string>::const_iterator I = std::find(Files.begin(), Files.end(), File);
+   return I != Files.end();
 }
 
 bool RPMHandler::InternalDep(const char *name, const char *ver, raptDepFlags flag) const
@@ -195,15 +195,6 @@ string RPMHdrHandler::Changelog() const
    return str;
 }
 
-bool RPMHdrHandler::FileList(vector<string> &FileList) const
-{
-   raptHeader h(HeaderP);
-   if (!h.getTag(RPMTAG_OLDFILENAMES, FileList))
-      h.getTag(RPMTAG_FILENAMES, FileList);
-   // it's ok for a package not to have any files
-   return true;
-}
-
 bool RPMHdrHandler::PRCO(unsigned int Type, vector<Dependency*> &Deps,
 			     bool checkInternalDep) const
 {
@@ -235,6 +226,15 @@ bool RPMHdrHandler::PRCO(unsigned int Type, vector<Dependency*> &Deps,
 		checkInternalDep, Deps);
       rpmdsFree(ds);
    }
+   return true;
+}
+
+bool RPMHdrHandler::FileList(vector<string> &FileList) const
+{
+   raptHeader h(HeaderP);
+   if (!h.getTag(RPMTAG_OLDFILENAMES, FileList))
+      h.getTag(RPMTAG_FILENAMES, FileList);
+   // it's ok for a package not to have any files
    return true;
 }
 
