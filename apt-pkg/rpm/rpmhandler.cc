@@ -149,19 +149,6 @@ string RPMHdrHandler::GetSTag(raptTag Tag) const
    return str;
 }
 
-string RPMHdrHandler::Packager() const
-{
-   string str;
-   raptHeader h(HeaderP);
-
-   if (h.getTag(RPMTAG_PACKAGER, str))
-      return str;
-   if (h.getTag(RPMTAG_VENDOR, str))
-      return str;
-
-   return string("");
-}
-
 string RPMHdrHandler::Changelog() const
 {
    string str;
@@ -235,6 +222,19 @@ bool RPMHdrHandler::FileList(vector<string> &FileList) const
       h.getTag(RPMTAG_FILENAMES, FileList);
    // it's ok for a package not to have any files
    return true;
+}
+
+string RPMHdrHandler::Packager() const
+{
+   string str;
+   raptHeader h(HeaderP);
+
+   if (h.getTag(RPMTAG_PACKAGER, str))
+      return str;
+   if (h.getTag(RPMTAG_VENDOR, str))
+      return str;
+
+   return string("");
 }
 
 RPMFileHandler::RPMFileHandler(string File)
