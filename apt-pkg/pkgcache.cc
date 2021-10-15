@@ -181,7 +181,7 @@ unsigned long pkgCache::sHash(const char *Str) const
 // Cache::FindPkg - Locate a package by name				/*{{{*/
 // ---------------------------------------------------------------------
 /* Returns 0 on error, pointer to the package otherwise */
-pkgCache::PkgIterator pkgCache::FindPkg(const string &Name)
+pkgCache::PkgIterator pkgCache::FindPkg(const string & Name)
 {
    return PkgIterator(*this,FindPackage(Name.c_str()));
 }
