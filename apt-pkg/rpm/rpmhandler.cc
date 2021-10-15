@@ -47,6 +47,30 @@ bool RPMHandler::HasFile(const char *File) const
    return I != Files.end();
 }
 
+string RPMHdrHandler::EVRDB() const
+{
+   string str;
+   raptInt val;
+   ostringstream res;
+   raptHeader h(HeaderP);
+
+   if (h.getTag(RPMTAG_EPOCH, val))
+      res << val << ":";
+
+   res << Version() << '-';
+
+   if (h.getTag(RPMTAG_RELEASE, str))
+      res << str;
+
+   if (h.getTag(RPMTAG_DISTTAG, str))
+      res << ":" << str;
+
+   if (h.getTag(RPMTAG_BUILDTIME, val))
+      res << "@" << val;
+
+   return res.str();
+}
+
 unsigned int RPMHandler::DepOp(raptDepFlags rpmflags) const
 {
    unsigned int Op = 0;
@@ -124,30 +148,6 @@ string RPMHdrHandler::GetSTag(raptTag Tag) const
 
    h.getTag(Tag, str);
    return str;
-}
-
-string RPMHdrHandler::EVRDB() const
-{
-   string str;
-   raptInt val;
-   ostringstream res;
-   raptHeader h(HeaderP);
-
-   if (h.getTag(RPMTAG_EPOCH, val))
-      res << val << ":";
-
-   res << Version() << '-';
-
-   if (h.getTag(RPMTAG_RELEASE, str))
-      res << str;
-
-   if (h.getTag(RPMTAG_DISTTAG, str))
-      res << ":" << str;
-
-   if (h.getTag(RPMTAG_BUILDTIME, val))
-      res << "@" << val;
-
-   return res.str();
 }
 
 string RPMHdrHandler::Packager() const
