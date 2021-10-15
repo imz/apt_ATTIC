@@ -150,38 +150,6 @@ string RPMHdrHandler::GetSTag(raptTag Tag) const
    return str;
 }
 
-string RPMHdrHandler::Changelog() const
-{
-   string str;
-   vector<string> names, texts;
-   vector<raptInt> times;
-   raptHeader h(HeaderP);
-
-   if (h.getTag(RPMTAG_CHANGELOGTIME, times) &&
-       h.getTag(RPMTAG_CHANGELOGNAME, names) &&
-       h.getTag(RPMTAG_CHANGELOGTEXT, texts)) {
-
-      vector<raptInt>::const_iterator timeI = times.begin();
-      vector<string>::const_iterator nameI = names.begin();
-      vector<string>::const_iterator textI = texts.begin();
-      for (; timeI != times.end() &&
-	     nameI != names.end() &&
-	     textI != texts.end()
-	   ; ++timeI, ++nameI, ++textI) {
-	 time_t t = *timeI;
-	 tm tmb;
-	 char buf[256];
-	 if (!localtime_r(&t, &tmb) ||
-	     !strftime(buf, sizeof(buf), "%a %b %d %Y", &tmb)) {
-	    continue;
-	 }
-	 str += string("* ") + buf + ' ' + *nameI + '\n' + *textI + '\n';
-      }
-   }
-
-   return str;
-}
-
 bool RPMHdrHandler::PRCO(unsigned int Type, vector<Dependency*> &Deps,
 			     bool checkInternalDep) const
 {
@@ -223,6 +191,38 @@ bool RPMHdrHandler::FileList(vector<string> &FileList) const
       h.getTag(RPMTAG_FILENAMES, FileList);
    // it's ok for a package not to have any files
    return true;
+}
+
+string RPMHdrHandler::Changelog() const
+{
+   string str;
+   vector<string> names, texts;
+   vector<raptInt> times;
+   raptHeader h(HeaderP);
+
+   if (h.getTag(RPMTAG_CHANGELOGTIME, times) &&
+       h.getTag(RPMTAG_CHANGELOGNAME, names) &&
+       h.getTag(RPMTAG_CHANGELOGTEXT, texts)) {
+
+      vector<raptInt>::const_iterator timeI = times.begin();
+      vector<string>::const_iterator nameI = names.begin();
+      vector<string>::const_iterator textI = texts.begin();
+      for (; timeI != times.end() &&
+	     nameI != names.end() &&
+	     textI != texts.end()
+	   ; ++timeI, ++nameI, ++textI) {
+	 time_t t = *timeI;
+	 tm tmb;
+	 char buf[256];
+	 if (!localtime_r(&t, &tmb) ||
+	     !strftime(buf, sizeof(buf), "%a %b %d %Y", &tmb)) {
+	    continue;
+	 }
+	 str += string("* ") + buf + ' ' + *nameI + '\n' + *textI + '\n';
+      }
+   }
+
+   return str;
 }
 
 string RPMHdrHandler::Packager() const
