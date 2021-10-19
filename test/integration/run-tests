@@ -102,14 +102,15 @@ for testcase in $(ls $DIR | egrep '^test-'); do
 		printf >&2 "${CTEST}Run Testcase ($(($ALL+1))/${TOTAL}) ${CHIGH}$testcase${CRESET}\n"
 	fi
 	./${testcase} && PASS=$((PASS+1)) || {
-			if ! [ $? -eq 255 ]; then
-				FAIL=$((FAIL+1))
-				FAILED_TESTS="$FAILED_TESTS $testcase"
-				echo >&2 "$testcase ... FAIL"
-			else
+			local -r testresult=$?
+			if [ "$testresult" -eq 255 ]; then
 				XFAIL=$((XFAIL+1))
 				XFAILED_TESTS="$XFAILED_TESTS $testcase"
 				echo >&2 "$testcase ... XFAIL"
+			else
+				FAIL=$((FAIL+1))
+				FAILED_TESTS="$FAILED_TESTS $testcase"
+				echo >&2 "$testcase ... FAIL"
 			fi
 	}
 	ALL=$((ALL+1))
@@ -124,12 +125,15 @@ if [ -n "$XFAILED_TESTS" ]; then
         for t in $XFAILED_TESTS; do echo "$t"; done >&2
 	echo >&2
 fi
-if [ -n "$FAILED_TESTS" ]; then
+if [ -z "$FAILED_TESTS" ]; then
+	echo >&2 'All tests seem to have been run successfully. What could possibly go wrong?'
+else
 	echo >&2 "Failed tests:"
         for t in $FAILED_TESTS; do echo "$t"; done >&2
 	echo >&2
-else
-	echo >&2 'All tests seem to have been run successfully. What could possibly go wrong?'
 fi
+
 # ensure we don't overflow
-exit $((FAIL <= 255 ? FAIL : 255))
+if [ "$FAIL" -gt 0 ]; then
+	exit $((FAIL <= 255 ? FAIL : 255))
+fi
