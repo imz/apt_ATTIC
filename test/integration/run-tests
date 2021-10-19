@@ -3,11 +3,13 @@ set -e
 
 FAIL=0
 XFAIL=0
+XPASS=0
 PASS=0
 ALL=0
 
 FAILED_TESTS=""
 XFAILED_TESTS=""
+XPASSED_TESTS=""
 DIR=$(readlink -f $(dirname $0))
 
 # Global parameters which affect the tests (or the framework)
@@ -107,6 +109,10 @@ for testcase in $(ls $DIR | egrep '^test-'); do
 				XFAIL=$((XFAIL+1))
 				XFAILED_TESTS="$XFAILED_TESTS $testcase"
 				echo >&2 "$testcase ... XFAIL"
+			elif [ "$testresult" -eq 254 ]; then
+				XPASS=$((XPASS+1))
+				XPASSED_TESTS="$XPASSED_TESTS $testcase"
+				echo >&2 "$testcase ... XPASS"
 			else
 				FAIL=$((FAIL+1))
 				FAILED_TESTS="$FAILED_TESTS $testcase"
@@ -119,21 +125,30 @@ for testcase in $(ls $DIR | egrep '^test-'); do
 	fi
 done
 
-echo >&2 "Statistics: $ALL tests were run: $PASS successfully and $FAIL failed and $XFAIL xfailed"
+echo >&2 "Statistics: $ALL tests were run: $PASS successfully and $FAIL failed and $XFAIL xfailed and $XPASS xpassed"
 if [ -n "$XFAILED_TESTS" ]; then
 	echo >&2 "XFailed tests:"
         for t in $XFAILED_TESTS; do echo "$t"; done >&2
 	echo >&2
 fi
-if [ -z "$FAILED_TESTS" ]; then
+if [ -z "$FAILED_TESTS" ] && [ -z "$XPASSED_TESTS" ]; then
 	echo >&2 'All tests seem to have been run successfully. What could possibly go wrong?'
 else
-	echo >&2 "Failed tests:"
-        for t in $FAILED_TESTS; do echo "$t"; done >&2
-	echo >&2
+	if [ -n "$FAILED_TESTS" ]; then
+		echo >&2 "Failed tests:"
+	        for t in $FAILED_TESTS; do echo "$t"; done >&2
+		echo >&2
+	fi
+	if [ -n "$XPASSED_TESTS" ]; then
+		echo >&2 "UneXpectedly passed tests:"
+	        for t in $XPASSED_TESTS; do echo "$t"; done >&2
+		echo >&2
+	fi
 fi
 
 # ensure we don't overflow
 if [ "$FAIL" -gt 0 ]; then
 	exit $((FAIL <= 255 ? FAIL : 255))
+elif [ "$XPASS" -gt 0 ]; then
+	exit $((XPASS <= 255 ? XPASS : 255))
 fi
