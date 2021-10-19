@@ -146,9 +146,11 @@ aptmark() { runapt apt-mark "$@"; }
 
 exitwithstatus() {
 		if [ $EXIT_CODE -gt 0 ]; then
-			exit $((EXIT_CODE <= 254 ? EXIT_CODE : 254));
+			exit $((EXIT_CODE <= 253 ? EXIT_CODE : 253));
 		elif [ $XFAILED -gt 0 ]; then
 			exit 255
+		elif [ -n "$APT_TEST_XFAIL" ]; then
+			exit 254 # XPASS: uneXpected PASS
 		fi
 }
 
