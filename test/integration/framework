@@ -558,6 +558,10 @@ bad_cksum() {
 	        sha1sum /dev/null
 		;;
 
+	    SHA256)
+	        sha256sum /dev/null
+		;;
+
 	    BLAKE2b)
 	        b2sum /dev/null
 		;;
