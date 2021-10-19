@@ -7,6 +7,6 @@ TESTDIR=$(readlink -f $(dirname $0))
 export APT_TEST_XFAIL=yes
 
 # apt-repo-tools (post 0.8.0 sha2 branch) implements it, but needs an option.
-export APT_TEST_GENBASEDIR_OPTS="${APT_TEST_GENBASEDIR_OPTS} --sha1"
+export APT_TEST_GENBASEDIR_OPTS="${APT_TEST_GENBASEDIR_OPTS} --sha256"
 
-exec $TESTDIR/tmpl-apt-update-verifies-CKSUM-of-pkglist-index.sh 'SHA1'
+exec $TESTDIR/tmpl-apt-update-verifies-CKSUM-of-pkglist-index.sh 'SHA256'
