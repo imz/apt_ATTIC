@@ -3,4 +3,4 @@ set -eu
 
 TESTDIR=$(readlink -f $(dirname $0))
 
-exec $TESTDIR/tmpl-apt-update-2-verifies-CKSUM-of-pkglist-index.sh 'MD5Sum'
+exec $TESTDIR/tmpl-apt-update-2-verifies-CKSUM-of-pkglist-index.sh 'Size'

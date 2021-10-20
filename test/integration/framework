@@ -579,3 +579,17 @@ fake_repo_noarch_pkglist_cksum() {
 	edit_repo_noarch_release \
 	    sed -Ee "/^$cksum_type:/,/^[^ ]/ { /pkglist/ s:^ [^ ]* : $bad_cksum :; }"
 }
+
+# Input:
+# * args: cksum_type CMD [ARG..] -- stream editor
+# * global vars REPO_STORAGE, NOARCH_DISTRO
+# * file $REPO_STORAGE/$NOARCH_DISTRO/base/release
+#
+# Output/effects:
+# * the file is edited; its time is unchanged
+fake_repo_noarch_pkglist_size() {
+	local -r a_bad_size=1
+
+	edit_repo_noarch_release \
+	    sed -Ee "/pkglist/ s:^( [^ ]*) [^ ]* :\1 $a_bad_size :"
+}
