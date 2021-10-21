@@ -3,4 +3,7 @@ set -eu
 
 TESTDIR=$(readlink -f $(dirname $0))
 
+# Currently, in apt, the cksum type is bound to the repo type.
+export APT_TEST_XFAIL=yes
+
 exec $TESTDIR/tmpl-apt-install-verifies-CKSUM-of-rpm-archive.sh 'MD5Sum'
