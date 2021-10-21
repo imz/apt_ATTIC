@@ -92,7 +92,7 @@ static bool VerifyChecksums(const string & File,
 	 if (sha1sum.Result() != MD5)
 	 {
 	    if (_config->FindB("Acquire::Verbose", false) == true)
-	       cout << "SHA1Sum of "<<File<<" did not match what's in the checksum list and was redownloaded."<<endl;
+	       cout << "SHASum of "<<File<<" did not match what's in the checksum list and was redownloaded."<<endl;
 	    return false;
 	 }
       }
