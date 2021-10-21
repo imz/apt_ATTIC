@@ -562,6 +562,10 @@ bad_cksum() {
 	        sha1sum /dev/null
 		;;
 
+	    SHA256)
+	        sha256sum /dev/null
+		;;
+
 	    BLAKE2b)
 	        b2sum /dev/null
 		;;
@@ -589,6 +593,23 @@ fake_repo_noarch_pkglist_cksum() {
 
 	edit_repo_noarch_release \
 	    sed -Ee "/^$cksum_type:/,/^[^ ]/ { /pkglist/ s:^ [^ ]* : $a_bad_cksum :; }"
+}
+
+# Input:
+# * args: cksum_type CMD [ARG..] -- stream editor
+# * global vars REPO_STORAGE, NOARCH_DISTRO
+# * file $REPO_STORAGE/$NOARCH_DISTRO/base/release
+#
+# Output/effects:
+# * the file is edited; its time is unchanged
+fake_repo_noarch_pkglist_size() {
+	local a_bad_size
+	# a big number that fits only into unsigned 64-bit integer
+	printf -v a_bad_size '%u' 0xfedcba9876543210
+	local -r a_bad_size
+
+	edit_repo_noarch_release \
+	    sed -Ee "/pkglist/ s:^( [^ ]*) [^ ]* :\1 $a_bad_size :"
 }
 
 # Input:

@@ -14,12 +14,15 @@ esac
 
 . $TESTDIR/framework
 
-# The "file" method doesn't compute and pass the cksums to apt.
-case "$APT_TEST_METHOD" in
-	file*) APT_TEST_XFAIL=yes
-	       ;;
-esac
-
+if ! [ "$CKSUM_TYPE" = Size ]; then
+	# Actual checksums (other than the size, which is easily got from stat)
+	# are not computed at all by some methods (like file) and not passed
+	# to apt, and hence not checked.
+	case "$APT_TEST_METHOD" in
+		file*) APT_TEST_XFAIL=yes
+		       ;;
+	esac
+fi
 setupenvironment
 
 buildpackage 'simple-package'
@@ -33,11 +36,25 @@ generaterepository_and_switch_sources "$TMPWORKINGDIRECTORY/usr/src/RPM/RPMS"
 #
 # (For faking the pkglist itself, see other tests,
 # like test-apt-update-rejects-fake-pkglist-index.)
-fake_repo_noarch_pkglist_cksum "$CKSUM_TYPE"
+case "$CKSUM_TYPE" in
+	Size)
+		fake_repo_noarch_pkglist_size
+		;;
+	*)
+		fake_repo_noarch_pkglist_cksum "$CKSUM_TYPE"
+		;;
+esac
 
 # Cksum verification shouldn't pass.
 
-testregexmatch '.*MD5Sum mismatch.*' aptget update
+case "$CKSUM_TYPE" in
+	Size)
+		testregexmatch '.*Size mismatch.*' aptget update
+		;;
+	*)
+		testregexmatch '.*MD5Sum mismatch.*' aptget update
+		;;
+esac
 testfailure
 testsuccess aptcache show simple-package
 testfailure aptcache show simple-package-noarch
