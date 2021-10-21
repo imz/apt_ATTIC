@@ -603,7 +603,10 @@ fake_repo_noarch_pkglist_cksum() {
 # Output/effects:
 # * the file is edited; its time is unchanged
 fake_repo_noarch_pkglist_size() {
-	local -r a_bad_size=1
+	local a_bad_size
+	# a big number that fits only into unsigned 64-bit integer
+	printf -v a_bad_size '%u' 0xfedcba9876543210
+	local -r a_bad_size
 
 	edit_repo_noarch_release \
 	    sed -Ee "/pkglist/ s:^( [^ ]*) [^ ]* :\1 $a_bad_size :"
