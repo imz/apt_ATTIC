@@ -65,7 +65,8 @@ bool raptHash::AddFD(int Fd,unsigned long Size)
       if (Res < 0 || (unsigned) Res != std::min(Size,(unsigned long)sizeof(Buf)))
 	 return false;
       Size -= Res;
-      Add(Buf,Res);
+      if (! Add(Buf,Res))
+         return false;
    }
    return true;
 }
