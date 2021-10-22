@@ -12,7 +12,7 @@ RSYNC Aquire Method - This is the RSYNC aquire method for APT.
 #include <apt-pkg/fileutl.h>
 #include <apt-pkg/acquire-method.h>
 #include <apt-pkg/error.h>
-#include <apt-pkg/md5.h>
+#include <apt-pkg/hashes.h>
 
 #include <fcntl.h>
 #include <sys/stat.h>
@@ -545,13 +545,13 @@ bool RsyncMethod::Fetch(FetchItem *Itm)
    if ( server->Get(this,Res,File,Itm->DestFile.c_str()) ) {
 	  if ( stat(Itm->DestFile.c_str(), &st)==0 ) {
 		 Res.Size = st.st_size;
-		 // Calculating MD5
+		 // Calculating checksum
 		 //
 		 int fd = open(Itm->DestFile.c_str(), O_RDONLY);
 		 if (fd>=0) {
-			MD5Summation md5;
-			md5.AddFD(fd,st.st_size);
-			Res.MD5Sum = md5.Result();
+			Hashes Hash;
+			Hash.AddFD(fd,st.st_size);
+			Res.TakeHashes(Hash);
 			close(fd);
 		 }
 	  }
