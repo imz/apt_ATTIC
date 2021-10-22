@@ -40,7 +40,8 @@ bool Hashes::AddFD(int Fd,unsigned long Size)
       if (Res < 0 || (unsigned)Res != MIN(Size,sizeof(Buf)))
 	 return false;
       Size -= Res;
-      Add(Buf,Res);
+      if (! Add(Buf,Res))
+         return false;
    }
    return true;
 }
