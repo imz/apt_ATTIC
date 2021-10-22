@@ -50,6 +50,21 @@ URL: http://apt-rpm.org
 # git replace --graft apt-rpm-MERGED-0.5.4.9@github 0.5.4.9-MERGED-into-CNC apt-rpm-MERGED-0.5.4.9@github^
 #
 # The parent with the richer history is 1st for git blame --first-parent -w.
+#
+# Enhanced apt-rpm history
+# ------------------------
+#
+# I've enhanced the apt-rpm history (for future rebases and cherry-picks
+# into ALT) and put it into the "next" remote (apt-rpm_next repo); branches:
+#
+# 0.5.15sisyphus0/apt-rpm -- brings the apt-repomd branch into the linear history;
+# 0.5.15sisyphus1/apt-rpm -- fixes whitespace issues.
+#
+# It makes sense to graft it into our history (so that merges are hopefully
+# simpler):
+#
+# git replace --graft 00dc7947063a474cafd29c6c1fb1185609eb0c6b 00dc7947063a474cafd29c6c1fb1185609eb0c6b^ next/0.5.15sisyphus1/fix-whitespace
+#
 Vcs: git://git.altlinux.org/gears/a/apt.git
 Source0: %name-%version-%release.tar
 

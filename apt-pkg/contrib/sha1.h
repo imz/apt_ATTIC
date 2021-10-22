@@ -19,7 +19,7 @@ typedef string SHA1SumValue;
 class SHA1Summation : public raptHash
 {
    public:
-   SHA1Summation() : raptHash(PGPHASHALGO_SHA1) {};
+   SHA1Summation() : raptHash("SHA1-Hash") {};
 };
 
 #endif
