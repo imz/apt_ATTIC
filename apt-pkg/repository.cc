@@ -72,7 +72,7 @@ bool pkgRepository::ParseRelease(const string File)
 
       // Parse the size and append the directory
       IndexChecksums[Path].Size = atoll(Size.c_str());
-      IndexChecksums[Path].MD5 = Hash;
+      IndexChecksums[Path].Hash = Hash;
    }
 
    return true;
@@ -82,14 +82,14 @@ bool pkgRepository::ParseRelease(const string File)
 // ---------------------------------------------------------------------
 /* */
 bool pkgRepository::FindChecksums(const string URI,
-                                  decltype(Checksum::Size) &Size, string &MD5) const
+                                  decltype(Checksum::Size) &Size, string &Hash) const
 {
    const string Path = string(URI,RootURI.size());
    const auto Found = IndexChecksums.find(Path);
    if (Found == IndexChecksums.end())
       return false;
    Size = Found->second.Size;
-   MD5 = Found->second.MD5;
+   Hash = Found->second.Hash;
    return true;
 }
 

@@ -17,8 +17,7 @@ class pkgRepository
 
    struct Checksum {
       unsigned long long Size;
-      string MD5;
-      string SHA1;
+      string Hash;
    };
 
    map<string,Checksum> IndexChecksums; // path -> checksum data
