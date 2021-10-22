@@ -65,7 +65,7 @@ class pkgAcquire::Item
 
    // Action members invoked by the worker
    virtual void Failed(string Message,pkgAcquire::MethodConfig *Cnf);
-   virtual void Done(string Message,unsigned long Size,string Md5Hash,
+   virtual void Done(string Message,unsigned long Size,string /* Md5Hash unused in this class and almost obsolete */,
 		     pkgAcquire::MethodConfig *Cnf);
    virtual void Start(string Message,unsigned long Size);
    virtual string Custom600Headers() {return string();}
@@ -74,7 +74,7 @@ class pkgAcquire::Item
 
    // Inquire functions
    virtual string CheckType() const = 0;
-   virtual string MD5Sum() {return string();}
+   virtual string ExpectedHash() const = 0;
    pkgAcquire *GetOwner() {return Owner;}
 
    Item(pkgAcquire *Owner);
@@ -101,11 +101,12 @@ class pkgAcqIndex : public pkgAcquire::Item
       to prohibit meaningless direct calls on objects of this type.
    */
    virtual string CheckType() const override {return std::string();}
+   virtual string ExpectedHash() const override {return std::string();}
 
    public:
 
    // Specialized action members
-   virtual void Done(string Message,unsigned long Size,string Md5Hash,
+   virtual void Done(string Message,unsigned long Size,string /* Md5Hash obsolete */,
 		     pkgAcquire::MethodConfig *Cnf) override;
    virtual string Custom600Headers() override;
    virtual string DescURI() override {return RealURI;} // CNC:2003-02-14
@@ -133,12 +134,13 @@ class pkgAcqIndexRel : public pkgAcquire::Item
       to prohibit meaningless direct calls on objects of this type.
    */
    virtual string CheckType() const override {return std::string();}
+   virtual string ExpectedHash() const override {return std::string();}
 
    public:
 
    // Specialized action members
    virtual void Failed(string Message,pkgAcquire::MethodConfig *Cnf) override;
-   virtual void Done(string Message,unsigned long Size,string Md5Hash,
+   virtual void Done(string Message,unsigned long Size,string /* Md5Hash obsolete */,
 		     pkgAcquire::MethodConfig *Cnf) override;
    virtual string Custom600Headers() override;
    virtual string DescURI() override {return RealURI;}
@@ -158,7 +160,7 @@ class pkgAcqArchive : public pkgAcquire::Item
    pkgAcquire::ItemDesc Desc;
    pkgSourceList *Sources;
    pkgRecords *Recs;
-   string MD5;
+   string ExpectHash;
    string ChkType;
    string &StoreFilename;
    pkgCache::VerFileIterator Vf;
@@ -171,10 +173,10 @@ class pkgAcqArchive : public pkgAcquire::Item
 
    // Specialized action members
    virtual void Failed(string Message,pkgAcquire::MethodConfig *Cnf) override;
-   virtual void Done(string Message,unsigned long Size,string Md5Hash,
+   virtual void Done(string Message,unsigned long Size,string /* Md5Hash obsolete */,
 		     pkgAcquire::MethodConfig *Cnf) override;
    virtual string CheckType() const override {return ChkType;}
-   virtual string MD5Sum() override {return MD5;}
+   virtual string ExpectedHash() const override {return ExpectHash;}
    virtual string DescURI() override {return Desc.URI;}
    virtual void Finished() override;
 
@@ -187,17 +189,17 @@ class pkgAcqArchive : public pkgAcquire::Item
 class pkgAcqFile : public pkgAcquire::Item
 {
    pkgAcquire::ItemDesc Desc;
-   string Md5Hash;
+   string ExpectMd5Hash;
    unsigned int Retries;
 
    public:
 
    // Specialized action members
    virtual void Failed(string Message,pkgAcquire::MethodConfig *Cnf) override;
-   virtual void Done(string Message,unsigned long Size,string Md5Hash,
+   virtual void Done(string Message,unsigned long Size,string MD5,
 		     pkgAcquire::MethodConfig *Cnf) override;
    virtual string CheckType() const override {return "MD5-Hash";}
-   virtual string MD5Sum() override {return Md5Hash;}
+   virtual string ExpectedHash() const override {return ExpectMd5Hash;}
    virtual string DescURI() override {return Desc.URI;}
 
    pkgAcqFile(pkgAcquire *Owner,string URI,string MD5,unsigned long Size,

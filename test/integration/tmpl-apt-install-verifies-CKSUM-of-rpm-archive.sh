@@ -30,6 +30,6 @@ testsuccess aptget update
 # Cksum verification shouldn't pass.
 
 testpkgnotinstalled 'simple-package-noarch'
-testregexmatch '.*MD5Sum mismatch.*' aptget install simple-package-noarch
+testregexmatch '.*Checksum mismatch.*' aptget install simple-package-noarch
 testfailure
 testpkgnotinstalled 'simple-package-noarch'
