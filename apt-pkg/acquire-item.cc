@@ -748,7 +748,7 @@ bool pkgAcqArchive::QueueNext()
       // LORG:2006-03-16
       // Repomd uses SHA checksums for packages wheras others use MD5..
       ChkType = Index->ChecksumType();
-      if (Index->ChecksumType() == "SHA1-Hash") {
+      if (ChkType == "SHA1-Hash") {
 	 MD5 = Parse.SHA1Hash();
       } else {
 	 MD5 = Parse.MD5Hash();
