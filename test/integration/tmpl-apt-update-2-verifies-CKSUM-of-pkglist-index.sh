@@ -55,7 +55,7 @@ case "$CKSUM_TYPE" in
 		testregexmatch '.*Size mismatch.*' aptget update
 		;;
 	*)
-		testregexmatch '.*MD5Sum mismatch.*' aptget update
+		testregexmatch '.*Checksum mismatch.*' aptget update
 		;;
 esac
 testfailure

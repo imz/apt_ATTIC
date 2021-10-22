@@ -51,12 +51,12 @@ using std::string;
 	 (unsigned long long) (v))
 
 // CNC:2002-07-03
-// VerifyChecksums - Check MD5 and SHA-1 checksums of a file		/*{{{*/
+// VerifyChecksums - Verify file checksum	   		/*{{{*/
 // ---------------------------------------------------------------------
 /* Returns false only if the checksums fail (the file not existing is not
    a checksum mismatch) */
 static bool VerifyChecksums(const string &File,
-                            const unsigned long long Size, const string &MD5, const string &method)
+                            const unsigned long long Size, const string &ExpectHash, const string &method)
 {
    struct stat Buf;
 
@@ -70,13 +70,13 @@ static bool VerifyChecksums(const string &File,
       return false;
    }
 
-   if (MD5.empty() == false)
+   if (ExpectHash.empty() == false)
    {
       raptHash hash = raptHash(method);
       FileFd F(File, FileFd::ReadOnly);
 
       hash.AddFD(F.Fd(), F.Size());
-      if (hash.Result() != MD5) {
+      if (hash.Result() != ExpectHash) {
 	 if (_config->FindB("Acquire::Verbose", false) == true)
 	    cout << method << " of "<<File<<" did not match what's in the checksum list and was redownloaded."<<endl;
 	 return false;
@@ -205,14 +205,14 @@ pkgAcqIndex::pkgAcqIndex(pkgAcquire *Owner,pkgRepository *Repository,
    // CNC:2002-07-03
    // If we're verifying authentication, check whether the size and
    // checksums match, if not, delete the cached files and force redownload
-   string MD5Hash;
+   string ExpectHash;
    unsigned long long Size;
 
    if (Repository != NULL)
    {
       if (Repository->HasRelease() == true)
       {
-	 if (Repository->FindChecksums(RealURI,Size,MD5Hash) == false)
+	 if (Repository->FindChecksums(RealURI,Size,ExpectHash) == false)
 	 {
 	    if (Repository->IsAuthenticated() == true)
 	    {
@@ -228,13 +228,13 @@ pkgAcqIndex::pkgAcqIndex(pkgAcquire *Owner,pkgRepository *Repository,
 	 string FinalFile = _config->FindDir("Dir::State::lists");
 	 FinalFile += URItoFileName(RealURI);
 
-	 if (VerifyChecksums(FinalFile,Size,MD5Hash,Repository->GetCheckMethod()) == false)
+	 if (VerifyChecksums(FinalFile,Size,ExpectHash,Repository->GetCheckMethod()) == false)
 	 {
 	    unlink(FinalFile.c_str());
 	    unlink(DestFile.c_str());
 	 }
 
-	 if (Repository->FindChecksums(RealURI + ".xz", Size, MD5Hash) == true)
+	 if (Repository->FindChecksums(RealURI + ".xz", Size, ExpectHash) == true)
 	    Desc.URI = URI + ".xz";
       }
       else if (Repository->IsAuthenticated() == true)
@@ -280,10 +280,10 @@ void pkgAcqIndex::DoneByWorker(const string &Message,
    {
       // CNC:2002-07-03
       unsigned long long FSize;
-      string MD5Hash;
+      string ExpectHash;
 
       if (Repository != NULL && Repository->HasRelease() == true &&
-	  Repository->FindChecksums(RealURI,FSize,MD5Hash) == true)
+	  Repository->FindChecksums(RealURI,FSize,ExpectHash) == true)
       {
 	 // We must always get here if the repository is authenticated
 
@@ -298,15 +298,15 @@ void pkgAcqIndex::DoneByWorker(const string &Message,
 	    return;
 	 }
 
-	 const string MD5 = LookupTag(Message,Repository->GetCheckMethod().c_str());
-	 if (MD5.empty() == false && MD5Hash != MD5)
+	 const string AcqHash = LookupTag(Message,Repository->GetCheckMethod().c_str());
+	 if (AcqHash.empty() == false && AcqHash != ExpectHash)
 	 {
 	    if (_config->FindB("Acquire::Verbose",false) == true)
-	       _error->Warning("MD5Sum mismatch of index file %s: %s was supposed to be %s",
-			       RealURI.c_str(), MD5.c_str(), MD5Hash.c_str());
+	       _error->Warning("Checksum mismatch of index file %s: %s was supposed to be %s",
+			       RealURI.c_str(), AcqHash.c_str(), ExpectHash.c_str());
 	    Rename(DestFile,DestFile + ".FAILED");
 	    Status = StatError;
-	    ErrorText = _("MD5Sum mismatch");
+	    ErrorText = _("Checksum mismatch");
 	    return;
 	 }
       }
@@ -416,13 +416,13 @@ pkgAcqIndexRel::pkgAcqIndexRel(pkgAcquire *Owner,pkgRepository *Repository,
    Desc.Owner = this;
 
    // CNC:2002-07-09
-   string MD5Hash;
+   string ExpectHash;
    unsigned long long Size;
    if (Master == false && Repository != NULL)
    {
       if (Repository->HasRelease() == true)
       {
-	 if (Repository->FindChecksums(RealURI,Size,MD5Hash) == false)
+	 if (Repository->FindChecksums(RealURI,Size,ExpectHash) == false)
 	 {
 	    if (Repository->IsAuthenticated() == true)
 	    {
@@ -438,7 +438,7 @@ pkgAcqIndexRel::pkgAcqIndexRel(pkgAcquire *Owner,pkgRepository *Repository,
 	 string FinalFile = _config->FindDir("Dir::State::lists");
 	 FinalFile += URItoFileName(RealURI);
 
-	 if (VerifyChecksums(FinalFile,Size,MD5Hash,Repository->GetCheckMethod()) == false)
+	 if (VerifyChecksums(FinalFile,Size,ExpectHash,Repository->GetCheckMethod()) == false)
 	 {
 	    unlink(FinalFile.c_str());
 	    unlink(DestFile.c_str()); // Necessary?
@@ -587,10 +587,10 @@ void pkgAcqIndexRel::DoneByWorker(const string &Message,
 
    // CNC:2002-07-03
    unsigned long long FSize;
-   string MD5Hash;
+   string ExpectHash;
    if (Master == false && Repository != NULL
        && Repository->HasRelease() == true
-       && Repository->FindChecksums(RealURI,FSize,MD5Hash) == true)
+       && Repository->FindChecksums(RealURI,FSize,ExpectHash) == true)
    {
       if (FSize != Size)
       {
@@ -602,15 +602,15 @@ void pkgAcqIndexRel::DoneByWorker(const string &Message,
 	 ErrorText = _("Size mismatch");
 	 return;
       }
-      const string MD5 = LookupTag(Message,Repository->GetCheckMethod().c_str());
-      if (MD5.empty() == false && MD5Hash != MD5)
+      const string AcqHash = LookupTag(Message,Repository->GetCheckMethod().c_str());
+      if (AcqHash.empty() == false && ExpectHash != AcqHash)
       {
 	 if (_config->FindB("Acquire::Verbose",false) == true)
-	    _error->Warning("MD5Sum mismatch of index file %s: %s was supposed to be %s",
-			    RealURI.c_str(), MD5.c_str(), MD5Hash.c_str());
+	    _error->Warning("Checksum mismatch of index file %s: %s was supposed to be %s",
+			    RealURI.c_str(), AcqHash.c_str(), ExpectHash.c_str());
 	 Rename(DestFile,DestFile + ".FAILED");
 	 Status = StatError;
-	 ErrorText = _("MD5Sum mismatch");
+	 ErrorText = _("Checksum mismatch");
 	 return;
       }
    }
@@ -725,7 +725,7 @@ pkgAcqArchive::pkgAcqArchive(pkgAcquire *Owner,pkgSourceList *Sources,
 // AcqArchive::QueueNext - Queue the next file source			/*{{{*/
 // ---------------------------------------------------------------------
 /* This queues the next available file version for download. It checks if
-   the archive is already available in the cache and stashs the MD5 for
+   the archive is already available in the cache and stashs the hash for
    checking later. */
 bool pkgAcqArchive::QueueNext()
 {
@@ -750,9 +750,9 @@ bool pkgAcqArchive::QueueNext()
       // Repomd uses SHA checksums for packages wheras others use MD5..
       ChkType = Index->ChecksumType();
       if (Index->ChecksumType() == "SHA1-Hash") {
-	 MD5 = Parse.SHA1Hash();
+	 ExpectHash = Parse.SHA1Hash();
       } else {
-	 MD5 = Parse.MD5Hash();
+	 ExpectHash = Parse.MD5Hash();
       }
 
       if (PkgFile.empty() == true)
@@ -871,17 +871,17 @@ void pkgAcqArchive::DoneByWorker(const string &Message,
    }
 
    // Check the md5
-   const string Md5Hash = LookupTag(Message,ChkType.c_str());
-   if (Md5Hash.empty() == false && MD5.empty() == false)
+   const string AcqHash = LookupTag(Message,ChkType.c_str());
+   if (ExpectHash.empty() == false && AcqHash.empty() == false)
    {
-      if (Md5Hash != MD5)
+      if (ExpectHash != AcqHash)
       {
-         if (_config->FindB("Debug::pkgAcquire::Auth", false)) {
-	    cerr << "md5 mismatch: " << Md5Hash << "!=" << MD5 << endl;
-         }
+	if (_config->FindB("Debug::pkgAcquire::Auth", false)) {
+	    cerr << "Checksum mismatch: " << ExpectHash << "!=" << AcqHash << endl;
+	}
 	 Rename(DestFile,DestFile + ".FAILED");
 	 Status = StatError;
-	 ErrorText = _("MD5Sum mismatch");
+	 ErrorText = _("Checksum mismatch");
 	 return;
       }
    }
@@ -983,7 +983,7 @@ void pkgAcqArchive::Finished()
 /* The file is added to the queue */
 pkgAcqFile::pkgAcqFile(pkgAcquire *Owner,string URI,string MD5,
 		       unsigned long Size,string Dsc,string ShortDesc) :
-                       Item(Owner), Md5Hash(MD5)
+                       Item(Owner), ExpectMd5Hash(MD5)
 {
    Retries = _config->FindI("Acquire::Retries",0);
 
@@ -1019,16 +1019,16 @@ void pkgAcqFile::Done(string Message,unsigned long Size,string MD5,
 		      pkgAcquire::MethodConfig *Cnf)
 {
    // Check the md5
-   if (Md5Hash.empty() == false && MD5.empty() == false)
+   if (ExpectMd5Hash.empty() == false && MD5.empty() == false)
    {
-      if (Md5Hash != MD5)
+      if (ExpectMd5Hash != MD5)
       {
-         if (_config->FindB("Debug::pkgAcquire::Auth", false)) {
-	    cerr << "md5 mismatch: " << Md5Hash << "!=" << MD5 << endl;
-         }
+	if (_config->FindB("Debug::pkgAcquire::Auth", false)) {
+	    cerr << "Checksum mismatch: " << ExpectMd5Hash << "!=" << MD5 << endl;
+	}
 	 Rename(DestFile,DestFile + ".FAILED");
 	 Status = StatError;
-	 ErrorText = "MD5Sum mismatch";
+	 ErrorText = "Checksum mismatch";
 	 return;
       }
    }
