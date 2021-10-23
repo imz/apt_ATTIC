@@ -48,8 +48,13 @@ bool Hashes::AddFD(int Fd,unsigned long Size)
 									/*}}}*/
 Hashes::Hashes()
 {
-   const char *htypes[] = { "MD5-Hash", "SHA1-Hash", "SHA256-Hash", NULL };
+   static const char * const htypes[] = {
+      "MD5-Hash",
+      "SHA1-Hash",
+      "SHA256-Hash",
+      NULL
+   };
 
-   for (const char **name = htypes; *name != NULL; name++)
+   for (const char * const * name = htypes; *name != NULL; name++)
        HashSet.push_back(raptHash(*name));
 }
