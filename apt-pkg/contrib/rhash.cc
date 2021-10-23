@@ -21,6 +21,8 @@ raptHash::raptHash(const string & HashName) : HashCtx(NULL), HashType(HashName)
       algo = PGPHASHALGO_SHA1;
    else if (HashType == "MD5-Hash")
       algo = PGPHASHALGO_MD5;
+   else if (HashType == "BLAKE2b-Hash")
+      algo = PGPHASHALGO_BLAKE2B;
    else
       /* HashCtx remains NULL as an indicator that this object is invalid */
       return;
