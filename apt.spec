@@ -407,6 +407,7 @@ popd
 
 %changelog
 * Tue Aug 24 2021 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt73
+- (tests) Report if a test (marked XFAIL) uneXpectedly passes (XPASS).
 
 * Thu Mar 18 2021 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt72
 - Cleaned up the code (thx Dmitry V. Levin ldv@; including
