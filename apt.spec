@@ -494,7 +494,7 @@ seq 0 $((TRIES-1)) | xargs -I'{}' ${NPROCS:+-P$NPROCS --process-slot-var=PARALLE
   + the verification of the checksums of pkglist indices. (The verification
     is tested in two ways:
     * The verification of the checksum of a specific type is tested by faking
-      it in the meta-data: for MD5, SHA1, BLAKE2b and just the size.
+      it in the meta-data: for MD5, SHA1, SHA256, BLAKE2b and just the size.
     * Simply testing that a faked pkglist file of the same size is rejected--no
       matter which hashing algorithm is used.)
 
