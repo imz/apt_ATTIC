@@ -604,8 +604,8 @@ fake_repo_noarch_pkglist_cksum() {
 # * the file is edited; its time is unchanged
 fake_repo_noarch_pkglist_size() {
 	local a_bad_size
-	# a big number that fits only into unsigned 64-bit integer
-	printf -v a_bad_size '%u' 0xfedcba9876543210
+	# a big number that fits into signed 64-bit integer, but not narrower
+	printf -v a_bad_size '%d' 0x7edcba9876543210
 	local -r a_bad_size
 
 	edit_repo_noarch_release \
