@@ -497,6 +497,10 @@ seq 0 $((TRIES-1)) | xargs -I'{}' ${NPROCS:+-P$NPROCS --process-slot-var=PARALLE
       it in the meta-data: for MD5, SHA1, SHA256, BLAKE2b and just the size.
     * Simply testing that a faked pkglist file of the same size is rejected--no
       matter which hashing algorithm is used.)
+  + the verification of the checksums of rpm archives. (The verification
+    is tested in the following way:
+    * Simply testing that a faked rpm file of the same size is rejected--no
+      matter which hashing algorithm is used.)
 
 * Thu Mar 18 2021 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt72
 - Cleaned up the code (thx Dmitry V. Levin ldv@; including
