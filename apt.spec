@@ -1,10 +1,3 @@
-# Honor both kind of options: --{without,disable} check;
-# and allow to simply write %%if_enabled check below.
-%if_without check
-%else
-%def_enable check
-%endif
-
 %set_verify_elf_method strict
 %define _unpackaged_files_terminate_build 1
 
@@ -87,14 +80,6 @@ BuildPreReq: liblua5.3-devel
 BuildRequires: docbook-utils gcc-c++ libreadline-devel librpm-devel setproctitle-devel
 BuildRequires: libgnutls-devel
 
-# dependencies of tests
-%if_enabled check
-BuildRequires: /usr/bin/genbasedir
-BuildRequires: gpg-keygen
-BuildRequires: /usr/sbin/nginx
-BuildRequires: /usr/bin/openssl
-%endif
-
 %package -n libapt
 Summary: APT's core libraries
 Group: System/Libraries
@@ -131,6 +116,10 @@ Summary(ru_RU.UTF-8): Набор тестов для APT
 Group: Other
 BuildArch: noarch
 Requires: %name = %EVR
+Requires: rpm-build
+Requires: /usr/bin/genbasedir
+# optional
+%global complete_reqs_of_tests %name-https /usr/sbin/nginx /usr/bin/openssl
 
 # {{{ descriptions
 %define risk_usage_en This package is still under development.
@@ -309,11 +298,25 @@ cp -r test/integration %buildroot%_datadir/%name/tests/
 
 unset RPM_PYTHON
 
-%check
-set -o pipefail
+%package basic-checkinstall
+Summary: Immediately test %name when installing this package (only basic tests)
+Group: Other
+BuildArch: noarch
+Requires(pre): %name-tests
+# Until test-apt-method-https isn't replaced
+# with a generic test-apt-install-simple, where the method won't be fixed.
+Requires(pre): %complete_reqs_of_tests
 
-# Run tests several times to make sure no tests are randomly succeeding.
-pushd test/integration
+%description basic-checkinstall
+Immediately test %name when installing this package.
+
+The set of testcases is limited (just to the file method).
+
+%files basic-checkinstall
+
+%pre basic-checkinstall -p %_sbindir/sh-safely
+set -o pipefail
+pushd %_datadir/%name/tests/
 
 # force the target arch for the tests
 #
@@ -321,16 +324,13 @@ pushd test/integration
 # (rpmbuild --eval %%_arch). On installation, they would be compared
 # by rpm for compatibility with the arch detected by rpm. Currently,
 # the mismatch in the detection between rpm and rpm-build can lead to problems,
-# at least, on armh. So, we se the target by force to a value that must work.
+# at least, on armh. So, we set the target by force to a value that must work.
 system_arch="$(rpm -q rpm --qf='%%{ARCH}')"
 export APT_TEST_TARGET="$system_arch"
 
 # this macro can be prefixed (e.g., by environment assignments),
 # therefore the extra backslash in the first line
 %global runtests \\\
-	LD_LIBRARY_PATH=%buildroot%_libdir \\\
-	PATH=$PATH:%buildroot%_bindir \\\
-	METHODSDIR=%buildroot%_libdir/apt/methods \\\
 		./run-tests -v
 
 # A quick test with just one method for the case without APT_TEST_GPGPUBKEY.
@@ -338,6 +338,36 @@ APT_TEST_METHODS='file' %runtests
 
 # The same tests, but just via cdrom with a missing release:
 #APT_TEST_METHODS=cdrom_missing_release %%runtests
+
+%package checkinstall
+Summary: Immediately test %name when installing this package (complete set of tests)
+Group: Other
+BuildArch: noarch
+Requires(pre): %name-tests
+Requires(pre): %complete_reqs_of_tests
+Requires(pre): gpg-keygen
+
+%description checkinstall
+Immediately test %name when installing this package.
+
+The set of testcases is complete (all the methods that are tested by default
+and some additional peculiarities are tested).
+
+%files checkinstall
+
+%pre checkinstall -p %_sbindir/sh-safely
+set -o pipefail
+pushd %_datadir/%name/tests/
+
+# force the target arch for the tests
+#
+# By default, the packages would be built for the arch detected by rpm-build
+# (rpmbuild --eval %%_arch). On installation, they would be compared
+# by rpm for compatibility with the arch detected by rpm. Currently,
+# the mismatch in the detection between rpm and rpm-build can lead to problems,
+# at least, on armh. So, we set the target by force to a value that must work.
+system_arch="$(rpm -q rpm --qf='%%{ARCH}')"
+export APT_TEST_TARGET="$system_arch"
 
 # prepare data for rpm --import
 APT_TEST_GPGPUBKEY="$PWD"/example-pubkey.asc
@@ -350,16 +380,58 @@ export APT_TEST_GPGPUBKEY
 %runtests
 
 # Everything has been tested by now.
+
+%package heavyload-checkinstall
+Summary: Immediately test %name when installing this package (many times under heavy load)
+Group: Other
+BuildArch: noarch
+Requires(pre): %name-tests
+Requires(pre): %complete_reqs_of_tests
+Requires(pre): gpg-keygen
+
+%description heavyload-checkinstall
+Immediately test %name when installing this package.
+
+The tests are run many times and under simulated heavy load (namely,
+in parallel) in order to possibly detect races
+(to make sure no tests are randomly succeeding).
+
+%files heavyload-checkinstall
+
+%pre heavyload-checkinstall -p %_sbindir/sh-safely
+set -o pipefail
+pushd %_datadir/%name/tests/
+
+# force the target arch for the tests
 #
+# By default, the packages would be built for the arch detected by rpm-build
+# (rpmbuild --eval %%_arch). On installation, they would be compared
+# by rpm for compatibility with the arch detected by rpm. Currently,
+# the mismatch in the detection between rpm and rpm-build can lead to problems,
+# at least, on armh. So, we set the target by force to a value that must work.
+system_arch="$(rpm -q rpm --qf='%%{ARCH}')"
+export APT_TEST_TARGET="$system_arch"
+
+# prepare data for rpm --import
+APT_TEST_GPGPUBKEY="$PWD"/example-pubkey.asc
+gpg-keygen --passphrase '' \
+	--name-real 'Some One' --name-email someone@example.com \
+	/dev/null "$APT_TEST_GPGPUBKEY"
+
+export APT_TEST_GPGPUBKEY
+
 # Below we run the same tests many times in order to possibly catch
 # bad races. (It's more probable to catch a race under heavy load;
 # therefore, of the total specified number of tries, we do
 # simultaneously as many as reasonable and possibly even more than TRIES.)
 
-# To not run in parallel, build with --define 'nprocs_for_check %nil'
-%{?!nprocs_for_check:%global nprocs_for_check %__nprocs}
-# Consider multiplying %%__nprocs by 2 for heavier load.
-NPROCS=%nprocs_for_check
+# To not run in parallel, build the pkg with --define 'nprocs_for_check %%nil'
+# Consider multiplying `nproc` by 2 for heavier load.
+NPROCS=`nproc`
+if ! [ "$NPROCS" -gt 0 ] 2>/dev/null; then
+	NPROCS=1
+fi
+%{?nprocs_for_check:NPROCS=%nprocs_for_check}
 TRIES=2
 if [ $TRIES -lt ${NPROCS:-0} ]; then
 	TRIES=$NPROCS
@@ -367,8 +439,6 @@ fi
 
 seq 0 $((TRIES-1)) | xargs -I'{}' ${NPROCS:+-P$NPROCS --process-slot-var=PARALLEL_SLOT} \
 	-- sh -efuo pipefail -c '%runtests '${NPROCS:+'|& sed --unbuffered -e "s/^/[$PARALLEL_SLOT {}] /"'}
-
-popd
 
 %files -f %name.lang
 %_bindir/apt-*
