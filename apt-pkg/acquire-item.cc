@@ -307,8 +307,8 @@ void pkgAcqIndex::Done(const string Message, unsigned long Size, const string /*
 	    ErrorText = _("Checksum mismatch");
 	    Rename(DestFile,DestFile + ".FAILED");
 	    if (_config->FindB("Acquire::Verbose",false) == true)
-	       _error->Warning("Checksum mismatch of index file %s: %s was supposed to be %s",
-			       RealURI.c_str(), AcqHash.c_str(), ExpectHash.c_str());
+	       _error->Warning("%s mismatch of index file %s: %s was supposed to be %s",
+			       Repository->GetCheckMethod().c_str(), RealURI.c_str(), AcqHash.c_str(), ExpectHash.c_str());
 	    return;
 	 }
       }
@@ -740,13 +740,15 @@ bool pkgAcqArchive::QueueNext()
 	 return false;
 
       string PkgFile = Parse.FileName();
-      // LORG:2006-03-16
-      // Repomd uses SHA checksums for packages wheras others use MD5..
-      ChkType = Index->ChecksumType();
-      if (ChkType == "SHA1-Hash") {
-	 ExpectHash = Parse.SHA1Hash();
-      } else {
+      ExpectHash = Parse.BLAKE2b();
+      ChkType = "BLAKE2b";
+      if (ExpectHash.empty()) {
+	  ExpectHash = Parse.SHA1Hash();
+	  ChkType = "SHA1-Hash";
+      }
+      if (ExpectHash.empty()) {
 	 ExpectHash = Parse.MD5Hash();
+	 ChkType = "MD5-Hash";
       }
 
       if (PkgFile.empty() == true)
@@ -871,7 +873,7 @@ void pkgAcqArchive::Done(const string Message, unsigned long Size, const string 
       if (ExpectHash != AcqHash)
       {
 	if (_config->FindB("Debug::pkgAcquire::Auth", false)) {
-	    cerr << "Checksum mismatch: " << ExpectHash << "!=" << AcqHash << endl;
+	    cerr << ChkType << " mismatch: " << ExpectHash << "!=" << AcqHash << endl;
 	}
 	 Status = StatError;
 	 ErrorText = _("Checksum mismatch");

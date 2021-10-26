@@ -16,7 +16,9 @@ raptHash::raptHash(pgpHashAlgo HashAlgo)
 raptHash::raptHash(const string & HashName)
 {
    pgpHashAlgo algo;
-   if (HashName == "SHA256-Hash")
+   if (HashName == "BLAKE2b")
+      algo = PGPHASHALGO_BLAKE2B;
+   else if (HashName == "SHA256-Hash")
       algo = PGPHASHALGO_SHA256;
    else if (HashName == "SHA1-Hash")
       algo = PGPHASHALGO_SHA1;

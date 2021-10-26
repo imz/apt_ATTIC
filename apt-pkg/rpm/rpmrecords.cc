@@ -96,6 +96,11 @@ string rpmRecordParser::SHA1Hash()
    return Handler->SHA1Sum();
 }
 
+string rpmRecordParser::BLAKE2b()
+{
+   return Handler->BLAKE2b();
+}
+
 // RecordParser::Maintainer - Return the maintainer email		/*{{{*/
 // ---------------------------------------------------------------------
 /* */
