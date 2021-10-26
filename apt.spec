@@ -5,6 +5,9 @@
 %def_enable check
 %endif
 
+%set_verify_elf_method strict
+%define _unpackaged_files_terminate_build 1
+
 Name: apt
 Version: 0.5.15lorg2
 Release: alt73
@@ -305,9 +308,6 @@ cp -r test/integration %buildroot%_datadir/%name/tests/
 %find_lang %name
 
 unset RPM_PYTHON
-
-%set_verify_elf_method strict
-%define _unpackaged_files_terminate_build 1
 
 %check
 set -o pipefail
