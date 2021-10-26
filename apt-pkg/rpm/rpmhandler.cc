@@ -24,7 +24,6 @@
 #include <apt-pkg/error.h>
 #include <apt-pkg/configuration.h>
 #include <apt-pkg/md5.h>
-#include <apt-pkg/sha1.h>
 
 #include "rpmhandler.h"
 #include "rpmpackagedata.h"
@@ -360,13 +359,13 @@ string RPMSingleFileHandler::MD5Sum() const
    return MD5.Result();
 }
 
-string RPMSingleFileHandler::SHA1Sum() const
+string RPMSingleFileHandler::BLAKE2b() const
 {
-   SHA1Summation SHA1;
+   raptHash blake2b = raptHash("BLAKE2b");
    FileFd File(sFilePath, FileFd::ReadOnly);
-   SHA1.AddFD(File.Fd(), File.Size());
+   blake2b.AddFD(File.Fd(), File.Size());
    File.Close();
-   return SHA1.Result();
+   return blake2b.Result();
 }
 
 RPMDirHandler::RPMDirHandler(const string DirName)
@@ -494,15 +493,15 @@ string RPMDirHandler::MD5Sum() const
    return MD5.Result();
 }
 
-string RPMDirHandler::SHA1Sum() const
+string RPMDirHandler::BLAKE2b() const
 {
    if (Dir == NULL)
       return "";
-   SHA1Summation SHA1;
+   raptHash blake2b = raptHash("BLAKE2b");
    FileFd File(sFilePath, FileFd::ReadOnly);
-   SHA1.AddFD(File.Fd(), File.Size());
+   blake2b.AddFD(File.Fd(), File.Size());
    File.Close();
-   return SHA1.Result();
+   return blake2b.Result();
 }
 
 
