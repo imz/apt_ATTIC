@@ -358,6 +358,15 @@ string RPMSingleFileHandler::MD5Sum() const
    return MD5.Result();
 }
 
+string RPMSingleFileHandler::BLAKE2b() const
+{
+   raptHash blake2b = raptHash(PGPHASHALGO_BLAKE2B);
+   FileFd File(sFilePath, FileFd::ReadOnly);
+   blake2b.AddFD(File.Fd(), File.Size());
+   File.Close();
+   return blake2b.Result();
+}
+
 RPMDirHandler::RPMDirHandler(const string &DirName)
    : sDirName(DirName)
 {
@@ -481,6 +490,17 @@ string RPMDirHandler::MD5Sum() const
    MD5.AddFD(File.Fd(), File.Size());
    File.Close();
    return MD5.Result();
+}
+
+string RPMDirHandler::BLAKE2b() const
+{
+   if (Dir == NULL)
+      return "";
+   raptHash blake2b = raptHash(PGPHASHALGO_BLAKE2B);
+   FileFd File(sFilePath, FileFd::ReadOnly);
+   blake2b.AddFD(File.Fd(), File.Size());
+   File.Close();
+   return blake2b.Result();
 }
 
 

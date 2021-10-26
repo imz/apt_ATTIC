@@ -27,6 +27,7 @@
 #define CRPMTAG_FILESIZE          1000001
 #define CRPMTAG_MD5               1000005
 #define CRPMTAG_SHA1              1000006
+#define CRPMTAG_BLAKE2B           1000009
 
 #define CRPMTAG_DIRECTORY         1000010
 #define CRPMTAG_BINARY            1000011
@@ -71,7 +72,7 @@ class RPMHandler
    virtual string Directory() const = 0;
    virtual off_t FileSize() const = 0;
    virtual string MD5Sum() const = 0;
-   virtual string SHA1Sum() const {return "";}
+   virtual string BLAKE2b() const = 0;
    virtual bool ProvideFileName() const {return false;}
 
    virtual string Name() const = 0;
@@ -150,6 +151,7 @@ class RPMFileHandler : public RPMHdrHandler
    virtual string Directory() const override {return GetSTag(CRPMTAG_DIRECTORY);}
    virtual off_t FileSize() const override {return GetITag(CRPMTAG_FILESIZE);}
    virtual string MD5Sum() const override {return GetSTag(CRPMTAG_MD5);}
+   virtual string BLAKE2b() const override {return GetSTag(CRPMTAG_BLAKE2B);}
 
    RPMFileHandler(FileFd *File);
    RPMFileHandler(const string &File);
@@ -172,6 +174,7 @@ class RPMSingleFileHandler : public RPMFileHandler
    virtual string Directory() const override {return "";}
    virtual off_t FileSize() const override;
    virtual string MD5Sum() const override;
+   virtual string BLAKE2b() const override;
    virtual bool ProvideFileName() const override {return true;}
 
    RPMSingleFileHandler(const string &File) : RPMFileHandler(File), sFilePath(File) {}
@@ -191,6 +194,7 @@ class RPMDBHandler : public RPMHdrHandler
 
    // not available in the DB (probably, because it's for the original file)
    virtual string MD5Sum() const override {return "";}
+   virtual string BLAKE2b() const override {return "";}
 
    public:
 
@@ -233,6 +237,7 @@ class RPMDirHandler : public RPMHdrHandler
    virtual string FileName() const override {return (Dir == NULL)?"":sFileName;}
    virtual off_t FileSize() const override;
    virtual string MD5Sum() const override;
+   virtual string BLAKE2b() const override;
 
    RPMDirHandler(const string &DirName);
    virtual ~RPMDirHandler();

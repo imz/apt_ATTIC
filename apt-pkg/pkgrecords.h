@@ -55,6 +55,7 @@ class pkgRecords::Parser
    virtual string FileName() = 0;
    virtual string MD5Hash() = 0;
    virtual string SHA1Hash() = 0;
+   virtual string BLAKE2b() = 0;
    virtual string SourcePkg() = 0;
 
    // These are some general stats about the package

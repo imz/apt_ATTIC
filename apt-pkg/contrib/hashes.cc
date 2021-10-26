@@ -33,6 +33,7 @@ bool Hashes::AddFD(int Fd,unsigned long Size)
       Size -= Res;
       MD5.Add(Buf,Res);
       SHA1.Add(Buf,Res);
+      BLAKE2b.Add(Buf,Res);
    }
    return true;
 }
