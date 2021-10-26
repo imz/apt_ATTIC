@@ -11,12 +11,12 @@ case "$APT_TEST_METHOD" in
 esac
 
 # apt chooses only one type of hash to verify.
-# apt will choose SHA1 if available in the repo;
+# apt will choose BLAKE2b if available in the repo;
 # so to actually check the verification of other checksum types,
-# we have to disable the generation of SHA1 hashes.
+# we have to disable the generation of BLAKE2b hashes.
 [ "$CKSUM_TYPE" = Size ] ||
-	[ "$CKSUM_TYPE" = SHA1 ] ||
-	APT_TEST_GENBASEDIR_OPTS="$APT_TEST_GENBASEDIR_OPTS --no-sha1"
+	[ "$CKSUM_TYPE" = BLAKE2b ] ||
+	APT_TEST_GENBASEDIR_OPTS="$APT_TEST_GENBASEDIR_OPTS --no-blake2b"
 
 TESTDIR=$(readlink -f $(dirname $0))
 . $TESTDIR/framework
