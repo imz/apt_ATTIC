@@ -487,6 +487,9 @@ seq 0 $((TRIES-1)) | xargs -I'{}' ${NPROCS:+-P$NPROCS --process-slot-var=PARALLE
 %changelog
 * Tue Aug 24 2021 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt73
 - (tests) Report if a test (marked XFAIL) uneXpectedly passes (XPASS).
+- (tests) Run them not in %%check, but in *-checkinstall subpkgs. (To break
+  build-dep cycle with apt-repo-tools, whose features are required by the tests,
+  but which needs to be recompiled to be linked with libapt.)
 
 * Thu Mar 18 2021 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt72
 - Cleaned up the code (thx Dmitry V. Levin ldv@; including
