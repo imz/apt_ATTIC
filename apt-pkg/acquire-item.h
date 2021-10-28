@@ -73,6 +73,7 @@ class pkgAcquire::Item
    virtual void Finished() {}
 
    // Inquire functions
+   virtual string CheckType() {return string();}
    virtual string MD5Sum() {return string();}
    pkgAcquire *GetOwner() {return Owner;}
 
@@ -162,6 +163,7 @@ class pkgAcqArchive : public pkgAcquire::Item
    virtual void Failed(string Message,pkgAcquire::MethodConfig *Cnf) override;
    virtual void Done(string Message,unsigned long Size,string Md5Hash,
 		     pkgAcquire::MethodConfig *Cnf) override;
+   virtual string CheckType() override {return ChkType;}
    virtual string MD5Sum() override {return MD5;}
    virtual string DescURI() override {return Desc.URI;}
    virtual void Finished() override;
