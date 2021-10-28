@@ -13,6 +13,7 @@
 #include <apt-pkg/fileutl.h>
 #include <apt-pkg/acquire-method.h>
 #include <apt-pkg/error.h>
+#include <apt-pkg/hashes.h>
 
 #include <sys/stat.h>
 #include <utime.h>
@@ -69,6 +70,10 @@ bool CopyMethod::Fetch(FetchItem *Itm)
       To.OpFail();
       return false;
    }
+   Hashes hash;
+   To.Seek(0);
+   hash.AddFD(To.Fd(), Buf.st_size);
+   Res.TakeHashes(hash);
 
    From.Close();
    To.Close();

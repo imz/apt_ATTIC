@@ -14,15 +14,6 @@ esac
 
 . $TESTDIR/framework
 
-if ! [ "$CKSUM_TYPE" = Size ]; then
-	# Actual checksums (other than the size, which is easily got from stat)
-	# are not computed at all by some methods (like file) and not passed
-	# to apt, and hence not checked.
-	case "$APT_TEST_METHOD" in
-		file*) APT_TEST_XFAIL=yes
-		       ;;
-	esac
-fi
 setupenvironment
 
 buildpackage 'simple-package'
