@@ -36,7 +36,6 @@ class pkgAcqMethod
    struct FetchResult
    {
       string MD5Sum;
-      string SHA1Sum;
       string BLAKE2b;
       // CNC:2002-07-03
       string SignatureFP;

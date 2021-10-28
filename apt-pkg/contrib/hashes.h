@@ -21,12 +21,11 @@ class Hashes
    public:
 
    MD5Summation MD5;
-   SHA1Summation SHA1;
    raptHash BLAKE2b;
 
    inline bool Add(const unsigned char *Data,unsigned long Size)
    {
-      return MD5.Add(Data,Size) && SHA1.Add(Data,Size) && BLAKE2b.Add(Data,Size);
+      return MD5.Add(Data,Size) && BLAKE2b.Add(Data,Size);
    }
    inline bool Add(const char *Data) {return Add((unsigned char *)Data,strlen(Data));}
    bool AddFD(int Fd,unsigned long Size);

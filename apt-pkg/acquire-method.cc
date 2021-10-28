@@ -184,8 +184,6 @@ void pkgAcqMethod::URIDone(FetchResult &Res, FetchResult *Alt)
 
    if (Res.MD5Sum.empty() == false)
       s << "MD5-Hash: " << Res.MD5Sum << "\n";
-   if (Res.SHA1Sum.empty() == false)
-      s << "SHA1-Hash: " << Res.SHA1Sum << "\n";
    if (Res.BLAKE2b.empty() == false)
       s << "BLAKE2b: " << Res.BLAKE2b << "\n";
 
@@ -212,8 +210,6 @@ void pkgAcqMethod::URIDone(FetchResult &Res, FetchResult *Alt)
 
       if (Alt->MD5Sum.empty() == false)
 	 s << "Alt-MD5-Hash: " << Alt->MD5Sum << "\n";
-      if (Alt->SHA1Sum.empty() == false)
-	 s << "Alt-SHA1-Hash: " << Alt->SHA1Sum << "\n";
       if (Alt->BLAKE2b.empty() == false)
 	 s << "Alt-BLAKE2b: " << Alt->BLAKE2b << "\n";
 
@@ -598,7 +594,6 @@ pkgAcqMethod::FetchResult::FetchResult() : LastModified(0),
 void pkgAcqMethod::FetchResult::TakeHashes(Hashes &Hash)
 {
    MD5Sum = Hash.MD5.Result();
-   SHA1Sum = Hash.SHA1.Result();
    BLAKE2b = Hash.BLAKE2b.Result();
 }
 									/*}}}*/
