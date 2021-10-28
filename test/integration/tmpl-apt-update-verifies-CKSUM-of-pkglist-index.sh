@@ -12,6 +12,10 @@ case "$APT_TEST_METHOD" in
 		;;
 esac
 
+case "$CKSUM_TYPE" in
+	MD5Sum) APT_TEST_GENBASEDIR_OPTS='--no-blake2b'
+esac
+
 . $TESTDIR/framework
 
 setupenvironment
