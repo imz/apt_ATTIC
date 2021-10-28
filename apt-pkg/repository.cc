@@ -65,13 +65,13 @@ bool pkgRepository::ParseRelease(const string File)
       string Path = "";
 
       if (ParseQuoteWord(C,Hash) == false || Hash.empty() == true ||
-	  ParseQuoteWord(C,Size) == false || atoi(Size.c_str()) < 0 ||
+	  ParseQuoteWord(C,Size) == false || atoll(Size.c_str()) < 0 ||
 	  ParseQuoteWord(C,Path) == false || Path.empty() == true)
 	 return _error->Error(_("Error parsing %s hash record on Release file '%s'"),
 			      CheckMethod.c_str(), File.c_str());
 
       // Parse the size and append the directory
-      IndexChecksums[Path].Size = atoi(Size.c_str());
+      IndexChecksums[Path].Size = atoll(Size.c_str());
       IndexChecksums[Path].MD5 = Hash;
    }
 
