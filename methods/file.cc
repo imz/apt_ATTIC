@@ -16,9 +16,11 @@
 
 #include <apt-pkg/acquire-method.h>
 #include <apt-pkg/error.h>
+#include <apt-pkg/hashes.h>
 
 #include <sys/stat.h>
 #include <unistd.h>
+#include <fcntl.h>
 
 // CNC:2003-02-20 - Moved header to fix compilation error when
 // 		    --disable-nls is used.
@@ -55,6 +57,14 @@ bool FileMethod::Fetch(FetchItem *Itm)
       Res.IMSHit = false;
       if (Itm->LastModified == Buf.st_mtime && Itm->LastModified != 0)
 	 Res.IMSHit = true;
+
+      int fd = open(File.c_str(), O_RDONLY);
+      if (fd >= 0) {
+         Hashes hash;
+         hash.AddFD(fd, Buf.st_size);
+         Res.TakeHashes(hash);
+         close(fd);
+      }
    }
 
    // CNC:2003-11-04
