@@ -24,7 +24,6 @@
 // CNC:2002-07-03
 #include <apt-pkg/repository.h>
 #include <apt-pkg/md5.h>
-#include <apt-pkg/sha1.h>
 #include <apt-pkg/luaiface.h>
 #include <iostream>
 #include <assert.h>
@@ -742,10 +741,6 @@ bool pkgAcqArchive::QueueNext()
       string PkgFile = Parse.FileName();
       ExpectHash = Parse.BLAKE2b();
       ChkType = "BLAKE2b";
-      if (ExpectHash.empty()) {
-	  ExpectHash = Parse.SHA1Hash();
-	  ChkType = "SHA1-Hash";
-      }
       if (ExpectHash.empty()) {
 	 ExpectHash = Parse.MD5Hash();
 	 ChkType = "MD5-Hash";
