@@ -64,13 +64,13 @@ bool pkgRepository::ParseRelease(string File)
       string Path = "";
 
       if (ParseQuoteWord(C,Hash) == false || Hash.empty() == true ||
-	  ParseQuoteWord(C,Size) == false || atoi(Size.c_str()) < 0 ||
+	  ParseQuoteWord(C,Size) == false || atoll(Size.c_str()) < 0 ||
 	  ParseQuoteWord(C,Path) == false || Path.empty() == true)
 	 return _error->Error(_("Error parsing MD5Sum hash record on Release file '%s'"),
 			      File.c_str());
 
       // Parse the size and append the directory
-      IndexChecksums[Path].Size = atoi(Size.c_str());
+      IndexChecksums[Path].Size = atoll(Size.c_str());
       IndexChecksums[Path].MD5 = Hash;
    }
 
