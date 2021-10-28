@@ -10,9 +10,13 @@ case "$APT_TEST_METHOD" in
 	       ;;
 esac
 
-case "$CKSUM_TYPE" in
-	MD5Sum) APT_TEST_GENBASEDIR_OPTS='--no-blake2b'
-esac
+# apt chooses only one type of hash to verify.
+# apt will choose SHA1 if available in the repo;
+# so to actually check the verification of other checksum types,
+# we have to disable the generation of SHA1 hashes.
+[ "$CKSUM_TYPE" = Size ] ||
+	[ "$CKSUM_TYPE" = SHA1 ] ||
+	APT_TEST_GENBASEDIR_OPTS="$APT_TEST_GENBASEDIR_OPTS --no-sha1"
 
 TESTDIR=$(readlink -f $(dirname $0))
 . $TESTDIR/framework
