@@ -117,6 +117,7 @@ class pkgAcquire::Item
    virtual void Finished() {}
 
    // Inquire functions
+   virtual string CheckType() const { return "MD5-Hash"; }
    virtual string MD5Sum() {return string();}
    pkgAcquire *GetOwner() {return Owner;}
 
@@ -139,6 +140,11 @@ class pkgAcqIndex : public pkgAcquire::Item
 
    // CNC:2002-07-03
    const pkgRepository *Repository;
+
+   /* Not implemented; therefore hidden as protected
+      to prohibit meaningless direct calls on objects of this type.
+   */
+   virtual string CheckType() const override {return std::string();}
 
    public:
 
@@ -166,6 +172,11 @@ class pkgAcqIndexRel : public pkgAcquire::Item
    bool Master;
    bool Erase;
    pkgRepository *Repository;
+
+   /* Not implemented; therefore hidden as protected
+      to prohibit meaningless direct calls on objects of this type.
+   */
+   virtual string CheckType() const override {return std::string();}
 
    public:
 
@@ -206,6 +217,7 @@ class pkgAcqArchive : public pkgAcquire::Item
    virtual void Failed(string Message,pkgAcquire::MethodConfig *Cnf) override;
    virtual void DoneByWorker(const string &Message,unsigned long Size,
                              pkgAcquire::MethodConfig *Cnf) override;
+   virtual string CheckType() const override {return ChkType;}
    virtual string MD5Sum() override {return MD5;}
    virtual string DescURI() override {return Desc.URI;}
    virtual void Finished() override;
