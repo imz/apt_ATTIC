@@ -748,7 +748,7 @@ bool pkgAcqArchive::QueueNext()
       string PkgFile = Parse.FileName();
       // LORG:2006-03-16
       // Repomd uses SHA checksums for packages wheras others use MD5..
-      ChkType = Index->ChecksumType();
+      ChkType = "MD5-Hash";
       if (ChkType == "SHA1-Hash") {
 	 ExpectHash = Parse.SHA1Hash();
       } else {
