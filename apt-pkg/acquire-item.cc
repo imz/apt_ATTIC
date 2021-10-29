@@ -302,8 +302,8 @@ void pkgAcqIndex::Done(string Message,unsigned long Size, const string /* MD5 ob
 	 if (AcqHash.empty() == false && AcqHash != ExpectHash)
 	 {
 	    if (_config->FindB("Acquire::Verbose",false) == true)
-	       _error->Warning("Checksum mismatch of index file %s: %s was supposed to be %s",
-			       RealURI.c_str(), AcqHash.c_str(), ExpectHash.c_str());
+	       _error->Warning("%s mismatch of index file %s: %s was supposed to be %s",
+			       Repository->GetCheckMethod().c_str(), RealURI.c_str(), AcqHash.c_str(), ExpectHash.c_str());
 	    Rename(DestFile,DestFile + ".FAILED");
 	    Status = StatError;
 	    ErrorText = _("Checksum mismatch");
@@ -877,7 +877,7 @@ void pkgAcqArchive::Done(string Message,unsigned long Size, const string /* Md5H
       if (ExpectHash != AcqHash)
       {
 	if (_config->FindB("Debug::pkgAcquire::Auth", false)) {
-	    cerr << "Checksum mismatch: " << ExpectHash << "!=" << AcqHash << endl;
+	    cerr << ChkType << " mismatch: " << ExpectHash << "!=" << AcqHash << endl;
 	}
 	 Rename(DestFile,DestFile + ".FAILED");
 	 Status = StatError;
