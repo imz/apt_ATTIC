@@ -290,23 +290,23 @@ void pkgAcqIndex::Done(string Message,unsigned long Size, const string /* MD5 ob
 
 	 if (FSize != Size)
 	 {
-	    Status = StatError;
-	    ErrorText = _("Size mismatch");
-	    Rename(DestFile,DestFile + ".FAILED");
 	    if (_config->FindB("Acquire::Verbose",false) == true)
 	       _error->Warning("Size mismatch of index file %s: %lu was supposed to be %llu",
 			       RealURI.c_str(), Size, FSize);
+	    Rename(DestFile,DestFile + ".FAILED");
+	    Status = StatError;
+	    ErrorText = _("Size mismatch");
 	    return;
 	 }
 
 	 if (MD5.empty() == false && MD5Hash != MD5)
 	 {
-	    Status = StatError;
-	    ErrorText = _("MD5Sum mismatch");
-	    Rename(DestFile,DestFile + ".FAILED");
 	    if (_config->FindB("Acquire::Verbose",false) == true)
 	       _error->Warning("MD5Sum mismatch of index file %s: %s was supposed to be %s",
 			       RealURI.c_str(), MD5.c_str(), MD5Hash.c_str());
+	    Rename(DestFile,DestFile + ".FAILED");
+	    Status = StatError;
+	    ErrorText = _("MD5Sum mismatch");
 	    return;
 	 }
       }
@@ -595,22 +595,22 @@ void pkgAcqIndexRel::Done(string Message,unsigned long Size, const string /* MD5
    {
       if (FSize != Size)
       {
-	 Status = StatError;
-	 ErrorText = _("Size mismatch");
-	 Rename(DestFile,DestFile + ".FAILED");
 	 if (_config->FindB("Acquire::Verbose",false) == true)
 	    _error->Warning("Size mismatch of index file %s: %lu was supposed to be %llu",
 			    RealURI.c_str(), Size, FSize);
+	 Rename(DestFile,DestFile + ".FAILED");
+	 Status = StatError;
+	 ErrorText = _("Size mismatch");
 	 return;
       }
       if (MD5.empty() == false && MD5Hash != MD5)
       {
-	 Status = StatError;
-	 ErrorText = _("MD5Sum mismatch");
-	 Rename(DestFile,DestFile + ".FAILED");
 	 if (_config->FindB("Acquire::Verbose",false) == true)
 	    _error->Warning("MD5Sum mismatch of index file %s: %s was supposed to be %s",
 			    RealURI.c_str(), MD5.c_str(), MD5Hash.c_str());
+	 Rename(DestFile,DestFile + ".FAILED");
+	 Status = StatError;
+	 ErrorText = _("MD5Sum mismatch");
 	 return;
       }
    }
@@ -876,12 +876,12 @@ void pkgAcqArchive::Done(string Message,unsigned long Size, const string /* Md5H
    {
       if (Md5Hash != MD5)
       {
-	if (_config->FindB("Debug::pkgAcquire::Auth", false)) {
+         if (_config->FindB("Debug::pkgAcquire::Auth", false)) {
 	    cerr << "md5 mismatch: " << Md5Hash << "!=" << MD5 << endl;
-	}
+         }
+	 Rename(DestFile,DestFile + ".FAILED");
 	 Status = StatError;
 	 ErrorText = _("MD5Sum mismatch");
-	 Rename(DestFile,DestFile + ".FAILED");
 	 return;
       }
    }
@@ -1023,12 +1023,12 @@ void pkgAcqFile::Done(string Message,unsigned long Size,string MD5,
    {
       if (Md5Hash != MD5)
       {
-	if (_config->FindB("Debug::pkgAcquire::Auth", false)) {
+         if (_config->FindB("Debug::pkgAcquire::Auth", false)) {
 	    cerr << "md5 mismatch: " << Md5Hash << "!=" << MD5 << endl;
-	}
+         }
+	 Rename(DestFile,DestFile + ".FAILED");
 	 Status = StatError;
 	 ErrorText = "MD5Sum mismatch";
-	 Rename(DestFile,DestFile + ".FAILED");
 	 return;
       }
    }

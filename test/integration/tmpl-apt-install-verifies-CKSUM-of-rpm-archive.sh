@@ -3,10 +3,10 @@ set -eu
 
 readonly CKSUM_TYPE="$1"; shift
 
-# The "file" (and seemingly "cdrom") method doesn't compute
+# The "cdrom" method seemingly doesn't compute
 # and pass the cksums to apt.
 case "$APT_TEST_METHOD" in
-	file*|cdrom*) APT_TEST_XFAIL=yes
+	cdrom*) APT_TEST_XFAIL=yes
 	       ;;
 esac
 
