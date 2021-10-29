@@ -52,7 +52,7 @@ Hashes::Hashes()
       "MD5-Hash",
       "SHA1-Hash",
       "SHA256-Hash",
-      "BLAKE2b-Hash",
+      "BLAKE2b",
       NULL
    };
 
