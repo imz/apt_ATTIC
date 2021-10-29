@@ -12,24 +12,24 @@
 #ifndef APTPKG_HASHES_H
 #define APTPKG_HASHES_H
 
-#include <apt-pkg/md5.h>
-#include <apt-pkg/sha1.h>
+#include <vector>
+#include <apt-pkg/rhash.h>
+
+typedef std::vector<raptHash> HashContainer;
 
 class Hashes
 {
    public:
 
-   MD5Summation MD5;
-   SHA1Summation SHA1;
+   HashContainer HashSet;
 
-   inline bool Add(const unsigned char *Data,unsigned long Size)
-   {
-      return MD5.Add(Data,Size) && SHA1.Add(Data,Size);
-   }
+   bool Add(const unsigned char *Data,unsigned long Size);
    inline bool Add(const char *Data) {return Add((unsigned char *)Data,strlen(Data));}
    bool AddFD(int Fd,unsigned long Size);
    inline bool Add(const unsigned char *Beg,const unsigned char *End)
                   {return Add(Beg,End-Beg);}
+
+   Hashes();
 };
 
 #endif

@@ -23,8 +23,7 @@
 
 // CNC:2002-07-03
 #include <apt-pkg/repository.h>
-#include <apt-pkg/md5.h>
-#include <apt-pkg/sha1.h>
+#include <apt-pkg/rhash.h>
 #include <apt-pkg/luaiface.h>
 #include <iostream>
 #include <assert.h>
@@ -72,30 +71,15 @@ static bool VerifyChecksums(string File,unsigned long Size,string MD5, string me
 
    if (MD5.empty() == false)
    {
-      if (method == "MD5-Hash") {
-	 MD5Summation md5sum = MD5Summation();
-	 FileFd F(File, FileFd::ReadOnly);
+      raptHash hash = raptHash(method);
+      FileFd F(File, FileFd::ReadOnly);
 
-	 md5sum.AddFD(F.Fd(), F.Size());
-	 if (md5sum.Result().Value() != MD5)
-	 {
-	    if (_config->FindB("Acquire::Verbose", false) == true)
-	       cout << "MD5Sum of "<<File<<" did not match what's in the checksum list and was redownloaded."<<endl;
-	    return false;
-	 }
-      } else if (method == "SHA1-Hash") {
-	 SHA1Summation sha1sum = SHA1Summation();
-	 FileFd F(File, FileFd::ReadOnly);
-
-	 sha1sum.AddFD(F.Fd(), F.Size());
-	 if (sha1sum.Result().Value() != MD5)
-	 {
-	    if (_config->FindB("Acquire::Verbose", false) == true)
-	       cout << "SHA1Sum of "<<File<<" did not match what's in the checksum list and was redownloaded."<<endl;
-	    return false;
-	 }
+      hash.AddFD(F.Fd(), F.Size());
+      if (hash.Result() != MD5) {
+	 if (_config->FindB("Acquire::Verbose", false) == true)
+	    cout << method << " of "<<File<<" did not match what's in the checksum list and was redownloaded."<<endl;
+	 return false;
       }
-
    }
 
    return true;
