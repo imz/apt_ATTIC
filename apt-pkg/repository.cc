@@ -44,8 +44,13 @@ bool pkgRepository::ParseRelease(const string File)
 
    GotRelease = true;
 
-   string Files = Section.FindS("MD5Sum");
-   CheckMethod = "MD5-Hash";
+   string Files = Section.FindS("BLAKE2b");
+   CheckMethod = "BLAKE2b";
+   if (Files.empty()) {
+       Files = Section.FindS("MD5Sum");
+       CheckMethod = "MD5-Hash";
+   }
+
    // Lack of checksum is only fatal if authentication is on
    if (Files.empty())
    {
