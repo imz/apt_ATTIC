@@ -37,6 +37,11 @@ class pkgAcquire::Item
    // Safe rename function with timestamp preservation
    void Rename(string From,string To);
 
+   // The common actions to be re-used in subclasses in the implementations
+   // of Done()
+   void BaseItem_Done(const string &Message,unsigned long Size,
+                      const pkgAcquire::MethodConfig *Cnf /* unused for now */);
+
    public:
 
    // State of the item
@@ -64,9 +69,19 @@ class pkgAcquire::Item
    string TmpFile;
 
    // Action members invoked by the worker
+   // (they are usually overridden in subclasses for specialization)
    virtual void Failed(string Message,pkgAcquire::MethodConfig *Cnf);
-   virtual void Done(string Message,unsigned long Size,string Md5Hash,
-		     pkgAcquire::MethodConfig *Cnf);
+   virtual void Done(const string Message,
+                     const unsigned long Size,
+                     string /* Md5Hash unused in the base implementation */,
+                     pkgAcquire::MethodConfig * const Cnf)
+   { /* For compatibility with old subclasses whose implementations of Done()
+        still call the base class's Item::Done() for the common actions.
+        Newer subclasses should call BaseItem_Done() directly,
+        because it is a cleaner API (namely, some unused parameters deleted).
+     */
+      BaseItem_Done(Message, Size, Cnf);
+   }
    virtual void Start(string Message,unsigned long Size);
    virtual string Custom600Headers() {return string();}
    virtual string DescURI() = 0;

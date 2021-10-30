@@ -160,8 +160,8 @@ void pkgAcquire::Item::Start(string /*Message*/,unsigned long Size)
 // Acquire::Item::Done - Item downloaded OK				/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-void pkgAcquire::Item::Done(string Message,unsigned long Size,string,
-			    pkgAcquire::MethodConfig *Cnf)
+void pkgAcquire::Item::BaseItem_Done(const string &Message,const unsigned long Size,
+                                     const pkgAcquire::MethodConfig * /* Cnf */)
 {
    // We just downloaded something..
    string FileName = LookupTag(Message,"Filename");
