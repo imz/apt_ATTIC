@@ -285,10 +285,9 @@ string pkgAcqIndex::Custom600Headers()
    to the uncompressed version of the file. If this is so the file
    is copied into the partial directory. In all other cases the file
    is decompressed with a gzip uri. */
-void pkgAcqIndex::Done(const string Message,
-                       const unsigned long Size,
-                       string /* MD5 obsolete */,
-                       pkgAcquire::MethodConfig * const Cfg)
+void pkgAcqIndex::DoneByWorker(const string &Message,
+                               const unsigned long Size,
+                               pkgAcquire::MethodConfig * const Cfg)
 {
    BaseItem_Done(Message,Size,Cfg);
 
