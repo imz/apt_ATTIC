@@ -66,6 +66,7 @@ Source0: %name-%version-%release.tar
 
 Requires: libapt = %EVR
 Requires: rpm >= 4.13.0.1-alt2, /etc/apt/pkgpriorities, apt-conf
+Requires: librpmio(PGPHASHALGO_BLAKE2B)%{?_is_libsuff:(%{_libsuff}bit)} = 100
 # We need (lib)rpm which finds pkgs by labels in N-E:V-R@T format:
 Requires: RPMQ(EPOCH)
 Requires: RPMQ(BUILDTIME)
@@ -499,7 +500,7 @@ seq 0 $((TRIES-1)) | xargs -I'{}' ${NPROCS:+-P$NPROCS --process-slot-var=PARALLE
 %_datadir/%name/tests/
 
 %changelog
-* Tue Aug 24 2021 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt73
+* Fri Oct 29 2021 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt73
 - (tests) Report if a test (marked XFAIL) uneXpectedly passes (XPASS).
 - (tests) Run them not in %%check, but in *-checkinstall subpkgs. (To break
   build-dep cycle with apt-repo-tools, whose features are required by the tests,
@@ -525,11 +526,13 @@ seq 0 $((TRIES-1)) | xargs -I'{}' ${NPROCS:+-P$NPROCS --process-slot-var=PARALLE
 - (source code; ABI) Got rid of virtual methods with default parameters
   (because they are confusing for the programmer).
 - (source code; ABI) Backported some pieces of the support for the multiplicity
-  of checksum (and compression) types from apt-rpm:
+  of checksum (and compression) types from apt-rpm (thx imz@):
   + the type of the compression for "pkglist" indices;
   + the type of the checksum for "pkglist" indices;
   + the type of the checksum for "rpm" archives.
-  (WIP: for now, their type is determined by the repo type.)
+- Added blake2b hash support (thx glebfm@).
+- Changed file and copy download methods to always compute checksums
+  (thx glebfm@).
 
 * Thu Mar 18 2021 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt72
 - Cleaned up the code (thx Dmitry V. Levin ldv@; including
