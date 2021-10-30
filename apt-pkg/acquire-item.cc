@@ -186,7 +186,7 @@ void pkgAcquire::Item::Rename(const string From, const string To)
 /* The package file is added to the queue and a second class is
    instantiated to fetch the revision file */
 // CNC:2002-07-03
-pkgAcqIndex::pkgAcqIndex(pkgAcquire * const Owner,pkgRepository * const Repository,
+pkgAcqIndex::pkgAcqIndex(pkgAcquire * const Owner,const pkgRepository * const Repository,
 			 const string URI,const string URIDesc,const string ShortDesc) :
                       Item(Owner), RealURI(URI), Repository(Repository)
 {
@@ -670,7 +670,7 @@ void pkgAcqIndexRel::Failed(const string Message,pkgAcquire::MethodConfig * cons
 // ---------------------------------------------------------------------
 /* This just sets up the initial fetch environment and queues the first
    possibilitiy */
-pkgAcqArchive::pkgAcqArchive(pkgAcquire * const Owner,pkgSourceList * const Sources,
+pkgAcqArchive::pkgAcqArchive(pkgAcquire * const Owner,const pkgSourceList * const Sources,
 			     pkgRecords * const Recs,pkgCache::VerIterator const &Version,
 			     string &StoreFilename) :
                Item(Owner), Version(Version), Sources(Sources), Recs(Recs),

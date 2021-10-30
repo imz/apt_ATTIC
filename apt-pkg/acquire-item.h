@@ -138,7 +138,7 @@ class pkgAcqIndex : public pkgAcquire::Item
    string RealURI;
 
    // CNC:2002-07-03
-   pkgRepository *Repository;
+   const pkgRepository *Repository;
 
    public:
 
@@ -149,7 +149,7 @@ class pkgAcqIndex : public pkgAcquire::Item
    virtual string DescURI() override {return RealURI;} // CNC:2003-02-14
 
    // CNC:2002-07-03
-   pkgAcqIndex(pkgAcquire *Owner,pkgRepository *Repository,string URI,
+   pkgAcqIndex(pkgAcquire *Owner,const pkgRepository *Repository,string URI,
 	       string URIDesc,string ShortDesct);
 };
 
@@ -189,7 +189,7 @@ class pkgAcqArchive : public pkgAcquire::Item
    // State information for the retry mechanism
    pkgCache::VerIterator Version;
    pkgAcquire::ItemDesc Desc;
-   pkgSourceList *Sources;
+   const pkgSourceList *Sources;
    pkgRecords *Recs;
    string MD5;
    string ChkType;
@@ -210,7 +210,7 @@ class pkgAcqArchive : public pkgAcquire::Item
    virtual string DescURI() override {return Desc.URI;}
    virtual void Finished() override;
 
-   pkgAcqArchive(pkgAcquire *Owner,pkgSourceList *Sources,
+   pkgAcqArchive(pkgAcquire *Owner,const pkgSourceList *Sources,
 		 pkgRecords *Recs,pkgCache::VerIterator const &Version,
 		 string &StoreFilename);
 };
