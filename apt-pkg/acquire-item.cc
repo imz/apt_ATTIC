@@ -293,7 +293,7 @@ string pkgAcqIndex::Custom600Headers()
 void pkgAcqIndex::Done(string Message,unsigned long Size,string MD5,
 		       pkgAcquire::MethodConfig *Cfg)
 {
-   Item::Done(Message,Size,MD5,Cfg);
+   BaseItem_Done(Message,Size,Cfg);
 
    if (Decompression == true)
    {
@@ -500,7 +500,7 @@ string pkgAcqIndexRel::Custom600Headers()
 void pkgAcqIndexRel::Done(string Message,unsigned long Size,string MD5,
 			  pkgAcquire::MethodConfig *Cfg)
 {
-   Item::Done(Message,Size,MD5,Cfg);
+   BaseItem_Done(Message,Size,Cfg);
 
    // CNC:2002-07-03
    if (Authentication == true)
@@ -865,7 +865,7 @@ static void ScriptsAcquireDone(const char *ConfKey,
 void pkgAcqArchive::Done(string Message,unsigned long Size,string Md5Hash,
 			 pkgAcquire::MethodConfig *Cfg)
 {
-   Item::Done(Message,Size,Md5Hash,Cfg);
+   BaseItem_Done(Message,Size,Cfg);
 
    // Check the size
    if (Size != Version->Size)
@@ -1037,7 +1037,7 @@ void pkgAcqFile::Done(string Message,unsigned long Size,string MD5,
       }
    }
 
-   Item::Done(Message,Size,MD5,Cnf);
+   BaseItem_Done(Message,Size,Cnf);
 
    string FileName = LookupTag(Message,"Filename");
    if (FileName.empty() == true)
