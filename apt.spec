@@ -136,6 +136,8 @@ Requires: rpm-build
 Requires: /usr/bin/genbasedir
 # optional
 %global complete_reqs_of_tests %name-https /usr/sbin/nginx /usr/bin/openssl
+%global reqs_of_tests_to_filter_out ^\\(%name-https\\|/usr/sbin/nginx\\|nginx\\|/usr/bin/openssl\\|openssl\\)
+%filter_from_requires \,%reqs_of_tests_to_filter_out,d
 
 # {{{ descriptions
 %define risk_usage_en This package is still under development.
@@ -331,6 +333,14 @@ The set of testcases is limited (just to the file method).
 
 %pre basic-checkinstall -p %_sbindir/sh-safely
 set -o pipefail
+
+# Check that %name-tests has no unwanted extra reqs:
+if rpm -q %name-tests -R | grep -e '%{reqs_of_tests_to_filter_out}'
+then
+    echo '^^^ These are unwanted extra reqs of %name-tests'
+    exit 1
+fi
+
 pushd %_datadir/%name/tests/
 
 # force the target arch for the tests
