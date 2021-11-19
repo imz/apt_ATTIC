@@ -75,7 +75,7 @@ class pkgAcquire::Item
    //
    // FIXME: should be made const, but that's impossible due to compatibility
    // with older subclasses yet.
-   virtual string MD5Sum() {return std::string();}
+   virtual string MD5Sum() const {return std::string();}
 
    public:
 
@@ -127,7 +127,7 @@ class pkgAcquire::Item
    virtual string CheckType() const { return "MD5-Hash"; }
    // FIXME: should be made const, but that's not yet possible due to
    // compatibility with older subclasses (due to non-const MD5Sum()).
-   virtual string ExpectedHash() { return MD5Sum(); /* compat with older subclasses */ }
+   virtual string ExpectedHash() const { return MD5Sum(); /* compat with older subclasses */ }
    pkgAcquire *GetOwner() {return Owner;}
 
    Item(pkgAcquire *Owner);
@@ -154,7 +154,7 @@ class pkgAcqIndex : public pkgAcquire::Item
       to prohibit meaningless direct calls on objects of this type.
    */
    virtual string CheckType() const override {return std::string();}
-   virtual string ExpectedHash() override {return std::string();}
+   virtual string ExpectedHash() const override {return std::string();}
 
    public:
 
@@ -187,7 +187,7 @@ class pkgAcqIndexRel : public pkgAcquire::Item
       to prohibit meaningless direct calls on objects of this type.
    */
    virtual string CheckType() const override {return std::string();}
-   virtual string ExpectedHash() override {return std::string();}
+   virtual string ExpectedHash() const override {return std::string();}
 
    public:
 
@@ -229,7 +229,7 @@ class pkgAcqArchive : public pkgAcquire::Item
    virtual void DoneByWorker(const string &Message,unsigned long Size,
                              pkgAcquire::MethodConfig *Cnf) override;
    virtual string CheckType() const override {return ChkType;}
-   virtual string ExpectedHash() override {return ExpectHash;}
+   virtual string ExpectedHash() const override {return ExpectHash;}
    virtual string DescURI() override {return Desc.URI;}
    virtual void Finished() override;
 
@@ -251,7 +251,7 @@ class pkgAcqFile : public pkgAcquire::Item
    virtual void Failed(string Message,pkgAcquire::MethodConfig *Cnf) override;
    virtual void Done(string Message,unsigned long Size,string MD5,
 		     pkgAcquire::MethodConfig *Cnf) override;
-   virtual string MD5Sum() override {return ExpectMd5Hash;}
+   virtual string MD5Sum() const override {return ExpectMd5Hash;}
    virtual string DescURI() override {return Desc.URI;}
 
    pkgAcqFile(pkgAcquire *Owner,const string &URI, const string &MD5,unsigned long Size,
