@@ -24,8 +24,8 @@ case "$1" in
 	;;
 esac
 readonly HSHDIR="$1"; shift
-[ $# -eq 0 ] || {
-    printf '%s: Too many arguments! (Only 1 hasher dir expected.)\n' "$0" >&2
+[ $# -eq 0 ] || [ -n "$INI" ] || {
+    printf '%s: Too many arguments! (Only 1 is expected: HSHDIR. The rest is used only by --ini.)\n' "$0" >&2
     exit 1
 }
 
@@ -45,7 +45,7 @@ set -x
 
 if [ -n "$INI" ]; then
     # (run only once)
-    hsh --ini --with-stuff "$HSHDIR"
+    hsh --ini --with-stuff "$HSHDIR" "$@"
 
     # Prepare the hasher env for the tests with big repos in the sources.list
     #
