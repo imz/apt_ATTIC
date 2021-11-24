@@ -394,7 +394,7 @@ void pkgAcquire::Bump()
 // Acquire::WorkerStep - Step to the next worker			/*{{{*/
 // ---------------------------------------------------------------------
 /* Not inlined to advoid including acquire-worker.h */
-pkgAcquire::Worker *pkgAcquire::WorkerStep(Worker *I)
+pkgAcquire::Worker *pkgAcquire::WorkerStep(Worker const *I)
 {
    return I->NextAcquire;
 }
@@ -784,7 +784,7 @@ bool pkgAcquireStatus::Pulse(pkgAcquire *Owner)
 
    // Compute the current completion
    unsigned long ResumeSize = 0;
-   for (pkgAcquire::Worker *I = Owner->WorkersBegin(); I != 0;
+   for (const pkgAcquire::Worker *I = Owner->WorkersBegin(); I != 0;
 	I = Owner->WorkerStep(I))
       if (I->CurrentItem != 0 && I->CurrentItem->Owner->Complete == false)
       {

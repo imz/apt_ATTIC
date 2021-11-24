@@ -100,7 +100,7 @@ class pkgAcquire
 
    // Simple iteration mechanism
    inline Worker *WorkersBegin() {return Workers;}
-   Worker *WorkerStep(Worker *I);
+   Worker *WorkerStep(Worker const *I);
    inline ItemIterator ItemsBegin() {return Items.begin();}
    inline ItemIterator ItemsEnd() {return Items.end();}
 
