@@ -70,13 +70,6 @@ class pkgAcquire::Item
       BaseItem_Done(Message, Size, Cnf);
    }
 
-   // For compatability: to be overridden by older subclasses who
-   // do not know about ExpectedHash() and CheckType().
-   //
-   // NB: has been made const, but that's incompatible
-   // with older subclasses.
-   virtual string MD5Sum() const {return std::string();}
-
    public:
 
    // State of the item
@@ -124,8 +117,8 @@ class pkgAcquire::Item
    virtual void Finished() {}
 
    // Inquire functions
-   virtual string CheckType() const { return "MD5-Hash"; }
-   virtual string ExpectedHash() const { return MD5Sum(); /* compat with older subclasses */ }
+   virtual string CheckType() const = 0;
+   virtual string ExpectedHash() const = 0;
    // FIXME: should this be made const, too?
    pkgAcquire *GetOwner() {return Owner;}
 
@@ -250,7 +243,8 @@ class pkgAcqFile : public pkgAcquire::Item
    virtual void Failed(string Message,pkgAcquire::MethodConfig *Cnf) override;
    virtual void Done(string Message,unsigned long Size,string MD5,
 		     pkgAcquire::MethodConfig *Cnf) override;
-   virtual string MD5Sum() const override {return ExpectMd5Hash;}
+   virtual string CheckType() const override { return "MD5-Hash"; }
+   virtual string ExpectedHash() const override {return ExpectMd5Hash;}
    virtual string DescURI() override {return Desc.URI;}
 
    pkgAcqFile(pkgAcquire *Owner,string URI,string MD5,unsigned long Size,
