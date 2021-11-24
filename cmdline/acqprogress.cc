@@ -166,7 +166,7 @@ bool AcqTextStatus::Pulse(pkgAcquire *Owner)
    sprintf(S,"%ld%%",long(double((CurrentBytes + CurrentItems)*100.0)/double(TotalBytes+TotalItems)));
 
    bool Shown = false;
-   for (pkgAcquire::Worker *I = Owner->WorkersBegin(); I != 0;
+   for (const pkgAcquire::Worker *I = Owner->WorkersBegin(); I != 0;
 	I = Owner->WorkerStep(I))
    {
       S += strlen(S);
