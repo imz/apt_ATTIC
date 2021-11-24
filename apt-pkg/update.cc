@@ -70,7 +70,7 @@ bool ListUpdate(pkgAcquireStatus &Stat,
    bool Failed = errorsWereReported;
    bool AllFailed = true;
 
-   for (pkgAcquire::ItemIterator I = Fetcher.ItemsBegin();
+   for (pkgAcquire::ItemCIterator I = Fetcher.ItemsBegin();
         I != Fetcher.ItemsEnd(); ++I)
    {
       switch ((*I)->Status)
@@ -118,7 +118,7 @@ bool ListUpdate(pkgAcquireStatus &Stat,
       Failed = true;
    }
 
-   for (pkgAcquire::ItemIterator I = Fetcher.ItemsBegin();
+   for (pkgAcquire::ItemCIterator I = Fetcher.ItemsBegin();
         I != Fetcher.ItemsEnd(); ++I)
    {
       switch ((*I)->Status)
