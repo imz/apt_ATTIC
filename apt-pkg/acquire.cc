@@ -394,7 +394,7 @@ void pkgAcquire::Bump()
 // Acquire::WorkerStep - Step to the next worker			/*{{{*/
 // ---------------------------------------------------------------------
 /* Not inlined to advoid including acquire-worker.h */
-pkgAcquire::Worker *pkgAcquire::WorkerStep(Worker const *I)
+pkgAcquire::Worker const *pkgAcquire::WorkerStep(Worker const *I) const
 {
    return I->NextAcquire;
 }
