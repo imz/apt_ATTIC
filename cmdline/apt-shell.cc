@@ -474,7 +474,7 @@ bool InstallPackages(CacheFile &Cache,bool ShwKept,bool Ask = true,
       bool Transient = false;
       if (_config->FindB("APT::Get::Download",true) == false)
       {
-	 for (pkgAcquire::ItemIterator I = Fetcher.ItemsBegin(); I < Fetcher.ItemsEnd();)
+	 for (pkgAcquire::ItemCIterator I = Fetcher.ItemsBegin(); I < Fetcher.ItemsEnd();)
 	 {
 	    if ((*I)->Local == true)
 	    {
@@ -501,7 +501,7 @@ bool InstallPackages(CacheFile &Cache,bool ShwKept,bool Ask = true,
 
       // Print out errors
       bool Failed = false;
-      for (pkgAcquire::ItemIterator I = Fetcher.ItemsBegin(); I != Fetcher.ItemsEnd(); I++)
+      for (pkgAcquire::ItemCIterator I = Fetcher.ItemsBegin(); I != Fetcher.ItemsEnd(); I++)
       {
 	 if ((*I)->Status == pkgAcquire::Item::StatDone &&
 	     (*I)->Complete == true)
