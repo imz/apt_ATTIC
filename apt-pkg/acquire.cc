@@ -484,7 +484,7 @@ double pkgAcquire::PartialPresent()
 // Acquire::UriBegin - Start iterator for the uri list			/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-pkgAcquire::UriIterator pkgAcquire::UriBegin()
+pkgAcquire::UriIterator pkgAcquire::UriBegin() const
 {
    return UriIterator(Queues);
 }
@@ -492,7 +492,7 @@ pkgAcquire::UriIterator pkgAcquire::UriBegin()
 // Acquire::UriEnd - End iterator for the uri list			/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-pkgAcquire::UriIterator pkgAcquire::UriEnd()
+pkgAcquire::UriIterator pkgAcquire::UriEnd() const
 {
    return UriIterator(0);
 }

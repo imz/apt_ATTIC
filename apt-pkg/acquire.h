@@ -106,8 +106,8 @@ class pkgAcquire
 
    // Iterate over queued Item URIs
    class UriIterator;
-   UriIterator UriBegin();
-   UriIterator UriEnd();
+   UriIterator UriBegin() const;
+   UriIterator UriEnd() const;
 
    // Cleans out the download dir
    bool Clean(string Dir);
