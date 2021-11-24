@@ -174,7 +174,7 @@ class pkgAcquire::Queue
    bool Dequeue(Item *Owner);
 
    // Find a Queued item
-   QItem *FindItem(string URI,pkgAcquire::Worker *Owner);
+   QItem *FindItem(const string &URI,const pkgAcquire::Worker *Owner);
    bool ItemStart(QItem *Itm,unsigned long Size);
    bool ItemDone(QItem *Itm);
 
