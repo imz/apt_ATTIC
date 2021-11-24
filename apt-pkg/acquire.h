@@ -189,8 +189,8 @@ class pkgAcquire::Queue
 
 class pkgAcquire::UriIterator
 {
-   pkgAcquire::Queue *CurQ;
-   pkgAcquire::Queue::QItem *CurItem;
+   pkgAcquire::Queue const *CurQ;
+   pkgAcquire::Queue::QItem const *CurItem;
 
    public:
 
@@ -211,7 +211,7 @@ class pkgAcquire::UriIterator
    inline bool operator !=(UriIterator const &rhs) const {return rhs.CurQ != CurQ || rhs.CurItem != CurItem;}
    inline bool operator ==(UriIterator const &rhs) const {return rhs.CurQ == CurQ && rhs.CurItem == CurItem;}
 
-   UriIterator(pkgAcquire::Queue *Q) : CurQ(Q), CurItem(0)
+   UriIterator(pkgAcquire::Queue const *Q) : CurQ(Q), CurItem(0)
    {
       while (CurItem == 0 && CurQ != 0)
       {
