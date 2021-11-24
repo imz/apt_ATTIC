@@ -99,10 +99,10 @@ class pkgAcquire
    void Shutdown();
 
    // Simple iteration mechanism
-   inline Worker *WorkersBegin() {return Workers;}
-   Worker *WorkerStep(Worker const *I);
-   inline ItemIterator ItemsBegin() {return Items.begin();}
-   inline ItemIterator ItemsEnd() {return Items.end();}
+   inline Worker const *WorkersBegin() const {return Workers;}
+   Worker const *WorkerStep(Worker const *I) const;
+   inline ItemCIterator ItemsBegin() const {return Items.cbegin();}
+   inline ItemCIterator ItemsEnd() const {return Items.cend();}
 
    // Iterate over queued Item URIs
    class UriIterator;
