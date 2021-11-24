@@ -647,7 +647,7 @@ bool pkgAcquire::Queue::Shutdown(bool Final)
 // Queue::FindItem - Find a URI in the item list			/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-pkgAcquire::Queue::QItem *pkgAcquire::Queue::FindItem(const string URI,pkgAcquire::Worker *Owner)
+pkgAcquire::Queue::QItem *pkgAcquire::Queue::FindItem(const string &URI,const pkgAcquire::Worker * const Owner)
 {
    for (QItem *I = Items; I != 0; I = I->Next)
       if (I->URI == URI && I->Worker == Owner)
