@@ -278,7 +278,7 @@ class pkgAcquireStatus
    virtual void Fetch(pkgAcquire::ItemDesc &/*Itm*/) {}
    virtual void Done(pkgAcquire::ItemDesc &/*Itm*/) {}
    virtual void Fail(pkgAcquire::ItemDesc &/*Itm*/) {}
-   virtual bool Pulse(pkgAcquire *Owner); // returns false on user cancel
+   virtual bool Pulse(const pkgAcquire *Owner); // returns false on user cancel
    virtual void Start();
    virtual void Stop();
 

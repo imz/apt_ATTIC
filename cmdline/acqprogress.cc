@@ -147,7 +147,7 @@ void AcqTextStatus::Stop()
 /* This draws the current progress. Each line has an overall percent
    meter and a per active item status meter along with an overall
    bandwidth and ETA indicator. */
-bool AcqTextStatus::Pulse(pkgAcquire *Owner)
+bool AcqTextStatus::Pulse(const pkgAcquire * const Owner)
 {
    if (Quiet > 0)
       return true;
