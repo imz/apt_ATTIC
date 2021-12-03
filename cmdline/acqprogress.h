@@ -29,7 +29,7 @@ class AcqTextStatus : public pkgAcquireStatus
    virtual void Start() override;
    virtual void Stop() override;
 
-   bool Pulse(pkgAcquire *Owner) override;
+   bool Pulse(const pkgAcquire *Owner) override;
 
    AcqTextStatus(unsigned int &ScreenWidth,unsigned int Quiet);
 };

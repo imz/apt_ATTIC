@@ -754,7 +754,7 @@ pkgAcquireStatus::pkgAcquireStatus() : Update(true), MorePulses(false)
 /* This computes some internal state variables for the derived classes to
    use. It generates the current downloaded bytes and total bytes to download
    as well as the current CPS estimate. */
-bool pkgAcquireStatus::Pulse(pkgAcquire *Owner)
+bool pkgAcquireStatus::Pulse(const pkgAcquire * const Owner)
 {
    TotalBytes = 0;
    CurrentBytes = 0;

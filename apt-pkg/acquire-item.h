@@ -128,7 +128,7 @@ class pkgAcquire::Item
    // FIXME: should be made const, but that's not yet possible due to
    // compatibility with older subclasses (due to non-const MD5Sum()).
    virtual string ExpectedHash() { return MD5Sum(); /* compat with older subclasses */ }
-   pkgAcquire *GetOwner() {return Owner;}
+   const pkgAcquire *GetOwner() const {return Owner;}
 
    Item(pkgAcquire *Owner);
    virtual ~Item();
