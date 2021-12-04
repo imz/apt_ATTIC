@@ -45,7 +45,7 @@ class FileFd
    bool Truncate(unsigned long To);
    unsigned long Tell();
    unsigned long Size();
-   bool Open(const string &FileName,OpenMode Mode,unsigned long Perms = 0666);
+   bool Open(string FileName,OpenMode Mode,unsigned long Perms = 0666);
    bool Close();
    bool Sync();
 
@@ -69,7 +69,7 @@ class FileFd
    FileFd & operator= (const FileFd &) = delete;
    FileFd(const FileFd &) = delete;
 
-   FileFd(const string &FileName,OpenMode Mode,unsigned long Perms = 0666) : iFd(-1),
+   FileFd(string FileName,OpenMode Mode,unsigned long Perms = 0666) : iFd(-1),
             Flags(0)
    {
       Open(FileName,Mode,Perms);
@@ -82,8 +82,8 @@ class FileFd
 bool CopyFile(FileFd &From,FileFd &To);
 bool RemoveFile(const char * Function, const std::string &FileName);
 bool RemoveFileAt(const char * Function, const int dirfd, const std::string &FileName);
-int GetLock(const string &File,bool Errors = true);
-bool FileExists(const string &File);
+int GetLock(string File,bool Errors = true);
+bool FileExists(string File);
 bool RealFileExists(const std::string &File);
 bool DirectoryExists(const std::string &Path);
 
@@ -101,12 +101,12 @@ int ExecFork();
 bool ExecWait(int Pid,const char *Name,bool Reap = false);
 
 // File string manipulators
-string flNotDir(const string &File);
-string flNotFile(const string &File);
-string flNoLink(const string &File);
-string flExtension(const string &File);
-string flNoExtension(const string &File);
-string flUnCompressed(const string &File);
-string flCombine(const string &Dir,const string &File);
+string flNotDir(string File);
+string flNotFile(string File);
+string flNoLink(string File);
+string flExtension(string File);
+string flNoExtension(string File);
+string flUnCompressed(string File);
+string flCombine(string Dir,string File);
 
 #endif
