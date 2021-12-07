@@ -73,11 +73,11 @@ class pkgPackageManager : protected pkgCache::Namespace
    bool EarlyRemove(PkgIterator Pkg);
 
    // The Actual installation implementation
-   virtual bool Install(PkgIterator /*Pkg*/,string /*File*/) {return false;}
-   virtual bool Configure(PkgIterator /*Pkg*/) {return false;}
-   virtual bool Remove(PkgIterator /*Pkg*/,bool /*Purge*/) {return false;}
-   virtual bool Go() {return true;}
-   virtual void Reset() {}
+   virtual bool Install(PkgIterator /*Pkg*/,string /*File*/) = 0;
+   virtual bool Configure(PkgIterator /*Pkg*/) = 0;
+   virtual bool Remove(PkgIterator /*Pkg*/,bool /*Purge*/) = 0;
+   virtual bool Go() = 0;
+   virtual void Reset() = 0;
 
    public:
 
@@ -87,6 +87,8 @@ class pkgPackageManager : protected pkgCache::Namespace
    OrderResult DoInstall();
    bool FixMissing();
 
+   // Also a part of the Actual installation implementation,
+   // but it is public due to the use in apt-mark.
    // If marks updating not supported, skip this step
    virtual bool UpdateMarks() { return true; }
 
