@@ -90,7 +90,7 @@ class pkgPackageManager : protected pkgCache::Namespace
    // Also a part of the Actual installation implementation,
    // but it is public due to the use in apt-mark.
    // If marks updating not supported, skip this step
-   virtual bool UpdateMarks() { return true; }
+   virtual bool UpdateMarks() = 0;
 
    pkgPackageManager(pkgDepCache *Cache);
    virtual ~pkgPackageManager();

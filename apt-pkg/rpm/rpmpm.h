@@ -70,6 +70,10 @@ class pkgRPMExtPM : public pkgRPMPM
 		const std::vector<apt_item> &uninstall) override;
 
    public:
+
+   // FIXME: marks updating not supported by pkgRPMExtPM class yet, skip this step
+   virtual bool UpdateMarks() override { return true; }
+
    pkgRPMExtPM(pkgDepCache *Cache);
    virtual ~pkgRPMExtPM();
 };
