@@ -76,8 +76,6 @@ class pkgPackageManager : protected pkgCache::Namespace
    virtual bool Install(PkgIterator /*Pkg*/,string /*File*/) {return false;}
    virtual bool Configure(PkgIterator /*Pkg*/) {return false;}
    virtual bool Remove(PkgIterator /*Pkg*/,bool /*Purge*/) {return false;}
-   /* a virtual method with default parameter is confusing; instead, define: */
-   bool Remove(const PkgIterator Pkg) {return Remove(Pkg,false);}
    virtual bool Go() {return true;}
    virtual void Reset() {}
 
