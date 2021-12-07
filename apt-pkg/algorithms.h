@@ -71,6 +71,9 @@ class pkgSimulate : public pkgPackageManager
 
    public:
 
+   // skip this step
+   virtual bool UpdateMarks() override { return true; }
+
    pkgSimulate(pkgDepCache *Cache);
 };
 #endif

@@ -88,7 +88,7 @@ class pkgPackageManager : protected pkgCache::Namespace
    bool FixMissing();
 
    // If marks updating not supported, skip this step
-   virtual bool UpdateMarks() { return true; }
+   virtual bool UpdateMarks() = 0;
 
    pkgPackageManager(pkgDepCache *Cache);
    virtual ~pkgPackageManager();
