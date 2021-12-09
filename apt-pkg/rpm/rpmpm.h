@@ -49,8 +49,8 @@ class pkgRPMPM : public pkgPackageManager
    virtual bool Remove(PkgIterator Pkg,bool Purge) override;
 
    virtual bool Process(const std::vector<apt_item> &install,
-		const std::vector<apt_item> &upgrade,
-		const std::vector<apt_item> &uninstall) {return false;}
+                        const std::vector<apt_item> &upgrade,
+                        const std::vector<apt_item> &uninstall) = 0;
 
    virtual bool Go() override;
    virtual void Reset() override;
