@@ -908,8 +908,10 @@ bool pkgRPMLibPM::Process(const std::vector<apt_item> &install,
    probFilter |= rpmtsFilterFlags(TS);
    rpmtsSetFlags(TS, (rpmtransFlags)(rpmtsFlags(TS) | tsFlags));
    rpmtsClean(TS);
+   static_assert(sizeof(notifyFlags) <= sizeof(void*),
+                 "void* isn't wide enough for notifyFlags (the callback data)");
    rc = rpmtsSetNotifyCallback(TS, rpmShowProgress,
-                               (void *) (unsigned long) notifyFlags);
+                               reinterpret_cast<void *>(notifyFlags));
    rc = rpmtsRun(TS, NULL, (rpmprobFilterFlags)probFilter);
    probs = rpmtsProblems(TS);
 
