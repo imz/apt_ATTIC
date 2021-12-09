@@ -909,7 +909,7 @@ bool pkgRPMLibPM::Process(const std::vector<apt_item> &install,
    rpmtsSetFlags(TS, (rpmtransFlags)(rpmtsFlags(TS) | tsFlags));
    rpmtsClean(TS);
    rc = rpmtsSetNotifyCallback(TS, rpmShowProgress,
-                               (void *) (unsigned long) notifyFlags);
+                               static_cast<void *>((unsigned long) notifyFlags));
    rc = rpmtsRun(TS, NULL, (rpmprobFilterFlags)probFilter);
    probs = rpmtsProblems(TS);
 
