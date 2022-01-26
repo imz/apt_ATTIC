@@ -1,0 +1,13 @@
+#!/bin/sh -efuCx
+set -o pipefail
+
+# One should better prepare the environment, so that the tests will be run
+# with big real repos (like Sisyphus) in the sources.list. In the past,
+# some crashes only appeared this way.
+
+echo '=== Optional preparation. A chance to see that apt works. ==='
+apt-get \
+    -o Acquire::Verbose=yes \
+    -o Debug::pkgAcquire::Auth=yes \
+    update
+echo PASSed

@@ -1,0 +1,25 @@
+#!/bin/sh -euCx
+set -o pipefail
+
+echo '=== Test whether the "refresh" action forces a rebuild of the caches & saves them: ==='
+
+stat /var/cache/apt/*.bin # Check the setup is OK before a test.
+# Run it (and make sure "refresh" doesn't crash or fail).
+/usr/lib/packagekit-direct refresh
+# Now, there are two ways to test whether it has actually rebuilt the caches.
+#
+# 1. The quick way is to see whether the caches appeared after "refresh" as they
+# should. (Also, they must be new files, because "refresh" unconditionally
+# removes them first. This test doesn't check this formally.)
+stat /var/cache/apt/*.bin
+
+# 2. Another way is to see how much work a subsequent command does to build
+# cache: should be little work if "refresh" works correctly. Contrarily,
+# the "refresh" command (see before) should at its final stage provoke much work
+# because it must build a new fresh cache; if its final stage is quick,
+# then it works incorrectly and doesn't really rebuild and save a fresh cache.
+# (This test doesn't formally check the amount of work. Just see with your eyes
+# that--if correct--the printed percentages in the final stage of "refresh"
+# change slowly, and in the initial stage of the next command change fast.)
+/usr/lib/packagekit-direct search-detail packagekit
+echo 'PASSed (view the output)'

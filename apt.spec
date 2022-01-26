@@ -316,6 +316,9 @@ done
 mkdir -p %buildroot%_datadir/%name
 cp -r test/integration -T %buildroot%_datadir/%name/tests
 
+install -m0755 run-tests-dir -t %buildroot%_datadir/%name/
+cp -r tests-under-pkdirect -t %buildroot%_datadir/%name/
+
 %find_lang %name
 
 unset RPM_PYTHON
@@ -469,6 +472,47 @@ fi
 
 seq 0 $((TRIES-1)) | xargs -I'{}' ${NPROCS:+-P$NPROCS --process-slot-var=PARALLEL_SLOT} \
 	-- sh -efuo pipefail -c '%runtests '${NPROCS:+'|& sed --unbuffered -e "s/^/[$PARALLEL_SLOT {}] /"'}
+
+%package under-pkdirect-checkinstall
+Summary: Immediately test %name+PK when installing this package (via packagekit-direct)
+Group: Other
+BuildArch: noarch
+Requires(pre): packagekit
+
+%description under-pkdirect-checkinstall
+Immediately test PackageKit (which is supposed to use %name as the backend)
+when installing this package.
+
+The testing is done via %_libexecdir/packagekit-direct (which works
+without relying on any daemons, DBus, etc.)
+
+Some of the bugs (from the past) which are being tested for by these
+tests could only be seen with APT indices that were big and/or
+acquired from "external" sources (like the real Sisyphus repo). So,
+having just the "internal" system RPM db diminishes the potential
+of these few tests to find interesting bugs. One should set up
+"external" sources for APT (in a real system or in hasher with network).
+
+%files under-pkdirect-checkinstall
+%dir %_datadir/%name
+%_datadir/%name/run-tests-dir
+%_datadir/%name/tests-under-pkdirect
+
+%post under-pkdirect-checkinstall
+
+%_datadir/%name/run-tests-dir %_datadir/%name/tests-under-pkdirect
+
+# * * *
+#
+# Note that git-bisect(1) expects an "exit with a code between 1 and
+# 127 (inclusive), except 125, if the current source code is bad".
+# Therefore, I suggest to use this test script (or the wrapper
+# ./test-pk-in-hsh.sh) like this:
+#
+#   cd apt
+#   git bisect start --no-checkout PK-BAD PK-GOOD
+#   git bisect run /bin/sh -exc './gear-build-pair-in-hsh.sh . BISECT_HEAD ../packagekit/ revert-apt-API ~/hasher/; hsh-install ~/hasher/ apt-under-pkdirect-checkinstall || { echo BAD: $?; exit 1; }'
+
 
 %files -f %name.lang
 %_bindir/apt-*

@@ -1,0 +1,8 @@
+#!/bin/sh -euCx
+set -o pipefail
+
+echo '=== Test whether there is a crash during an action ("search-detail"): ==='
+
+stat /var/cache/apt/*.bin # Check the setup is OK before a test.
+/usr/lib/packagekit-direct search-detail packagekit
+echo PASSed
