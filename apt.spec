@@ -13,14 +13,16 @@ URL: http://apt-rpm.org
 # Known upstream "apt-rpm" Git repos:
 # -----------------------------------
 #
-# * http://apt-rpm.org/scm/apt.git
-# * https://github.com/arelixlinux/apt which is said to be a clone from GitLab
+# * http://apt-rpm.org/scm/apt.git -- I've named this remote "apt-rpm";
+# * https://gitlab.com/apt-rpm/apt-rpm.git -- "apt-rpm@gitlab"
+#   (and its clone on Github: https://github.com/arelixlinux/apt
+#    -- "apt-rpm@github").
 #
-# The second repo has a few more recent commits than the first one, a deeper
+# "apt-rpm@gitlab" has a few more recent commits than "apt-rpm", a deeper
 # history (into the past), and some better formatted commit headers (Author).
-# (Compare like this: git range-diff apt-rpm/master...apt-rpm@github/master)
+# (Compare like this: git range-diff apt-rpm/master...apt-rpm@gitlab/master)
 #
-# To graft it (the 2nd deeper history) to ALT's history locally for yourself:
+# To graft it (the deeper "apt-rpm@gitlab" history) to ALT's history locally for yourself:
 #
 # git replace --graft 0.5.15lorg2-alt3 49dff175fb8ea3cd3ef47d45836f3089838246d6 0.5.15cnc6-alt18
 #
@@ -29,21 +31,21 @@ URL: http://apt-rpm.org
 # intersting individual commits from Conectiva's history, and not ALT's one.
 # (Make sure that the grafted source code is identical to ours:
 #
-# git tag apt-0.5.15lorg2@github 49dff175fb8ea3cd3ef47d45836f3089838246d6
-# git diff apt-0.5.15lorg2@github..0.5.15lorg2-alt3 --stat | fgrep -v ' => '
+# git tag apt-rpm@gitlab/apt-0.5.15lorg2 49dff175fb8ea3cd3ef47d45836f3089838246d6
+# git diff apt-rpm@gitlab/apt-0.5.15lorg2..0.5.15lorg2-alt3 --stat | fgrep -v ' => '
 #
 # The only reported difference is that they added a contributed script.)
 #
 # The upstream Debian repo:
 # -------------------------
 #
-# https://salsa.debian.org/apt-team/apt.git
+# https://salsa.debian.org/apt-team/apt.git -- "Debian"
 #
 # To attach it to Conectiva's history (locally for yourself):
 #
-# git tag apt-rpm-MERGED-0.5.4.9@github b780834d0d29cca5b0af1b544d3ff7b2a3d1a7a8
-# git tag 0.5.4.9-MERGED-into-CNC 4968036c93552ff78c1f857a91c685f0f3bcb794
-# git replace --graft apt-rpm-MERGED-0.5.4.9@github 0.5.4.9-MERGED-into-CNC apt-rpm-MERGED-0.5.4.9@github^
+# git tag apt-rpm@gitlab/MERGED-0.5.4.9 b780834d0d29cca5b0af1b544d3ff7b2a3d1a7a8
+# git tag Debian/0.5.4.9-MERGED-into-apt-rpm 4968036c93552ff78c1f857a91c685f0f3bcb794
+# git replace --graft apt-rpm@gitlab/MERGED-0.5.4.9 Debian/0.5.4.9-MERGED-into-apt-rpm apt-rpm@gitlab/MERGED-0.5.4.9^
 #
 # The parent with the richer history is 1st for git blame --first-parent -w.
 #
