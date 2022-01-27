@@ -1,0 +1,15 @@
+#!/bin/sh -efuCx
+set -o pipefail
+
+echo '=== Test whether searching by file works. ==='
+
+set -eux
+set -o pipefail
+
+timeout -k 190 180 \
+	/usr/lib/packagekit-direct search-file /etc/apt/vendors.list
+
+/usr/lib/packagekit-direct search-file /etc/apt/vendors.list |
+    fgrep apt-conf
+
+echo PASSed
