@@ -499,6 +499,8 @@ of these few tests to find interesting bugs. One should set up
 %_datadir/%name/tests-under-pkdirect
 
 %post under-pkdirect-checkinstall
+# so that the two outputs are not out of sync
+exec 1>&2
 
 %_datadir/%name/run-tests-dir %_datadir/%name/tests-under-pkdirect
 
