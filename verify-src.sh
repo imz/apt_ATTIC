@@ -1,6 +1,5 @@
-#!/bin/sh -euCx
+#!/bin/sh -euC
 set -o pipefail
-shopt -s nullglob
 
 # Verify that the source code conforms to some policies.
 # (Some policies--other or the same--are verified by compiler flags.)
@@ -10,17 +9,4 @@ shopt -s nullglob
 MY="$(dirname -- "$(realpath -- "$0")")"
 readonly MY
 
-for f in "$MY"/verify-src.d/*; do
-    [ -x "$f" ] || continue
-    case "$f" in
-	*~)
-	    continue
-	    ;;
-	*.verify)
-	    "$f"
-	    ;;
-	*) # ignore errors
-	    "$f" ||:
-	    ;;
-    esac
-done
+"$MY"/run-tests-dir "$MY"/verify-src.d

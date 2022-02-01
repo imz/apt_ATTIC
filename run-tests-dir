@@ -1,0 +1,21 @@
+#!/bin/sh -euCx
+set -o pipefail
+shopt -s nullglob
+
+readonly TESTS_DIR="$1"; shift
+[ -d "$TESTS_DIR" ]
+
+for f in "$TESTS_DIR"/*; do
+    [ -x "$f" ] || continue
+    case "$f" in
+	*~)
+	    continue
+	    ;;
+	*.verify|*.test)
+	    "$f"
+	    ;;
+	*) # ignore errors
+	    "$f" ||:
+	    ;;
+    esac
+done
