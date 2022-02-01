@@ -314,7 +314,7 @@ EOF
 done
 
 mkdir -p %buildroot%_datadir/%name
-cp -r test/integration %buildroot%_datadir/%name/tests/
+cp -r test/integration -T %buildroot%_datadir/%name/tests
 
 %find_lang %name
 
@@ -512,6 +512,7 @@ seq 0 $((TRIES-1)) | xargs -I'{}' ${NPROCS:+-P$NPROCS --process-slot-var=PARALLE
 %_libdir/%name/methods/https
 
 %files tests
+%dir %_datadir/%name
 %_datadir/%name/tests/
 
 %changelog
