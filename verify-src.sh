@@ -1,4 +1,4 @@
-#!/bin/sh -euC
+#!/bin/sh -euCx
 set -o pipefail
 shopt -s nullglob
 
