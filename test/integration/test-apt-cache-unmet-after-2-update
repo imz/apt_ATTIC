@@ -23,7 +23,17 @@ testempty aptcache unmet
 
 buildpackage 'missing-dependency'
 
-generaterepository_and_switch_sources "$TMPWORKINGDIRECTORY/usr/src/RPM/RPMS" "$(date +%s --date='now +1 day')"
+case "$APT_TEST_METHOD" in
+	cdrom*)
+		# we have to run apt-cdrom add, and hence modify apt's sources, too
+		generaterepository_and_switch_sources "$TMPWORKINGDIRECTORY/usr/src/RPM/RPMS" "$(date +%s --date='now +1 day')"
+		;;
+	*)
+		# a simpler way, without modifying apt's sources
+		# REPO_STORAGE is set by the previous invocation of generaterepository_and_switch_sources
+		generaterepository "$TMPWORKINGDIRECTORY/usr/src/RPM/RPMS" "$REPO_STORAGE" "$(date +%s --date='now +1 day')"
+		;;
+esac
 
 testsuccess aptget update
 
