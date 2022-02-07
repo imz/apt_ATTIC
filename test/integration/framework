@@ -450,6 +450,7 @@ nginxrestart() {
 	addtrap 'prefix' \
 			'kill -TERM %q ||:; [ "$EXIT_CODE" = 0 ] || if [ -e %q ]; then echo NGINXLOG:; cat %q ||:; fi;' \
 			"$NGINXPID" \
+			"$NGINXLOG" \
 			"$NGINXLOG"
 }
 
