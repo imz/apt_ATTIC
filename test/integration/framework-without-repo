@@ -760,3 +760,107 @@ set_regex_quote_str() {
 		printf -v "$regex_var" ''
 	fi
 }
+
+############################################################
+# Helpers for a background apt-shell process.
+# The process will be used to run commands.
+
+# Output/effects:
+# * global vars with the paths used to control the bg process (via "empty")
+#   (convenient for use in other scripts):
+#   BG_APTSHELL_{PIDFILE,IN,OUT,LOG}
+bg_aptshell_setup() {
+	mkdir -p $TMPWORKINGDIRECTORY/bg_aptshell
+	BG_APTSHELL_LOG=$TMPWORKINGDIRECTORY/bg_aptshell/bg_aptshell.log
+}
+
+# Read until the prompt; consume and drop the prompt.
+# The read output is output to the standard output.
+bg_aptshell_read_response() {
+	# "getline" actually gets the next "record" separated by RS,
+	# so everything up to the prompt.
+	awk -v RS='apt> ' \
+	    -v ORS= \
+	    'BEGIN { getline; print $0; quit; }' \
+	    <&${BG_APTSHELL[0]}
+}
+
+# The FD and the PID vars associated with a coproc may start disappearing
+# during exiting; so it's more convenient to bind function args (or local vars)
+# to the values once. Therefore this helper function has been written.
+# And it saves repeating the same code at several places.
+bg_aptshell_exit_helper() {
+	local -r old_input_fd="$1"; shift
+	local -r old_pid="$1"; shift
+
+	[ -z "$old_input_fd" ] || echo exit >&"$old_input_fd" ||:
+	[ -z "$old_pid" ] || {
+	    echo >&2 "Exiting the bg apt-shell (pid $old_pid) (ignoring its status)."
+	    # Not to hang on waiting, we start a parallell subshell which
+	    # will kill it after a timeout (sleep). (Or which would just sleep,
+	    # and we'd wait -n on either processes, then kill it in the main
+	    # script.) Idea: https://stackoverflow.com/a/22384727/94687 .
+	    local killer_pid=
+	    kill -0 "$old_pid" &&
+		{ (sleep 5 &&
+		       kill "$old_pid" &&
+		       kill -0 "$old_pid" &&
+		       sleep 5 &&
+		       kill -KILL "$old_pid" ||: ) &
+		  killer_pid=$!
+		}
+	    local -r killer_pid
+	    wait "$old_pid" ||:
+	    [ -z "$killer_pid" ] || { kill -0 "$killer_pid" && kill "$killer_pid"; } ||:
+	}
+}
+
+bg_aptshell_restart() {
+	bg_aptshell_exit_helper "${BG_APTSHELL[1]-}" "${BG_APTSHELL_PID-}" \
+	    &>>"$BG_APTSHELL_LOG"
+
+	# Use the runapt() wrapper for APT_CONFIG (and the debug messages).
+	# (NB: runapt() should have not yet been redefined to send commands
+	# to the bg apt-shell!)
+        coproc BG_APTSHELL {
+	    runapt apt-shell # | tee "$BG_APTSHELL_LOG"
+	}
+
+	[ -n "${BG_APTSHELL_PID-}" ] ||
+		{ { echo BG_APTSHELL_LOG:; cat "$BG_APTSHELL_LOG"; echo; } >&2 ||:
+		  msgdie 'the bg apt-shell failed to start normally'
+		}
+
+	addtrap 'prefix' \
+		'bg_aptshell_exit_helper %q %q &>%q||:; [ "$EXIT_CODE" = 0 ] || if [ -e %q ]; then echo BG_APTSHELL_LOG:; cat %q ||:; echo; fi >&2;' \
+		"${BG_APTSHELL[1]}" \
+		"$BG_APTSHELL_PID" \
+		"$BG_APTSHELL_LOG" \
+		"$BG_APTSHELL_LOG" \
+		"$BG_APTSHELL_LOG"
+
+	bg_aptshell_read_response >/dev/null
+}
+
+runaptcmd_in_bg_apt_shell() {
+	msgdebug "CWD: $PWD"
+	local -r CMD="$1"; shift
+	msgdebug "Executing in bg apt-shell (normally $CMD): ${CCMD}$*${CDEBUG} "
+	echo "$*" >&"${BG_APTSHELL[1]}"
+
+	# Consume the echoed command (if any) in the output. (It seems that
+	# readline usually echoes the input, but sometimes maybe not.)
+	local the_rest_of_the_line
+	read -r the_rest_of_the_line <&"${BG_APTSHELL[0]}"
+	# Sanity check of our expectations:
+	[ "$the_rest_of_the_line" = "$*" ] || [ "$the_rest_of_the_line" = '' ]
+
+	bg_aptshell_read_response
+	# TODO: try to detect the status (success/error) based on the output
+}
+
+# The commands of apt-config are not available in apt-shell.
+#aptconfig_in_bg_apt_shell() { runaptcmd_in_bg_apt_shell apt-config "$@"; }
+aptcache_in_bg_apt_shell() { runaptcmd_in_bg_apt_shell apt-cache "$@"; }
+aptget_in_bg_apt_shell() { runaptcmd_in_bg_apt_shell apt-get "$@"; }
+aptmark_in_bg_apt_shell() { runaptcmd_in_bg_apt_shell apt-mark "$@"; }
