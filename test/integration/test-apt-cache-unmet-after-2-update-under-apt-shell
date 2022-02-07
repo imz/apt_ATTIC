@@ -1,0 +1,41 @@
+#!/bin/bash
+set -eu
+
+TESTDIR=$(readlink -f $(dirname $0))
+. $TESTDIR/framework
+
+setupenvironment
+
+buildpackage 'conflicting-package-distupgrade'
+buildpackage 'conflicting-package-one'
+buildpackage 'conflicting-package-two'
+buildpackage 'simple-package-new'
+buildpackage 'simple-package-noarch'
+buildpackage 'simple-package'
+buildpackage 'simple-package-update-conflict'
+buildpackage 'simple-package-update' # overwrites the previous built package
+
+generaterepository_and_switch_sources "$TMPWORKINGDIRECTORY/usr/src/RPM/RPMS"
+
+testsuccess aptget update
+
+testempty aptcache unmet
+
+buildpackage 'missing-dependency'
+
+case "$APT_TEST_METHOD" in
+	cdrom*)
+		# we have to run apt-cdrom add, and hence modify apt's sources, too
+		generaterepository_and_switch_sources "$TMPWORKINGDIRECTORY/usr/src/RPM/RPMS" "$(date +%s --date='now +1 day')"
+		;;
+	*)
+		# a simpler way, without modifying apt's sources
+		# REPO_STORAGE is set by the previous invocation of generaterepository_and_switch_sources
+		generaterepository "$TMPWORKINGDIRECTORY/usr/src/RPM/RPMS" "$REPO_STORAGE" "$(date +%s --date='now +1 day')"
+		;;
+esac
+
+testsuccess aptget update
+
+testregexmatch 'Package missing-dependency version 1-alt1@[0-9]+ has an unmet dep:
+ Depends: no-such-package' aptcache unmet
