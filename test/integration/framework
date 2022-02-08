@@ -252,7 +252,7 @@ generaterepository_and_switch_sources() {
 		cdrom*)
 			# overwrite old sources.list
 			echo >| rootdir/etc/apt/sources.list
-			aptcdrom add <<<$'\n'
+			aptcdrom add >&2 <<<$'\n'
 
 			APT_SOURCES_SITE="$(<"$MOCKUP_CDROM_STORAGE"/.disk/info)"
 			APT_SOURCES_URI="$APT_SOURCES_SITE"
