@@ -518,6 +518,7 @@ exec 1>&2
 
 %files -f %name.lang
 %_bindir/apt-*
+%_libexecdir/apt
 %_libdir/%name
 %exclude %_libdir/%name/methods/rsync
 %exclude %_libdir/%name/methods/https
