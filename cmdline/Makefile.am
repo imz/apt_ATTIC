@@ -1,5 +1,5 @@
 
-libexecaptdir=$(prefix)/lib/apt
+libexecaptdir=$(libexecdir)/apt
 
 EXTRA_DIST = indexcopy.cc indexcopy.h
 
