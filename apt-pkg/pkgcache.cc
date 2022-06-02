@@ -425,10 +425,8 @@ pkgCache::Version **pkgCache::DepIterator::AllTargets()
       }
    }
 
-   Version **Ret = new Version *[Size+1];
-   if (Size)
-      memcpy(Ret, Res, Size*sizeof(*Res));
-   Ret[Size] = 0;
+   Version ** const Ret = new Version *[Size+1];
+   *std::copy(&Res[0], &Res[Size], Ret) = 0;
    return Ret;
 }
 									/*}}}*/
