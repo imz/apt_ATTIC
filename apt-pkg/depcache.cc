@@ -904,9 +904,9 @@ void pkgDepCache::MarkInstallRec(PkgIterator const &Pkg,
 
       /* This bit is for processing the possibilty of an install/upgrade
          fixing the problem */
-      const SPtrArray<Version *> List(Start.AllTargets());
       if ((DepState[Start->ID] & DepCVer) == DepCVer)
       {
+         const SPtrArray<Version *> List(Start.AllTargets());
 	 // Right, find the best version to install..
 	 Version **Cur = List.get();
 	 PkgIterator P = Start.TargetPkg();
@@ -958,8 +958,9 @@ void pkgDepCache::MarkInstallRec(PkgIterator const &Pkg,
 
       /* For conflicts we just de-install the package and mark as auto,
          Conflicts may not have or groups */
-      if (Start->Type == Dep::Conflicts || Start->Type == Dep::Obsoletes)
+      else if (Start->Type == Dep::Conflicts || Start->Type == Dep::Obsoletes)
       {
+         const SPtrArray<Version *> List(Start.AllTargets());
 	 for (Version **I = List.get(); *I != 0; I++)
 	 {
 	    VerIterator Ver(*this,*I);
