@@ -397,7 +397,7 @@ pkgCache::Version **pkgCache::DepIterator::AllTargets()
 	    continue;
 
 	 Version *v = I;
-	 if (Res != 0 && Size > 0) {
+	 {
 	    bool seen = false;
 	    for (unsigned int j = 0; j < Size; ++j) {
 	       Version *vj = Res[j];
@@ -426,7 +426,7 @@ pkgCache::Version **pkgCache::DepIterator::AllTargets()
 	    continue;
 
 	 Version *v = I.OwnerVer();
-	 if (Res != 0 && Size > 0) {
+	 {
 	    bool seen = false;
 	    for (unsigned int j = 0; j < Size; ++j) {
 	       Version *vj = Res[j];
