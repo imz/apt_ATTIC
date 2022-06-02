@@ -1883,7 +1883,7 @@ static int nameCompare(const char* n1, const char* n2)
 
 // PrioSortList - Sort a list of versions by priority			/*{{{*/
 // ---------------------------------------------------------------------
-/* This is ment to be used in conjunction with AllTargets to get a list
+/* This is meant to be used in conjunction with AllTargets to get a list
    of versions ordered by preference. */
 static pkgCache *PrioCache;
 static int PrioComp(const void *A,const void *B)
