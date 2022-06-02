@@ -383,7 +383,7 @@ pkgCache::Version **pkgCache::DepIterator::AllTargets()
    Version *Res[1024];
    unsigned int Size = 0;
    {
-      PkgIterator DPkg = TargetPkg();
+      PkgIterator const DPkg = TargetPkg();
 
       // Walk along the actual package providing versions
       for (VerIterator I = DPkg.VersionList(); I.end() == false; I++)
