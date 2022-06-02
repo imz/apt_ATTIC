@@ -33,6 +33,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+#include <algorithm>
 #include <assert.h>
 
 #include <ctype.h>
@@ -396,19 +397,9 @@ pkgCache::Version **pkgCache::DepIterator::AllTargets()
 	     ParentPkg() == I.ParentPkg())
 	    continue;
 
-	 Version *v = I;
-	 {
-	    bool seen = false;
-	    for (unsigned int j = 0; j < Size; ++j) {
-	       Version *vj = Res[j];
-	       if (v == vj) {
-		  seen = true;
-		  break;
-	       }
-	    }
-	    if (seen)
-	       continue;
-	 }
+	 Version * const v = I;
+         if (std::find(&Res[0], &Res[Size], v) != &Res[Size])
+            continue;
 
 	 assert(Size < sizeof(Res)/sizeof(*Res));
 	 Res[Size++] = v;
@@ -425,19 +416,9 @@ pkgCache::Version **pkgCache::DepIterator::AllTargets()
 	     ParentPkg() == I.OwnerPkg())
 	    continue;
 
-	 Version *v = I.OwnerVer();
-	 {
-	    bool seen = false;
-	    for (unsigned int j = 0; j < Size; ++j) {
-	       Version *vj = Res[j];
-	       if (v == vj) {
-		  seen = true;
-		  break;
-	       }
-	    }
-	    if (seen)
-	       continue;
-	 }
+	 Version * const v = I.OwnerVer();
+         if (std::find(&Res[0], &Res[Size], v) != &Res[Size])
+            continue;
 
 	 assert(Size < sizeof(Res)/sizeof(*Res));
 	 Res[Size++] = v;
