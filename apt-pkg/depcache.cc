@@ -849,6 +849,14 @@ int pkgDepCache::MarkInstall0(PkgIterator const &Pkg)
    return 1;
 }
 
+// a helper for MarInstallRec()
+bool pkgDepCache::isCandidateVer(Version * const V) const
+{
+   VerIterator const Ver(*Cache,V);
+   PkgIterator const Pkg = Ver.ParentPkg();
+   return V == PkgState[Pkg->ID].CandidateVer;
+}
+
 void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
       bool const Restricted, std::set<PkgIterator> &MarkAgain,
       int const Depth, const char * const DebugStr)
@@ -918,8 +926,7 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 	 // See if there are direct matches (at the start of the list)
 	 for (; Start.IsTargetDirect(Cur); Cur++)
 	 {
-	    PkgIterator const TrgPkg = parentPkg(**Cur);
-	    if (PkgState[TrgPkg->ID].CandidateVer == *Cur)
+            if (isCandidateVer(*Cur))
                break;
 	 }
 
@@ -933,8 +940,7 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 	    pkgPrioSortList(*Cache,Cur);
 	    for (; *Cur != 0; Cur++)
 	    {
-	       PkgIterator const TrgPkg = parentPkg(**Cur);
-	       if (PkgState[TrgPkg->ID].CandidateVer == *Cur)
+               if (isCandidateVer(*Cur))
                {
                   if (CanSelect++ == 0)
                      TargetCandidateVer = *Cur;
