@@ -38,6 +38,7 @@
 #define PKGLIB_DEPCACHE_H
 
 #include <set>
+#include <optional>
 
 #include <apt-pkg/pkgcache.h>
 #include <apt-pkg/progress.h>
@@ -169,6 +170,9 @@ class pkgDepCache : protected pkgCache::Namespace
    inline void RemoveSizes(const PkgIterator &Pkg) {AddSizes(Pkg,-1);}
    void AddStates(const PkgIterator &Pkg,int Add = 1);
    inline void RemoveStates(const PkgIterator &Pkg) {AddStates(Pkg,-1);}
+
+   // a helper for MarInstallRec()
+   std::optional<PkgIterator> ParentPkgIfCandidateVer(const Version * V) const;
 
    public:
 

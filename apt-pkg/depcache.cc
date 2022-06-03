@@ -844,6 +844,16 @@ int pkgDepCache::MarkInstall0(PkgIterator const &Pkg)
    return 1;
 }
 
+std::optional<pkgDepCache::PkgIterator> pkgDepCache::ParentPkgIfCandidateVer(const Version * const V)
+   const
+{
+   PkgIterator const Pkg(*Cache,Cache->PkgP + V->ParentPkg);
+   if (PkgState[Pkg->ID].CandidateVer != V)
+      return std::nullopt;
+   else
+      return Pkg;
+}
+
 void pkgDepCache::MarkInstallRec(PkgIterator const &Pkg,
       bool Restricted, std::set<PkgIterator> &MarkAgain,
       unsigned long Depth, const char *DebugStr)
@@ -915,11 +925,11 @@ void pkgDepCache::MarkInstallRec(PkgIterator const &Pkg,
 	 // See if there are direct matches (at the start of the list)
 	 for (; *Cur != 0 && (*Cur)->ParentPkg == P.Index(); Cur++)
 	 {
-	    PkgIterator Pkg(*Cache,Cache->PkgP + (*Cur)->ParentPkg);
-	    if (PkgState[Pkg->ID].CandidateVer != *Cur)
-	       continue;
-	    InstPkg = Pkg;
-	    break;
+            if (std::optional<PkgIterator> const Pkg = ParentPkgIfCandidateVer(*Cur))
+            {
+               InstPkg = *Pkg;
+               break;
+            }
 	 }
 
 	 // Select the highest priority providing package
@@ -929,13 +939,13 @@ void pkgDepCache::MarkInstallRec(PkgIterator const &Pkg,
 	    pkgPrioSortList(*Cache,Cur);
 	    for (; *Cur != 0; Cur++)
 	    {
-	       PkgIterator Pkg(*Cache,Cache->PkgP + (*Cur)->ParentPkg);
-	       if (PkgState[Pkg->ID].CandidateVer != *Cur)
-		  continue;
-	       if (CanSelect++ == 0)
-		  InstPkg = Pkg;
-	       else
-		  break;
+               if (std::optional<PkgIterator> const Pkg = ParentPkgIfCandidateVer(*Cur))
+               {
+                  if (CanSelect++ == 0)
+                     InstPkg = *Pkg;
+                  else
+                     break;
+               }
 	    }
 	    // In restricted mode, skip ambiguous dependencies.
 	    if (Restricted && CanSelect > 1) {
