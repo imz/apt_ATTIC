@@ -7,7 +7,24 @@ TESTDIR=$(readlink -f $(dirname $0))
 setupenvironment
 
 buildpackage 'simple-package'
-buildpackage 'simple-package-update'
+readonly P=simple-package-update
+readonly N=$(( 3 * 1024 ))
+F="$(mktemp "${TESTDIRECTORY}/specs/$P-XXXX.spec")"
+F="${F%.spec}"
+readonly F
+addtrap 'rm -f %q.{spec,metainfo}' "$F"
+for (( i=2; i <= N; ++i )); do
+    sed -E \
+	-e 's/^Version:[[:space:]]* 2$/'"Version: $i/" \
+	-e 's/ 2-alt1$/'" $i-alt1/" \
+	<"${TESTDIRECTORY}/specs/$P.spec" \
+	>|"$F.spec"
+    sed -E \
+	-e 's/version=2$/'"version=$i/" \
+	<"${TESTDIRECTORY}/specs/$P.metainfo" \
+	>|"$F.metainfo"
+    buildpackage "${F##*/}"
+done
 buildpackage 'conflicting-package-one'
 buildpackage 'conflicting-package-distupgrade'
 
@@ -25,6 +42,11 @@ generaterepository_and_switch_sources "$TMPWORKINGDIRECTORY/usr/src/RPM/RPMS"
 
 testsuccess aptget update
 
-testsuccess aptget dist-upgrade -y
-testequal '2-alt1' getpackageversion 'simple-package'
-testequal '1-alt1' getpackageversion 'conflicting-package-one'
+# At least, it fails on assertion instead of badly overflowing the buffer.
+testregexmatch '.*: Assertion .* failed\.' aptget dist-upgrade -y
+testfailure
+
+# More correct behavior would be:
+#testsuccess aptget dist-upgrade -y
+#testequal "$N-alt1" getpackageversion 'simple-package'
+#testequal '1-alt1' getpackageversion 'conflicting-package-one'
