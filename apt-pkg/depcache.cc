@@ -875,10 +875,9 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 
    DEBUG_THIS("mark %s", Pkg.Name());
 
-   StateCache &P = PkgState[Pkg->ID];
-   DepIterator Dep = P.InstVerIter(*this).DependsList();
    bool AddMarkAgain = false;
-   for (; Dep.end() != true;)
+   for (DepIterator Dep = PkgState[Pkg->ID].InstVerIter(*this).DependsList();
+        Dep.end() != true;)
    {
       // Grok or groups
       DepIterator Start = Dep;
