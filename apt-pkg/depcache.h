@@ -215,11 +215,11 @@ class pkgDepCache : protected pkgCache::Namespace
    void MarkInstall2(PkgIterator const &Pkg);
    // compat
    void MarkInstall(PkgIterator const &Pkg, AutoMarkFlag AutoFlag, bool AutoInst = true,
-		    unsigned long Depth = 0);
+		    int Depth = 0);
    // implementation
    void MarkInstallRec(PkgIterator const &Pkg,
       bool Restricted, std::set<PkgIterator> &MarkAgain,
-      unsigned long Depth, const char *DebugStr);
+      int Depth, const char *DebugStr);
 
    void SetReInstall(PkgIterator const &Pkg,bool To);
    void SetCandidateVersion(VerIterator TargetVer);
