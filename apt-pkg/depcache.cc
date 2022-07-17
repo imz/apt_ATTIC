@@ -861,7 +861,7 @@ std::optional<pkgDepCache::PkgIterator> pkgDepCache::ParentPkgIfCandidateVer(con
 
 void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
       bool const Restricted, std::set<PkgIterator> &MarkAgain,
-      unsigned long const Depth, const char * const DebugStr)
+      int const Depth, const char * const DebugStr)
 {
    if (Depth > 100)
       return;
@@ -869,7 +869,7 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
       return;
 
 #define DEBUG_MI(n, fmt, ...) if (DebugStr) \
-   fprintf(stderr, "%s:%*s " fmt "\n", DebugStr, (int)Depth*2+n, "", __VA_ARGS__)
+   fprintf(stderr, "%s:%*s " fmt "\n", DebugStr, Depth*2+n, "", __VA_ARGS__)
 #define DEBUG_THIS(fmt, ...) DEBUG_MI(0, fmt, __VA_ARGS__)
 #define DEBUG_NEXT(fmt, ...) DEBUG_MI(1, fmt, __VA_ARGS__)
 
@@ -1013,7 +1013,7 @@ void pkgDepCache::MarkInstall2(PkgIterator const &Pkg)
 void pkgDepCache::MarkInstall(const PkgIterator &Pkg,
                               pkgDepCache::AutoMarkFlag const AutoFlag,
                               bool const AutoInst,
-			      unsigned long const Depth)
+			      int const Depth)
 {
    if (AutoInst == false)
       MarkInstall0(Pkg);
