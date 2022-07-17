@@ -210,7 +210,8 @@ class pkgDepCache : protected pkgCache::Namespace
    AutoMarkFlag getMarkAuto(const PkgIterator &Pkg, bool installing_behaves_as_installed = true, AutoMarkFlag value_if_package_not_installed = AutoMarkFlag::Auto) const;
 
    // shallow mark; ret: -1 err, 0 already marked, 1 just marked
-   int MarkInstall0(PkgIterator const &Pkg);
+   int MarkInstall0(PkgIterator const &Pkg,
+                    int Depth, const char *DebugStr);
    // full wavefront recursive mark
    void MarkInstall2(PkgIterator const &Pkg);
    // compat
