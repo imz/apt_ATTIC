@@ -816,6 +816,8 @@ pkgDepCache::AutoMarkFlag pkgDepCache::getMarkAuto(const PkgIterator &Pkg,
 int pkgDepCache::MarkInstall0(PkgIterator const &Pkg,
                               int const Depth, const char * const DebugStr)
 {
+   DEBUG_THIS("to mark for install (shallow): %s", ToDbgStr(Pkg).c_str());
+
    if (Pkg.end() == true)
       return -1;
 
@@ -862,8 +864,13 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
       bool const Restricted, std::set<PkgIterator> &MarkAgain,
       int const Depth, const char * const DebugStr)
 {
+   DEBUG_THIS("to mark for install (recursively): %s", ToDbgStr(Pkg).c_str());
+
    if (Depth > 100)
+   {
+      DEBUG_THIS("Too deep (%d)!", Depth);
       return;
+   }
    if (MarkInstall0(Pkg, Depth+1, DebugStr) <= 0)
       return;
 
