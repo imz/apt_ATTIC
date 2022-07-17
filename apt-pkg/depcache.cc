@@ -801,14 +801,25 @@ pkgDepCache::AutoMarkFlag pkgDepCache::getMarkAuto(const PkgIterator &Pkg,
    return (((PkgState[Pkg->ID].Flags & Flag::Auto) == Flag::Auto) ? AutoMarkFlag::Auto : AutoMarkFlag::Manual);
 }
 
+// For Mark*() functions
+#define DEBUG_MI(n, fmt, ...) if (DebugStr) \
+   fprintf(stderr, "%s:%*s " fmt "\n", DebugStr, Depth*2+n, "", __VA_ARGS__)
+#define DEBUG_THIS(fmt, ...) DEBUG_MI(0, fmt, __VA_ARGS__)
+#define DEBUG_NEXT(fmt, ...) DEBUG_MI(1, fmt, __VA_ARGS__)
 									/*}}}*/
 // DepCache::MarkInstall - Put the package in the install state		/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-int pkgDepCache::MarkInstall0(PkgIterator const &Pkg)
+int pkgDepCache::MarkInstall0(PkgIterator const &Pkg,
+                              int const Depth, const char * const DebugStr)
 {
    if (Pkg.end() == true)
+   {
+      DEBUG_THIS("to mark for install (leaf): %s", "(END)");
       return -1;
+   }
+
+   DEBUG_THIS("to mark for install (leaf): %s", Pkg.Name());
 
    /* Check that it is not already marked for install and that it can be
       installed */
@@ -863,17 +874,23 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
       bool const Restricted, std::set<PkgIterator> &MarkAgain,
       int const Depth, const char * const DebugStr)
 {
+   if (Pkg.end() == true)
+   {
+      DEBUG_THIS("to mark for install (recursively): %s", "(END)");
+      return;
+   }
+
+   DEBUG_THIS("to mark for install (recursively): %s", Pkg.Name());
+
    if (Depth > 100)
+   {
+      DEBUG_NEXT("Too deep (%d)!", Depth);
       return;
-   if (MarkInstall0(Pkg) <= 0)
+   }
+   if (MarkInstall0(Pkg, Depth+1, DebugStr) <= 0)
       return;
 
-#define DEBUG_MI(n, fmt, ...) if (DebugStr) \
-   fprintf(stderr, "%s:%*s " fmt "\n", DebugStr, Depth*2+n, "", __VA_ARGS__)
-#define DEBUG_THIS(fmt, ...) DEBUG_MI(0, fmt, __VA_ARGS__)
-#define DEBUG_NEXT(fmt, ...) DEBUG_MI(1, fmt, __VA_ARGS__)
-
-   DEBUG_THIS("mark %s", Pkg.Name());
+   DEBUG_NEXT("marked for install (leaf): %s", Pkg.Name());
 
    bool AddMarkAgain = false;
    for (DepIterator Dep = PkgState[Pkg->ID].InstVerIter(*this).DependsList();
@@ -915,6 +932,9 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
          succeed. We have already cached this.. */
       for (; Ors > 1 && (DepState[Start->ID] & DepCVer) != DepCVer; Ors--)
 	 Start++;
+
+      DEBUG_NEXT("satisfying %s: %s %s %s", Start.DepType(),
+                 Start.TargetPkg().Name(), Start.CompType(), Start.TargetVer());
 
       /* This bit is for processing the possibilty of an install/upgrade
          fixing the problem */
@@ -1015,7 +1035,8 @@ void pkgDepCache::MarkInstall(const PkgIterator &Pkg,
                               bool const AutoInst)
 {
    if (AutoInst == false)
-      MarkInstall0(Pkg);
+      MarkInstall0(Pkg,
+                   /* Debugging args */ 0, nullptr);
    else
       MarkInstall2(Pkg);
 
