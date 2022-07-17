@@ -221,7 +221,7 @@ class pkgDepCache : protected pkgCache::Namespace
    // implementation
    void MarkInstallRec(PkgIterator const &Pkg,
       bool Restricted, std::set<PkgIterator> &MarkAgain,
-      unsigned long Depth, const char *DebugStr);
+      int Depth, const char *DebugStr);
 
    public:
    void SetReInstall(PkgIterator const &Pkg,bool To);
