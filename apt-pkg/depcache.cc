@@ -813,7 +813,8 @@ pkgDepCache::AutoMarkFlag pkgDepCache::getMarkAuto(const PkgIterator &Pkg,
 // DepCache::MarkInstall - Put the package in the install state		/*{{{*/
 // ---------------------------------------------------------------------
 /* */
-int pkgDepCache::MarkInstall0(PkgIterator const &Pkg)
+int pkgDepCache::MarkInstall0(PkgIterator const &Pkg,
+                              int const Depth, const char * const DebugStr)
 {
    if (Pkg.end() == true)
       return -1;
@@ -863,7 +864,7 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 {
    if (Depth > 100)
       return;
-   if (MarkInstall0(Pkg) <= 0)
+   if (MarkInstall0(Pkg, Depth+1, DebugStr) <= 0)
       return;
 
    DEBUG_THIS("marked for install (shallow): %s", ToDbgStr(Pkg).c_str());
@@ -1021,7 +1022,8 @@ void pkgDepCache::MarkInstall(const PkgIterator &Pkg,
                               bool const AutoInst)
 {
    if (AutoInst == false)
-      MarkInstall0(Pkg);
+      MarkInstall0(Pkg,
+                   /* Debugging args */ 0, nullptr);
    else
       MarkInstall2(Pkg);
 

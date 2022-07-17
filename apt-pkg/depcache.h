@@ -214,7 +214,8 @@ class pkgDepCache : protected pkgCache::Namespace
    void MarkInstall(PkgIterator const &Pkg, AutoMarkFlag AutoFlag, bool AutoInst = true);
    protected:
    // shallow mark; ret: -1 err, 0 already marked, 1 just marked
-   int MarkInstall0(PkgIterator const &Pkg);
+   int MarkInstall0(PkgIterator const &Pkg,
+                    int Depth, const char *DebugStr);
    // full wavefront recursive mark
    void MarkInstall2(PkgIterator const &Pkg);
    // implementation
