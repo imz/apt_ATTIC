@@ -910,10 +910,10 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
          fixing the problem */
       if ((DepState[Start->ID] & DepCVer) == DepCVer)
       {
+	 PkgIterator const P = Start.TargetPkg();
          const SPtrArray<Version *> List(Start.AllTargets());
 	 // Right, find the best version to install..
 	 Version **Cur = List.get();
-	 PkgIterator const P = Start.TargetPkg();
 	 PkgIterator InstPkg(*Cache,0);
 
 	 // See if there are direct matches (at the start of the list)
