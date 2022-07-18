@@ -981,7 +981,7 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 
 	 DEBUG_NEXT("target %s", P.Name());
          // Recursion is always restricted
-         MarkInstallRec(parentPkg(TargetCandidateVer),/*Restricted*/true,MarkAgain,Depth+1,DebugStr);
+         MarkInstallRec(parentPkg(*TargetCandidateVer),/*Restricted*/true,MarkAgain,Depth+1,DebugStr);
       }
 
       /* For conflicts we just de-install the package and mark as auto,
