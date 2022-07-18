@@ -938,22 +938,21 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
                return *I == nullptr || (*I)->ParentPkg != P.Index();
             };
 	 // Right, find the best version to install..
-         const Version * TargetCandidateVer = nullptr;
 	 Version **Cur = List.get();
 
 	 // See if there are direct matches (at the start of the list)
 	 for (; !isEndOfDirectTargets(Cur); Cur++)
 	 {
             if (isCandidateVer(*Cur))
-            {
-               TargetCandidateVer = *Cur;
                break;
-            }
 	 }
 
-	 // Select the highest priority providing package
-	 if (isEndOfDirectTargets(Cur))
-	 {
+         const Version * TargetCandidateVer = nullptr;
+	 if (!isEndOfDirectTargets(Cur))
+            // Found a "direct" target.
+            TargetCandidateVer = *Cur;
+         else
+	 { // Select the highest priority providing package
 	    int CanSelect = 0;
 	    pkgPrioSortList(*Cache,Cur);
 	    for (; *Cur != 0; Cur++)
