@@ -957,8 +957,13 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 
          Version * TargetCandidateVer = nullptr;
 	 if (!isEndOfDirectTargets(Cur))
+         {
             // Found a "direct" target.
             TargetCandidateVer = *Cur;
+            VerIterator const TrgVer(*Cache,TargetCandidateVer);
+            PkgIterator const TrgPkg = TrgVer.ParentPkg();
+            DEBUG_NEXT("found a direct target: %s %s", TrgPkg.Name(), TrgVer.VerStr());
+         }
          else
 	 { // Select the highest priority providing package
 	    int CanSelect = 0;
@@ -968,28 +973,38 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
                if (isCandidateVer(*Cur))
                {
                   if (CanSelect++ == 0)
+                  {
                      TargetCandidateVer = *Cur;
+                     VerIterator const TrgVer(*Cache,TargetCandidateVer);
+                     PkgIterator const TrgPkg = TrgVer.ParentPkg();
+                     DEBUG_NEXT("found a providing target: %s %s", TrgPkg.Name(), TrgVer.VerStr());
+                  }
                   else
                      break;
                }
 	    }
-	    // In restricted mode, skip ambiguous dependencies.
-	    if (Restricted && CanSelect > 1) {
-	       DEBUG_NEXT("target %s AMBI", P.Name());
-	       AddMarkAgain = true;
-	       continue;
+	    if (CanSelect > 1) {
+               VerIterator const TrgVer(*Cache,*Cur);
+               PkgIterator const TrgPkg = TrgVer.ParentPkg();
+               DEBUG_NEXT("found another providing target: %s %s", TrgPkg.Name(), TrgVer.VerStr());
+               // In restricted mode, skip ambiguous dependencies.
+               if (Restricted) {
+                  DEBUG_NEXT("target %s", "AMBI");
+                  AddMarkAgain = true;
+                  continue;
+               }
 	    }
 	 }
 
 	 if (TargetCandidateVer == nullptr)
 	 {
-            DEBUG_NEXT("target %s NONE", P.Name());
+            DEBUG_NEXT("target %s", "NONE");
             continue;
 	 }
 
          VerIterator const TrgVer(*Cache,TargetCandidateVer);
          PkgIterator const TrgPkg = TrgVer.ParentPkg();
-	 DEBUG_NEXT("target %s", P.Name());
+	 DEBUG_NEXT("target SELECTED: %s %s", TrgPkg.Name(), TrgVer.VerStr());
          // Recursion is always restricted
          MarkInstallRec(TrgPkg,/*Restricted*/true,MarkAgain,Depth+1,DebugStr);
       }
