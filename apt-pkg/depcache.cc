@@ -1005,7 +1005,7 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 
          VerIterator const TrgVer(*Cache,TargetCandidateVer);
          PkgIterator const TrgPkg = TrgVer.ParentPkg();
-	 DEBUG_NEXT("target SELECTED: %s %s", TrgPkg.Name(), TrgVer.VerStr());
+	 DEBUG_NEXT("target selected: %s %s", TrgPkg.Name(), TrgVer.VerStr());
          // Recursion is always restricted
          MarkInstallRec(TrgPkg,/*Restricted*/true,MarkAgain,Depth+1,DebugStr);
       }
