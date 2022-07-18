@@ -860,16 +860,6 @@ int pkgDepCache::MarkInstall0(PkgIterator const &Pkg,
    return 1;
 }
 
-std::optional<pkgDepCache::PkgIterator> pkgDepCache::ParentPkgIfCandidateVer(const Version * const V)
-   const
-{
-   PkgIterator const Pkg(*Cache,Cache->PkgP + V->ParentPkg);
-   if (PkgState[Pkg->ID].CandidateVer != V)
-      return std::nullopt;
-   else
-      return Pkg;
-}
-
 void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
       bool const Restricted, std::set<PkgIterator> &MarkAgain,
       int const Depth, const char * const DebugStr)
@@ -949,7 +939,7 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 	 // See if there are direct matches (at the start of the list)
 	 for (; *Cur != 0 && (*Cur)->ParentPkg == P.Index(); Cur++)
 	 {
-            if (std::optional<PkgIterator> const Pkg = ParentPkgIfCandidateVer(*Cur))
+            if (std::optional<PkgIterator> const Pkg = isCandidateVer(*Cur))
             {
                InstPkg = *Pkg;
                break;
@@ -963,7 +953,7 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 	    pkgPrioSortList(*Cache,Cur);
 	    for (; *Cur != 0; Cur++)
 	    {
-               if (std::optional<PkgIterator> const Pkg = ParentPkgIfCandidateVer(*Cur))
+               if (std::optional<PkgIterator> const Pkg = isCandidateVer(*Cur))
                {
                   if (CanSelect++ == 0)
                      InstPkg = *Pkg;
