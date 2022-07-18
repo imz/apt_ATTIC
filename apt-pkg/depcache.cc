@@ -913,7 +913,6 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 	 const char * const DepName = Start.TargetPkg().Name();
          const SPtrArray<Version *> List(Start.AllTargets());
 	 // Right, find the best version to install..
-         Version * TargetCandidateVer = nullptr;
 	 Version **Cur = List.get();
 
 	 // See if there are direct matches (at the start of the list)
@@ -921,15 +920,15 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 	 {
 	    PkgIterator const TrgPkg = parentPkg(**Cur);
 	    if (PkgState[TrgPkg->ID].CandidateVer == *Cur)
-            {
-               TargetCandidateVer = *Cur;
                break;
-            }
 	 }
 
-	 // Select the highest priority providing package
-	 if (!Start.IsTargetDirect(Cur))
-	 {
+         Version * TargetCandidateVer = nullptr;
+	 if (Start.IsTargetDirect(Cur))
+            // Found a "direct" target.
+            TargetCandidateVer = *Cur;
+         else
+	 { // Select the highest priority providing package
 	    int CanSelect = 0;
 	    pkgPrioSortList(*Cache,Cur);
 	    for (; *Cur != 0; Cur++)
