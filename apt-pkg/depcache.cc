@@ -913,8 +913,8 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 	 const char * const DepName = Start.TargetPkg().Name();
          const SPtrArray<Version *> List(Start.AllTargets());
 	 // Right, find the best version to install..
+         Version * TargetCandidateVer = nullptr;
 	 Version **Cur = List.get();
-	 PkgIterator InstPkg(*Cache,0);
 
 	 // See if there are direct matches (at the start of the list)
 	 for (; Start.IsTargetDirect(Cur); Cur++)
@@ -922,7 +922,7 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 	    PkgIterator const TrgPkg = parentPkg(**Cur);
 	    if (PkgState[TrgPkg->ID].CandidateVer == *Cur)
             {
-               InstPkg = TrgPkg;
+               TargetCandidateVer = *Cur;
                break;
             }
 	 }
@@ -938,7 +938,7 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 	       if (PkgState[TrgPkg->ID].CandidateVer == *Cur)
                {
                   if (CanSelect++ == 0)
-                     InstPkg = TrgPkg;
+                     TargetCandidateVer = *Cur;
                   else
                      break;
                }
@@ -951,12 +951,14 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 	    }
 	 }
 
-	 if (InstPkg.end() == true)
+	 if (TargetCandidateVer == nullptr)
 	 {
             DEBUG_NEXT("target %s NONE", DepName);
             continue;
 	 }
 
+         VerIterator const InstVer(*Cache,TargetCandidateVer);
+         PkgIterator const InstPkg = InstVer.ParentPkg();
 	 DEBUG_NEXT("target %s", DepName);
          // Recursion is always restricted
          MarkInstallRec(InstPkg,/*Restricted*/true,MarkAgain,Depth+1,DebugStr);
