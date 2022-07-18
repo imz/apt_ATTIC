@@ -864,7 +864,7 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 #define DEBUG_NEXT(fmt, ...) DEBUG_MI(1, fmt, __VA_ARGS__)
 #define DEBUG_NEXT2(fmt, ...) DEBUG_MI(2, fmt, __VA_ARGS__)
 
-   DEBUG_THIS("mark %s", ToDbgStr(Pkg).c_str());
+   DEBUG_THIS("marked for install (shallow): %s", ToDbgStr(Pkg).c_str());
 
    bool AddMarkAgain = false;
    for (DepIterator Dep = PkgState[Pkg->ID].InstVerIter(*this).DependsList();
@@ -907,11 +907,12 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
       for (; Ors > 1 && (DepState[Start->ID] & DepCVer) != DepCVer; Ors--)
 	 Start++;
 
+      DEBUG_NEXT("satisfying %s", ToDbgStr(Start).c_str());
+
       /* This bit is for processing the possibilty of an install/upgrade
          fixing the problem */
       if ((DepState[Start->ID] & DepCVer) == DepCVer)
       {
-         std::string const DepName = ToDbgStr(Start.TargetPkg());
          const SPtrArray<Version *> List(Start.AllTargets());
 	 // Right, find the best version to install..
 	 Version **Cur = List.get();
@@ -926,8 +927,12 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 
          Version * TargetCandidateVer = nullptr;
 	 if (Start.IsTargetDirect(Cur))
+         {
             // Found a "direct" target.
             TargetCandidateVer = *Cur;
+            VerIterator const TrgVer(*Cache,TargetCandidateVer);
+            DEBUG_NEXT2("found a direct target: %s", ToDbgStr(TrgVer).c_str());
+         }
          else
 	 { // Select the highest priority providing package
 	    int CanSelect = 0;
@@ -938,30 +943,37 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 	       if (PkgState[TrgPkg->ID].CandidateVer == *Cur)
                {
                   if (CanSelect++ == 0)
+                  {
                      TargetCandidateVer = *Cur;
+                     VerIterator const TrgVer(*Cache,TargetCandidateVer);
+                     DEBUG_NEXT2("found a providing target: %s", ToDbgStr(TrgVer).c_str());
+                  }
                   else
                      break;
                }
 	    }
-	    // In restricted mode, skip ambiguous dependencies.
-	    if (Restricted && CanSelect > 1) {
-	       DEBUG_NEXT("target %s AMBI", DepName.c_str());
-	       AddMarkAgain = true;
-	       continue;
+	    if (CanSelect > 1) {
+               VerIterator const TrgVer(*Cache,*Cur);
+               DEBUG_NEXT2("found another providing target: %s", ToDbgStr(TrgVer).c_str());
+               // In restricted mode, skip ambiguous dependencies.
+               if (Restricted) {
+                  DEBUG_NEXT("target %s", "AMBI");
+                  AddMarkAgain = true;
+                  continue;
+               }
 	    }
 	 }
 
 	 if (TargetCandidateVer == nullptr)
 	 {
-            DEBUG_NEXT("target %s NONE", DepName.c_str());
+            DEBUG_NEXT("target %s", "NONE");
             continue;
 	 }
 
          VerIterator const InstVer(*Cache,TargetCandidateVer);
-         PkgIterator const InstPkg = InstVer.ParentPkg();
-	 DEBUG_NEXT("target %s", DepName.c_str());
+	 DEBUG_NEXT("target SELECTED: %s", ToDbgStr(InstVer).c_str());
          // Recursion is always restricted
-         MarkInstallRec(InstPkg,/*Restricted*/true,MarkAgain,Depth+1,DebugStr);
+         MarkInstallRec(InstVer.ParentPkg(),/*Restricted*/true,MarkAgain,Depth+1,DebugStr);
       }
 
       /* For conflicts we just de-install the package and mark as auto,
@@ -972,7 +984,7 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 	 for (Version * const *I = List.get(); *I != 0; I++)
 	 {
 	    VerIterator const TrgVer(*Cache,*I);
-            DEBUG_NEXT("target to delete: %s", ToDbgStr(TrgVer).c_str());
+            DEBUG_NEXT2("target to delete: %s", ToDbgStr(TrgVer).c_str());
 	    PkgIterator const TrgPkg = TrgVer.ParentPkg();
 	    MarkDelete(TrgPkg);
 	    MarkAuto(TrgPkg, getMarkAuto(TrgPkg));
