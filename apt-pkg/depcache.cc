@@ -932,31 +932,36 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
       {
 	 PkgIterator const P = Start.TargetPkg();
          const SPtrArray<Version *> List(Start.AllTargets());
+         auto const isEndOfDirectTargets =
+            [P](const Version * const * const I)
+            {
+               return *I == nullptr || (*I)->ParentPkg != P.Index();
+            };
 	 // Right, find the best version to install..
+         const Version * TargetCandidateVer = nullptr;
 	 Version **Cur = List.get();
-	 PkgIterator InstPkg(*Cache,0);
 
 	 // See if there are direct matches (at the start of the list)
-	 for (; *Cur != 0 && (*Cur)->ParentPkg == P.Index(); Cur++)
+	 for (; !isEndOfDirectTargets(Cur); Cur++)
 	 {
-            if (std::optional<PkgIterator> const Pkg = isCandidateVer(*Cur))
+            if (isCandidateVer(*Cur))
             {
-               InstPkg = *Pkg;
+               TargetCandidateVer = *Cur;
                break;
             }
 	 }
 
 	 // Select the highest priority providing package
-	 if (InstPkg.end() == true)
+	 if (isEndOfDirectTargets(Cur))
 	 {
 	    int CanSelect = 0;
 	    pkgPrioSortList(*Cache,Cur);
 	    for (; *Cur != 0; Cur++)
 	    {
-               if (std::optional<PkgIterator> const Pkg = isCandidateVer(*Cur))
+               if (isCandidateVer(*Cur))
                {
                   if (CanSelect++ == 0)
-                     InstPkg = *Pkg;
+                     TargetCandidateVer = *Cur;
                   else
                      break;
                }
@@ -969,7 +974,7 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 	    }
 	 }
 
-	 if (InstPkg.end() == true)
+	 if (TargetCandidateVer == nullptr)
 	 {
             DEBUG_NEXT("target %s NONE", P.Name());
             continue;
@@ -977,7 +982,7 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 
 	 DEBUG_NEXT("target %s", P.Name());
          // Recursion is always restricted
-         MarkInstallRec(InstPkg,/*Restricted*/true,MarkAgain,Depth+1,DebugStr);
+         MarkInstallRec(parentPkg(TargetCandidateVer),/*Restricted*/true,MarkAgain,Depth+1,DebugStr);
       }
 
       /* For conflicts we just de-install the package and mark as auto,
