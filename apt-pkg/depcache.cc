@@ -947,7 +947,7 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
                break;
 	 }
 
-         const Version * TargetCandidateVer = nullptr;
+         Version * TargetCandidateVer = nullptr;
 	 if (!isEndOfDirectTargets(Cur))
             // Found a "direct" target.
             TargetCandidateVer = *Cur;
