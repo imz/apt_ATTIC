@@ -919,7 +919,7 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 	 // See if there are direct matches (at the start of the list)
 	 for (; *Cur != 0 && (*Cur)->ParentPkg == P.Index(); Cur++)
 	 {
-	    PkgIterator const TrgPkg(*Cache,Cache->PkgP + (*Cur)->ParentPkg);
+	    PkgIterator const TrgPkg = parentPkg(**Cur);
 	    if (PkgState[TrgPkg->ID].CandidateVer == *Cur)
             {
                InstPkg = TrgPkg;
@@ -934,7 +934,7 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 	    pkgPrioSortList(*Cache,Cur);
 	    for (; *Cur != 0; Cur++)
 	    {
-	       PkgIterator const TrgPkg(*Cache,Cache->PkgP + (*Cur)->ParentPkg);
+	       PkgIterator const TrgPkg = parentPkg(**Cur);
 	       if (PkgState[TrgPkg->ID].CandidateVer == *Cur)
                {
                   if (CanSelect++ == 0)
