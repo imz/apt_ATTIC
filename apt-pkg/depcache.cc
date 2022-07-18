@@ -803,9 +803,10 @@ pkgDepCache::AutoMarkFlag pkgDepCache::getMarkAuto(const PkgIterator &Pkg,
 
 // For Mark*() functions
 #define DEBUG_MI(n, fmt, ...) if (DebugStr) \
-   fprintf(stderr, "%s:%*s " fmt "\n", DebugStr, Depth*2+n, "", __VA_ARGS__)
+   fprintf(stderr, "%s:%*s " fmt "\n", DebugStr, Depth*3+n, "", __VA_ARGS__)
 #define DEBUG_THIS(fmt, ...) DEBUG_MI(0, fmt, __VA_ARGS__)
 #define DEBUG_NEXT(fmt, ...) DEBUG_MI(1, fmt, __VA_ARGS__)
+#define DEBUG_NEXT2(fmt, ...) DEBUG_MI(2, fmt, __VA_ARGS__)
 									/*}}}*/
 // DepCache::MarkInstall - Put the package in the install state		/*{{{*/
 // ---------------------------------------------------------------------
@@ -962,7 +963,7 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
             TargetCandidateVer = *Cur;
             VerIterator const TrgVer(*Cache,TargetCandidateVer);
             PkgIterator const TrgPkg = TrgVer.ParentPkg();
-            DEBUG_NEXT("found a direct target: %s %s", TrgPkg.Name(), TrgVer.VerStr());
+            DEBUG_NEXT2("found a direct target: %s %s", TrgPkg.Name(), TrgVer.VerStr());
          }
          else
 	 { // Select the highest priority providing package
@@ -977,7 +978,7 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
                      TargetCandidateVer = *Cur;
                      VerIterator const TrgVer(*Cache,TargetCandidateVer);
                      PkgIterator const TrgPkg = TrgVer.ParentPkg();
-                     DEBUG_NEXT("found a providing target: %s %s", TrgPkg.Name(), TrgVer.VerStr());
+                     DEBUG_NEXT2("found a providing target: %s %s", TrgPkg.Name(), TrgVer.VerStr());
                   }
                   else
                      break;
@@ -986,7 +987,7 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 	    if (CanSelect > 1) {
                VerIterator const TrgVer(*Cache,*Cur);
                PkgIterator const TrgPkg = TrgVer.ParentPkg();
-               DEBUG_NEXT("found another providing target: %s %s", TrgPkg.Name(), TrgVer.VerStr());
+               DEBUG_NEXT2("found another providing target: %s %s", TrgPkg.Name(), TrgVer.VerStr());
                // In restricted mode, skip ambiguous dependencies.
                if (Restricted) {
                   DEBUG_NEXT("target %s", "AMBI");
@@ -1018,7 +1019,7 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 	 {
 	    VerIterator const TrgVer(*Cache,*I);
 	    PkgIterator const TrgPkg = TrgVer.ParentPkg();
-            DEBUG_NEXT("target TO DELETE: %s %s", TrgPkg.Name(), TrgVer.VerStr());
+            DEBUG_NEXT2("target TO DELETE: %s %s", TrgPkg.Name(), TrgVer.VerStr());
 	    MarkDelete(TrgPkg);
 	    MarkAuto(TrgPkg, getMarkAuto(TrgPkg));
 	 }
