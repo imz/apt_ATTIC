@@ -1001,11 +1001,11 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
          const SPtrArray<Version * const> List(Start.AllTargets());
 	 for (Version * const *I = List.get(); *I != 0; I++)
 	 {
-	    VerIterator const Ver(*this,*I);
-	    PkgIterator const Pkg = Ver.ParentPkg();
-	    DEBUG_NEXT("delete %s", Pkg.Name());
-	    MarkDelete(Pkg);
-	    MarkAuto(Pkg, getMarkAuto(Pkg));
+	    VerIterator const TrgVer(*Cache,*I);
+	    PkgIterator const TrgPkg = TrgVer.ParentPkg();
+	    DEBUG_NEXT("delete %s", TrgPkg.Name());
+	    MarkDelete(TrgPkg);
+	    MarkAuto(TrgPkg, getMarkAuto(TrgPkg));
 	 }
       }
    }
