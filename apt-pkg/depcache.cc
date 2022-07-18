@@ -1019,7 +1019,7 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 	 {
 	    VerIterator const TrgVer(*Cache,*I);
 	    PkgIterator const TrgPkg = TrgVer.ParentPkg();
-            DEBUG_NEXT2("target TO DELETE: %s %s", TrgPkg.Name(), TrgVer.VerStr());
+            DEBUG_NEXT2("target to delete: %s %s", TrgPkg.Name(), TrgVer.VerStr());
 	    MarkDelete(TrgPkg);
 	    MarkAuto(TrgPkg, getMarkAuto(TrgPkg));
 	 }
