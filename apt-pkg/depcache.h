@@ -171,8 +171,8 @@ class pkgDepCache : protected pkgCache::Namespace
    inline void RemoveStates(const PkgIterator &Pkg) {AddStates(Pkg,-1);}
 
    // helpers for MarInstallRec()
-   PkgIterator parentPkg(const Version &V) const { return PkgIterator(*Cache,Cache->PkgP + V.ParentPkg); }
-   bool isCandidateVer(const Version * const V) const { return V == PkgState[parentPkg(*V)->ID].CandidateVer; }
+   PkgIterator parentPkg(Version &V) const { return VerIterator(*Cache,&V).ParentPkg(); }
+   bool isCandidateVer(Version * const V) const { return V == PkgState[parentPkg(*V)->ID].CandidateVer; }
 
    public:
 
