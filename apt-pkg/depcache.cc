@@ -860,6 +860,14 @@ int pkgDepCache::MarkInstall0(PkgIterator const &Pkg,
    return 1;
 }
 
+// a helper for MarInstallRec()
+bool pkgDepCache::isCandidateVer(Version * const V) const
+{
+   VerIterator const Ver(*Cache,V);
+   PkgIterator const Pkg = Ver.ParentPkg();
+   return V == PkgState[Pkg->ID].CandidateVer;
+}
+
 void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
       bool const Restricted, std::set<PkgIterator> &MarkAgain,
       int const Depth, const char * const DebugStr)
@@ -979,9 +987,11 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
             continue;
 	 }
 
+         VerIterator const TrgVer(*Cache,TargetCandidateVer);
+         PkgIterator const TrgPkg = TrgVer.ParentPkg();
 	 DEBUG_NEXT("target %s", P.Name());
          // Recursion is always restricted
-         MarkInstallRec(parentPkg(*TargetCandidateVer),/*Restricted*/true,MarkAgain,Depth+1,DebugStr);
+         MarkInstallRec(TrgPkg,/*Restricted*/true,MarkAgain,Depth+1,DebugStr);
       }
 
       /* For conflicts we just de-install the package and mark as auto,
