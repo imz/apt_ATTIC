@@ -910,14 +910,14 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
          fixing the problem */
       if ((DepState[Start->ID] & DepCVer) == DepCVer)
       {
-	 PkgIterator const P = Start.TargetPkg();
+	 const char * const DepName = Start.TargetPkg().Name();
          const SPtrArray<Version *> List(Start.AllTargets());
 	 // Right, find the best version to install..
 	 Version **Cur = List.get();
 	 PkgIterator InstPkg(*Cache,0);
 
 	 // See if there are direct matches (at the start of the list)
-	 for (; *Cur != 0 && (*Cur)->ParentPkg == P.Index(); Cur++)
+	 for (; Start.IsTargetDirect(Cur); Cur++)
 	 {
 	    PkgIterator const TrgPkg = parentPkg(**Cur);
 	    if (PkgState[TrgPkg->ID].CandidateVer == *Cur)
@@ -928,7 +928,7 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 	 }
 
 	 // Select the highest priority providing package
-	 if (InstPkg.end() == true)
+	 if (!Start.IsTargetDirect(Cur))
 	 {
 	    int CanSelect = 0;
 	    pkgPrioSortList(*Cache,Cur);
@@ -945,7 +945,7 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 	    }
 	    // In restricted mode, skip ambiguous dependencies.
 	    if (Restricted && CanSelect > 1) {
-	       DEBUG_NEXT("target %s AMBI", P.Name());
+	       DEBUG_NEXT("target %s AMBI", DepName);
 	       AddMarkAgain = true;
 	       continue;
 	    }
@@ -953,11 +953,11 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 
 	 if (InstPkg.end() == true)
 	 {
-            DEBUG_NEXT("target %s NONE", P.Name());
+            DEBUG_NEXT("target %s NONE", DepName);
             continue;
 	 }
 
-	 DEBUG_NEXT("target %s", P.Name());
+	 DEBUG_NEXT("target %s", DepName);
          // Recursion is always restricted
          MarkInstallRec(InstPkg,/*Restricted*/true,MarkAgain,Depth+1,DebugStr);
       }
