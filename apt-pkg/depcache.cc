@@ -939,10 +939,9 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
          fixing the problem */
       if ((DepState[Start->ID] & DepCVer) == DepCVer)
       {
-	 PkgIterator const P = Start.TargetPkg();
          const SPtrArray<Version *> List(Start.AllTargets());
          auto const isEndOfDirectTargets =
-            [P](const Version * const * const I)
+            [P = Start.TargetPkg()](const Version * const * const I)
             {
                return *I == nullptr || (*I)->ParentPkg != P.Index();
             };
