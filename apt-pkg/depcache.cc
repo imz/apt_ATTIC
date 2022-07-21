@@ -940,23 +940,18 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
       if ((DepState[Start->ID] & DepCVer) == DepCVer)
       {
          const SPtrArray<Version *> List(Start.AllTargets());
-         auto const isEndOfDirectTargets =
-            [P = Start.TargetPkg()](const Version * const * const I) -> bool
-            {
-               return *I == nullptr || (*I)->ParentPkg != P.Index();
-            };
 	 // Right, find the best version to install..
 	 Version **Cur = List.get();
 
 	 // See if there are direct matches (at the start of the list)
-	 for (; !isEndOfDirectTargets(Cur); Cur++)
+	 for (; Start.IsTargetDirect(Cur); Cur++)
 	 {
             if (isCandidateVer(*Cur))
                break;
 	 }
 
          Version * TargetCandidateVer = nullptr;
-	 if (!isEndOfDirectTargets(Cur))
+	 if (Start.IsTargetDirect(Cur))
          {
             // Found a "direct" target.
             TargetCandidateVer = *Cur;
