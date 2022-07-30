@@ -863,7 +863,7 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 #define DEBUG_THIS(fmt, ...) DEBUG_MI(0, fmt, __VA_ARGS__)
 #define DEBUG_NEXT(fmt, ...) DEBUG_MI(1, fmt, __VA_ARGS__)
 
-   DEBUG_THIS("mark %s", Pkg.Name());
+   DEBUG_THIS("mark %s", ToDbgStr(Pkg).c_str());
 
    bool AddMarkAgain = false;
    for (DepIterator Dep = PkgState[Pkg->ID].InstVerIter(*this).DependsList();
@@ -910,7 +910,7 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
          fixing the problem */
       if ((DepState[Start->ID] & DepCVer) == DepCVer)
       {
-	 const char * const DepName = Start.TargetPkg().Name();
+         std::string const DepName = ToDbgStr(Start.TargetPkg());
          const SPtrArray<Version *> List(Start.AllTargets());
 	 // Right, find the best version to install..
 	 Version **Cur = List.get();
@@ -944,7 +944,7 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 	    }
 	    // In restricted mode, skip ambiguous dependencies.
 	    if (Restricted && CanSelect > 1) {
-	       DEBUG_NEXT("target %s AMBI", DepName);
+	       DEBUG_NEXT("target %s AMBI", DepName.c_str());
 	       AddMarkAgain = true;
 	       continue;
 	    }
@@ -952,13 +952,13 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 
 	 if (TargetCandidateVer == nullptr)
 	 {
-            DEBUG_NEXT("target %s NONE", DepName);
+            DEBUG_NEXT("target %s NONE", DepName.c_str());
             continue;
 	 }
 
          VerIterator const InstVer(*Cache,TargetCandidateVer);
          PkgIterator const InstPkg = InstVer.ParentPkg();
-	 DEBUG_NEXT("target %s", DepName);
+	 DEBUG_NEXT("target %s", DepName.c_str());
          // Recursion is always restricted
          MarkInstallRec(InstPkg,/*Restricted*/true,MarkAgain,Depth+1,DebugStr);
       }
@@ -972,7 +972,7 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 	 {
 	    VerIterator const TrgVer(*Cache,*I);
 	    PkgIterator const TrgPkg = TrgVer.ParentPkg();
-	    DEBUG_NEXT("delete %s", TrgPkg.Name());
+	    DEBUG_NEXT("delete %s", ToDbgStr(TrgPkg).c_str());
 	    MarkDelete(TrgPkg);
 	    MarkAuto(TrgPkg, getMarkAuto(TrgPkg));
 	 }
