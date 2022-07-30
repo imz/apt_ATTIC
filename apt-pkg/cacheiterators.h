@@ -380,4 +380,38 @@ inline pkgCache::DepIterator pkgCache::VerIterator::DependsList() const
 inline pkgCache::VerFileIterator pkgCache::VerIterator::FileList() const
        {return VerFileIterator(*Owner,Owner->VerFileP + Ver->FileList);}
 
+// Helpers for debugging
+
+inline std::string ToDbgStr(const pkgCache::PkgIterator &P)
+{
+   if (P.end())
+      return "(END)";
+   return
+      P.Name(); // NULL would be unexpected here, don't care
+}
+
+inline std::string ToDbgStr(const pkgCache::VerIterator &V)
+{
+   if (V.end())
+      return "(END)";
+   return
+      ToDbgStr(V.ParentPkg())
+      + " "
+      + V.VerStr(); // NULL would be unexpected here, don't care
+}
+
+inline std::string ToDbgStr(const pkgCache::DepIterator &D)
+{
+   if (D.end())
+      return "(END)";
+   return
+      std::string(D.DepType())
+      + ": "
+      + ToDbgStr(D.TargetPkg())
+      + " "
+      + D.CompType()
+      + " "
+      + (D.TargetVer() ?: "(NULL)");
+}
+
 #endif
