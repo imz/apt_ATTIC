@@ -800,14 +800,14 @@ pkgDepCache::AutoMarkFlag pkgDepCache::getMarkAuto(const PkgIterator &Pkg,
 
    return (((PkgState[Pkg->ID].Flags & Flag::Auto) == Flag::Auto) ? AutoMarkFlag::Auto : AutoMarkFlag::Manual);
 }
-
+									/*}}}*/
 // For Mark*() functions
 #define DEBUG_MI(n, fmt, ...) if (DebugStr) \
    fprintf(stderr, "%s:%*s " fmt "\n", DebugStr, Depth*3+n, "", __VA_ARGS__)
 #define DEBUG_THIS(fmt, ...) DEBUG_MI(0, fmt, __VA_ARGS__)
 #define DEBUG_NEXT(fmt, ...) DEBUG_MI(1, fmt, __VA_ARGS__)
 #define DEBUG_NEXT2(fmt, ...) DEBUG_MI(2, fmt, __VA_ARGS__)
-									/*}}}*/
+
 // DepCache::MarkInstall - Put the package in the install state		/*{{{*/
 // ---------------------------------------------------------------------
 /* */
