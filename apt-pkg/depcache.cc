@@ -65,6 +65,23 @@ class pkgDepCache::DbgLogger
          printMsg(0, msg);
    }
 
+   // A little help to invoke us in a simpler way. (Not universal though...)
+
+   template<typename T>
+   void traceTraversal(unsigned int const nesting,
+                       const char * const msg, const T &arg) const
+   {
+      traceTraversal(nesting, std::string(msg) + " " + ToDbgStr(arg));
+      // append() or a special format with two %s would be faster
+   }
+
+   template<typename T>
+   void traceFuncCall(const char * const msg, const T &arg) const
+   {
+      traceFuncCall(std::string(msg) + " " + ToDbgStr(arg));
+      // append() or a special format with two %s would be faster
+   }
+
    DbgLogger deeper(const char * const NewPrefix = nullptr) const
    {
       DbgLogger offspring(*this); // copy this parent
@@ -861,7 +878,7 @@ pkgDepCache::AutoMarkFlag pkgDepCache::getMarkAuto(const PkgIterator &Pkg,
 int pkgDepCache::MarkInstall0(PkgIterator const &Pkg,
                               const DbgLogger &DBG)
 {
-   DBG.traceFuncCall("to mark for install (shallow): " + ToDbgStr(Pkg));
+   DBG.traceFuncCall(__func__, Pkg);
 
    if (Pkg.end() == true)
       return -1;
@@ -909,7 +926,7 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
       bool const Restricted, std::set<PkgIterator> &MarkAgain,
       int const Depth, const DbgLogger &DBG)
 {
-   DBG.traceFuncCall("to mark for install (recursively): " + ToDbgStr(Pkg));
+   DBG.traceFuncCall(__func__, Pkg);
 
    if (Depth > 100)
    {
@@ -919,7 +936,7 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
    if (MarkInstall0(Pkg, DBG.deeper()) <= 0)
       return;
 
-   DBG.traceTraversal(0, "marked for install (shallow): " + ToDbgStr(Pkg));
+   DBG.traceTraversal(0, "marked for install (shallow):", Pkg);
 
    bool AddMarkAgain = false;
    for (DepIterator Dep = PkgState[Pkg->ID].InstVerIter(*this).DependsList();
@@ -962,7 +979,7 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
       for (; Ors > 1 && (DepState[Start->ID] & DepCVer) != DepCVer; Ors--)
 	 Start++;
 
-      DBG.traceTraversal(1, "satisfying " + ToDbgStr(Start));
+      DBG.traceTraversal(1, "satisfying", Start);
 
       /* This bit is for processing the possibilty of an install/upgrade
          fixing the problem */
@@ -986,7 +1003,7 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 	 if (Start.IsTargetDirect(Cur))
          {
             // escaped from the loop by the "break"
-            DBG.traceTraversal(2, "found a direct target: " + ToDbgStr(TrgVer));
+            DBG.traceTraversal(2, "found a direct target:", TrgVer);
             InstVer = TrgVer;
          }
          else
@@ -1001,12 +1018,12 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
                {
                   if (CanSelect++ == 0)
                   {
-                     DBG.traceTraversal(2, "found a providing target: " + ToDbgStr(TrgVer));
+                     DBG.traceTraversal(2, "found a providing target:", TrgVer);
                      InstVer = TrgVer;
                   }
                   else
                   {
-                     DBG.traceTraversal(2, "found another providing target: " + ToDbgStr(TrgVer));
+                     DBG.traceTraversal(2, "found another providing target:", TrgVer);
                      break;
                   }
                }
@@ -1025,7 +1042,7 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
             continue;
 	 }
 
-	 DBG.traceTraversal(1, "target SELECTED: " + ToDbgStr(InstVer));
+	 DBG.traceTraversal(1, "target SELECTED:", InstVer);
          // Recursion is always restricted
          MarkInstallRec(InstVer.ParentPkg(),/*Restricted*/true,MarkAgain,Depth+1,DBG.deeper());
       }
@@ -1040,7 +1057,7 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
               I++)
 	 {
 	    VerIterator const TrgVer(*Cache,*I);
-            DBG.traceTraversal(2, "target to delete: " + ToDbgStr(TrgVer));
+            DBG.traceTraversal(2, "target to delete:", TrgVer);
 	    PkgIterator const TrgPkg = TrgVer.ParentPkg();
 	    MarkDelete(TrgPkg);
 	    MarkAuto(TrgPkg, getMarkAuto(TrgPkg));
@@ -1054,7 +1071,7 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 
 void pkgDepCache::MarkInstall2(PkgIterator const &Pkg, const DbgLogger &DBG)
 {
-   DBG.traceFuncCall(std::string(__func__) + " " + ToDbgStr(Pkg));
+   DBG.traceFuncCall(__func__, Pkg);
    std::set<PkgIterator> MA;
    MarkInstallRec(Pkg, true, MA, 0, DBG.deeper("MI2a"));
    while (1) {
