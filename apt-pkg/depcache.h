@@ -42,6 +42,9 @@
 #include <apt-pkg/pkgcache.h>
 #include <apt-pkg/progress.h>
 
+// Used internally during recursion for debugging output.
+class DbgLogger;
+
 class pkgDepCache : protected pkgCache::Namespace
 {
    public:
@@ -215,13 +218,14 @@ class pkgDepCache : protected pkgCache::Namespace
    protected:
    // shallow mark; ret: -1 err, 0 already marked, 1 just marked
    int MarkInstall0(PkgIterator const &Pkg,
-                    int Depth, const char *DebugStr);
+                    const DbgLogger &DEBUG);
    // full wavefront recursive mark
-   void MarkInstall2(PkgIterator const &Pkg);
+   void MarkInstall2(PkgIterator const &Pkg,
+                     const DbgLogger &DEBUG);
    // implementation
    void MarkInstallRec(PkgIterator const &Pkg,
       bool Restricted, std::set<PkgIterator> &MarkAgain,
-      int Depth, const char *DebugStr);
+      int Depth, const DbgLogger &DEBUG);
 
    public:
    void SetReInstall(PkgIterator const &Pkg,bool To);
