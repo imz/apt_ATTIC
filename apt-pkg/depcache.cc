@@ -815,7 +815,7 @@ class DbgLogger
       if (Prefix)
          fprintf(stderr, "%s:%*s %s\n", Prefix, Depth*2+nesting, "", msg.c_str());
       else
-         fprintf(stderr, "%*s %s\n", Depth*2+nesting, "", msg.c_str());
+         fprintf(stderr, "%*s\n", Depth*2+nesting, msg.c_str());
    }
 
    public:
