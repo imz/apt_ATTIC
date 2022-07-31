@@ -171,7 +171,7 @@ class pkgDepCache : protected pkgCache::Namespace
    inline void RemoveStates(const PkgIterator &Pkg) {AddStates(Pkg,-1);}
 
    // a helper for MarkInstallRec()
-   bool isCandidateVer(Version * const V) const;
+   bool isCandidateVer(const VerIterator &Ver) const;
 
    public:
 
