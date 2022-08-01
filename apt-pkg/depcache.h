@@ -42,9 +42,6 @@
 #include <apt-pkg/pkgcache.h>
 #include <apt-pkg/progress.h>
 
-// Used internally during recursion for debugging output.
-class DbgLogger;
-
 class pkgDepCache : protected pkgCache::Namespace
 {
    public:
@@ -216,6 +213,8 @@ class pkgDepCache : protected pkgCache::Namespace
    // or shallow mark (MarkInstall0)
    void MarkInstall(PkgIterator const &Pkg, AutoMarkFlag AutoFlag, bool AutoInst = true);
    protected:
+   // Used internally during recursion in Mark*() for the debugging output.
+   class DbgLogger;
    // shallow mark; ret: -1 err, 0 already marked, 1 just marked
    int MarkInstall0(PkgIterator const &Pkg,
                     const DbgLogger &DEBUG);
