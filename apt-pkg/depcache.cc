@@ -839,12 +839,14 @@ class DbgLogger
                        const char * const msg, const T &arg) const
    {
       traceTraversal(nesting, std::string(msg) + " " + ToDbgStr(arg));
+      // append() or a special format with two %s would be faster
    }
 
    template<typename T>
    void traceFuncCall(const char * const msg, const T &arg) const
    {
       traceFuncCall(std::string(msg) + " " + ToDbgStr(arg));
+      // append() or a special format with two %s would be faster
    }
 
    DbgLogger deeper(const char * const NewPrefix = nullptr) const
