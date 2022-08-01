@@ -34,6 +34,76 @@
 
 									/*}}}*/
 
+// For Mark*() functions (to debug and trace)
+class DbgLogger
+{
+   const char *Prefix;
+   int Depth;
+
+   bool DbgTraversal;
+   bool DbgFuncCalls;
+
+   void printMsg(unsigned int const nesting, const std::string &msg) const
+   {
+      if (Prefix)
+         fprintf(stderr, "%s:%*s %s\n", Prefix, Depth*2+nesting, "", msg.c_str());
+      else
+         fprintf(stderr, "%*s\n", Depth*2+nesting, msg.c_str());
+   }
+
+   public:
+
+   void traceTraversal(unsigned int const nesting, const std::string &msg) const
+   {
+      if (DbgTraversal)
+         printMsg(nesting, msg);
+   }
+
+   void traceFuncCall(const std::string &msg) const
+   {
+      if (DbgFuncCalls)
+         printMsg(0, msg);
+   }
+
+   // A little help to invoke us in a simpler way. (Not universal though...)
+
+   template<typename T>
+   void traceTraversal(unsigned int const nesting,
+                       const char * const msg, const T &arg) const
+   {
+      traceTraversal(nesting, std::string(msg) + " " + ToDbgStr(arg));
+      // append() or a special format with two %s would be faster
+   }
+
+   template<typename T>
+   void traceFuncCall(const char * const msg, const T &arg) const
+   {
+      traceFuncCall(std::string(msg) + " " + ToDbgStr(arg));
+      // append() or a special format with two %s would be faster
+   }
+
+   DbgLogger deeper(const char * const NewPrefix = nullptr) const
+   {
+      DbgLogger child(*this); // copy this parent
+
+      if (!NewPrefix)
+         ++child.Depth;
+      else
+         child.Prefix = NewPrefix;
+      // Well, in our particular use cases, we don't need to increase Depth
+      // when we add a prefix.
+
+      return child;
+   }
+
+   DbgLogger():
+      Prefix(nullptr),
+      Depth(0),
+      DbgTraversal(_config->FindB("Debug::pkgMarkInstall", false)),
+      DbgFuncCalls(_config->FindB("Debug::pkgMarkAllCalls", false))
+   {}
+};
+
 // DepCache::pkgDepCache - Constructors					/*{{{*/
 // ---------------------------------------------------------------------
 /* */
@@ -801,76 +871,6 @@ pkgDepCache::AutoMarkFlag pkgDepCache::getMarkAuto(const PkgIterator &Pkg,
    return (((PkgState[Pkg->ID].Flags & Flag::Auto) == Flag::Auto) ? AutoMarkFlag::Auto : AutoMarkFlag::Manual);
 }
 									/*}}}*/
-// For Mark*() functions (to debug and trace)
-class DbgLogger
-{
-   const char *Prefix;
-   int Depth;
-
-   bool DbgTraversal;
-   bool DbgFuncCalls;
-
-   void printMsg(unsigned int const nesting, const std::string &msg) const
-   {
-      if (Prefix)
-         fprintf(stderr, "%s:%*s %s\n", Prefix, Depth*2+nesting, "", msg.c_str());
-      else
-         fprintf(stderr, "%*s\n", Depth*2+nesting, msg.c_str());
-   }
-
-   public:
-
-   void traceTraversal(unsigned int const nesting, const std::string &msg) const
-   {
-      if (DbgTraversal)
-         printMsg(nesting, msg);
-   }
-
-   void traceFuncCall(const std::string &msg) const
-   {
-      if (DbgFuncCalls)
-         printMsg(0, msg);
-   }
-
-   // A little help to invoke us in a simpler way. (Not universal though...)
-
-   template<typename T>
-   void traceTraversal(unsigned int const nesting,
-                       const char * const msg, const T &arg) const
-   {
-      traceTraversal(nesting, std::string(msg) + " " + ToDbgStr(arg));
-      // append() or a special format with two %s would be faster
-   }
-
-   template<typename T>
-   void traceFuncCall(const char * const msg, const T &arg) const
-   {
-      traceFuncCall(std::string(msg) + " " + ToDbgStr(arg));
-      // append() or a special format with two %s would be faster
-   }
-
-   DbgLogger deeper(const char * const NewPrefix = nullptr) const
-   {
-      DbgLogger child(*this); // copy this parent
-
-      if (!NewPrefix)
-         ++child.Depth;
-      else
-         child.Prefix = NewPrefix;
-      // Well, in our particular use cases, we don't need to increase Depth
-      // when we add a prefix.
-
-      return child;
-   }
-
-   DbgLogger():
-      Prefix(nullptr),
-      Depth(0),
-      DbgTraversal(_config->FindB("Debug::pkgMarkInstall", false)),
-      DbgFuncCalls(_config->FindB("Debug::pkgMarkAllCalls", false))
-   {}
-};
-
 // DepCache::MarkInstall - Put the package in the install state		/*{{{*/
 // ---------------------------------------------------------------------
 /* */
