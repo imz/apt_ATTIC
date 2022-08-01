@@ -35,7 +35,7 @@
 									/*}}}*/
 
 // For Mark*() functions (to debug and trace)
-class DbgLogger
+class pkgDepCache::DbgLogger
 {
    const char *Prefix;
    int Depth;
