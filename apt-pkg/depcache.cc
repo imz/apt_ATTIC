@@ -84,16 +84,16 @@ class pkgDepCache::DbgLogger
 
    DbgLogger deeper(const char * const NewPrefix = nullptr) const
    {
-      DbgLogger child(*this); // copy this parent
+      DbgLogger offspring(*this); // copy this parent
 
       if (!NewPrefix)
-         ++child.Depth;
+         ++offspring.Depth;
       else
-         child.Prefix = NewPrefix;
+         offspring.Prefix = NewPrefix;
       // Well, in our particular use cases, we don't need to increase Depth
       // when we add a prefix.
 
-      return child;
+      return offspring;
    }
 
    DbgLogger():
