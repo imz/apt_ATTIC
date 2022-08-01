@@ -805,12 +805,12 @@ void pkgDepCache::MarkKeep0(const PkgIterator &Pkg,bool const Soft,const DbgLogg
    P.Mode = ModeKeep;
    if (Pkg->CurrentVer == 0)
    {
-      DBG.traceTraversal(0, "kept it not installed (as currently):", Pkg.CurrentVer());
+      DBG.traceTraversal(0, "switched to keeping it not installed (as currently):", Pkg.CurrentVer());
       P.InstallVer = 0;
    }
    else
    {
-      DBG.traceTraversal(0, "kept the current version installed:", Pkg.CurrentVer());
+      DBG.traceTraversal(0, "switched to keeping the current version as the one to be installed:", Pkg.CurrentVer());
       P.InstallVer = Pkg.CurrentVer().operator pkgCache::Version *();
    }
 
