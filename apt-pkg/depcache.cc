@@ -751,6 +751,19 @@ void pkgDepCache::Update(PkgIterator const &Pkg)
 /* */
 void pkgDepCache::MarkKeep(const PkgIterator &Pkg,bool const Soft)
 {
+   DbgLogger const DBG;
+   DBG.traceFuncCall(std::string(__func__)
+                     + ToDbgStr(Pkg)
+                     + " Soft=" + (Soft ? "true" : "false"));
+   MarkKeep0(Pkg, Soft, DBG);
+}
+
+void pkgDepCache::MarkKeep0(const PkgIterator &Pkg,bool const Soft,const DbgLogger &DBG)
+{
+   DBG.traceFuncCall(__func__
+                     + ToDbgStr(Pkg)
+                     + " Soft=" + (Soft ? "true" : "false"));
+
    // Simplifies other routines.
    if (Pkg.end() == true)
       return;
@@ -800,6 +813,19 @@ void pkgDepCache::MarkKeep(const PkgIterator &Pkg,bool const Soft)
 /* */
 void pkgDepCache::MarkDelete(const PkgIterator &Pkg, bool const rPurge)
 {
+   DbgLogger const DBG;
+   DBG.traceFuncCall(__func__
+                     + ToDbgStr(Pkg)
+                     + " rPurge=" + (rPurge ? "true" : "false"));
+   MarkDelete0(Pkg, rPurge, DBG);
+}
+
+void pkgDepCache::MarkDelete0(const PkgIterator &Pkg, bool const rPurge, const DbgLogger &DBG)
+{
+   DBG.traceFuncCall(__func__
+                     + ToDbgStr(Pkg)
+                     + " rPurge=" + (rPurge ? "true" : "false"));
+
    // Simplifies other routines.
    if (Pkg.end() == true)
       return;
@@ -890,7 +916,7 @@ int pkgDepCache::MarkInstall0(PkgIterator const &Pkg,
 	P.CandidateVer == Pkg.CurrentVer().operator const pkgCache::Version *()))
    {
       if (P.CandidateVer == Pkg.CurrentVer().operator const pkgCache::Version *() && P.InstallVer == 0)
-	 MarkKeep(Pkg);
+	 MarkKeep0(Pkg, false, DBG.deeper());
       return 0;
    }
 
@@ -1068,7 +1094,7 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 	    VerIterator const TrgVer(*Cache,*I);
             DBG.traceTraversal(1, "target to delete:", TrgVer);
 	    PkgIterator const TrgPkg = TrgVer.ParentPkg();
-	    MarkDelete(TrgPkg);
+	    MarkDelete0(TrgPkg, false, DBG.deeper());
 	    MarkAuto(TrgPkg, getMarkAuto(TrgPkg));
 	 }
       }
