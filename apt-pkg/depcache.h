@@ -217,14 +217,14 @@ class pkgDepCache : protected pkgCache::Namespace
    class DbgLogger;
    // shallow mark; ret: -1 err, 0 already marked, 1 just marked
    int MarkInstall0(PkgIterator const &Pkg,
-                    const DbgLogger &DEBUG);
+                    const DbgLogger &DBG);
    // full wavefront recursive mark
    void MarkInstall2(PkgIterator const &Pkg,
-                     const DbgLogger &DEBUG);
+                     const DbgLogger &DBG);
    // implementation
    void MarkInstallRec(PkgIterator const &Pkg,
       bool Restricted, std::set<PkgIterator> &MarkAgain,
-      int Depth, const DbgLogger &DEBUG);
+      int Depth, const DbgLogger &DBG);
 
    public:
    void SetReInstall(PkgIterator const &Pkg,bool To);
