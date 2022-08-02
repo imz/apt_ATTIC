@@ -1072,8 +1072,8 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 	 for (; Start.IsTargetDirect(Cur); ++Cur)
 	 {
             VerIterator const TrgVer(*Cache,*Cur);
-	    PkgIterator const TrgPkg = TrgVer.ParentPkg();
-	    if (PkgState[TrgPkg->ID].CandidateVer == *Cur)
+            const StateCache &TrgP = PkgState[TrgVer.ParentPkg()->ID];
+            if (*Cur == TrgP.CandidateVer)
             {
                DBG.traceTraversal(2, "found a direct target:", TrgVer);
                InstVer = TrgVer;
@@ -1089,8 +1089,8 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 	    for (; *Cur != 0; ++Cur)
 	    {
                VerIterator const TrgVer(*Cache,*Cur);
-	       PkgIterator const TrgPkg = TrgVer.ParentPkg();
-	       if (PkgState[TrgPkg->ID].CandidateVer == *Cur)
+               const StateCache &TrgP = PkgState[TrgVer.ParentPkg()->ID];
+               if (*Cur == TrgP.CandidateVer)
                {
                   if (CanSelect++ == 0)
                   {
