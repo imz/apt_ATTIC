@@ -1065,32 +1065,30 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
       {
          const SPtrArray<Version *> List(Start.AllTargets());
 	 // Right, find the best version to install..
+         VerIterator InstVer(*Cache,nullptr); // END as the initial value
 	 Version **Cur = List.get();
-         VerIterator TrgVer(*Cache,*Cur); // always follows *Cur
 
 	 // See if there are direct matches (at the start of the list)
-	 for (; Start.IsTargetDirect(Cur); TrgVer = VerIterator(*Cache,*++Cur))
+	 for (; Start.IsTargetDirect(Cur); ++Cur)
 	 {
+            VerIterator const TrgVer(*Cache,*Cur);
 	    PkgIterator const TrgPkg = TrgVer.ParentPkg();
 	    if (PkgState[TrgPkg->ID].CandidateVer == *Cur)
+            {
+               DBG.traceTraversal(2, "found a direct target:", TrgVer);
+               InstVer = TrgVer;
                break;
+            }
 	 }
 
-         // the found target Ver that is candidate
-         VerIterator InstVer(*Cache,nullptr); // END as the initial value
-	 if (Start.IsTargetDirect(Cur))
-         {
-            // escaped from the loop by the "break"
-            DBG.traceTraversal(2, "found a direct target:", TrgVer);
-            InstVer = TrgVer;
-         }
-         else
+         // Not found a suitable "direct" target.
+	 if (! Start.IsTargetDirect(Cur))
 	 { // Select the highest priority providing package
 	    int CanSelect = 0;
 	    pkgPrioSortList(*Cache,Cur);
-            TrgVer = VerIterator(*Cache,*Cur); // always follows *Cur
-	    for (; *Cur != 0; TrgVer = VerIterator(*Cache,*++Cur))
+	    for (; *Cur != 0; ++Cur)
 	    {
+               VerIterator const TrgVer(*Cache,*Cur);
 	       PkgIterator const TrgPkg = TrgVer.ParentPkg();
 	       if (PkgState[TrgPkg->ID].CandidateVer == *Cur)
                {
@@ -1108,19 +1106,19 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 	    }
 	    // In restricted mode, skip ambiguous dependencies.
 	    if (Restricted && CanSelect > 1) {
-	       DBG.traceTraversal(1, "target AMBI");
+	       DBG.traceTraversal(1, "target AMBI; for now, skipping resolving this unsatisfied dep");
 	       AddMarkAgain = true;
-	       continue;
+	       continue; // to the next dep that might need satisfying
 	    }
 	 }
 
 	 if (InstVer.end())
 	 {
-            DBG.traceTraversal(1, "target NONE");
+            DBG.traceTraversal(1, "target NONE; skipping resolving this unsatisfied dep");
             continue;
 	 }
 
-	 DBG.traceTraversal(1, "target SELECTED:", InstVer);
+	 DBG.traceTraversal(1, "target SELECTED (to mark in order to satisfy the dep):", InstVer);
          // Recursion is always restricted
          MarkInstallRec(InstVer.ParentPkg(),/*Restricted*/true,MarkAgain,Depth+1,DBG.deeper());
       }
