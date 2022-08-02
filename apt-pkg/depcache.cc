@@ -1133,7 +1133,16 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
               I++)
 	 {
 	    VerIterator const TrgVer(*Cache,*I);
-            DBG.traceTraversal(2, "target to delete:", TrgVer);
+            const StateCache &TrgP = PkgState[TrgVer.ParentPkg()->ID];
+
+            // We care only about conflicting packages that are to-be-installed.
+            // If a conflicting package might get installed at other moments,
+            // that's not our responsibility to deal with the conflict now.
+            if (*I != TrgP.InstallVer)
+               continue;
+            DBG.traceTraversal(2, "matched a conflicting to-be-installed target (& going to resolve it):", TrgVer);
+
+            // resolving this conflict
 	    PkgIterator const TrgPkg = TrgVer.ParentPkg();
 	    MarkDelete0(TrgPkg, false, DBG.deeper());
 	    MarkAuto(TrgPkg, getMarkAuto(TrgPkg));
