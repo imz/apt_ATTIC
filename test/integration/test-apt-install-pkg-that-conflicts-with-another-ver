@@ -23,7 +23,10 @@ generaterepository_and_switch_sources "$TMPWORKINGDIRECTORY/usr/src/RPM/RPMS"
 testsuccess aptget update
 
 testpkgnotinstalled 'conflicts-simple-package-less-2'
-testsuccess aptget install -y conflicts-simple-package-less-2
+testsuccess aptget \
+	    -o Debug::pkgMarkInstall=yes \
+	    -o Debug::pkgMarkAllCalls=yes \
+	    install -y conflicts-simple-package-less-2
 testpkginstalled 'conflicts-simple-package-less-2'
 
 testpkginstalled 'simple-package'
