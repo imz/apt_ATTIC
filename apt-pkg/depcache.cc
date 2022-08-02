@@ -811,7 +811,7 @@ void pkgDepCache::MarkKeep0(const PkgIterator &Pkg,bool const Soft,const DbgLogg
    else
    {
       DBG.traceTraversal(0, "switched to keeping the current version as the one to be installed:", Pkg.CurrentVer());
-      P.InstallVer = Pkg.CurrentVer();
+      P.InstallVer = Pkg.CurrentVer().operator pkgCache::Version *();
    }
 
    MarkAuto(Pkg, getMarkAuto(Pkg));
