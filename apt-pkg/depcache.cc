@@ -999,13 +999,6 @@ int pkgDepCache::MarkInstall0(PkgIterator const &Pkg,
    return 1;
 }
 
-// a helper for MarInstallRec()
-bool pkgDepCache::isCandidateVer(const VerIterator &Ver) const
-{
-   PkgIterator const Pkg = Ver.ParentPkg();
-   return Ver.operator const Version *() == PkgState[Pkg->ID].CandidateVer;
-}
-
 void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
       bool const Restricted, std::set<PkgIterator> &MarkAgain,
       int const Depth, const DbgLogger &DBG)
@@ -1081,7 +1074,8 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 	 for (; Start.IsTargetDirect(Cur); Cur++)
 	 {
             VerIterator const Ver(*Cache,*Cur);
-            if (isCandidateVer(Ver))
+            const StateCache &P = PkgState[Ver.ParentPkg()->ID];
+            if (*Cur == P.CandidateVer)
             {
                TargetCandidateVer = Ver;
                DBG.traceTraversal(1, "found a direct target:", TargetCandidateVer);
@@ -1097,7 +1091,8 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 	    for (; *Cur != 0; Cur++)
 	    {
                VerIterator const Ver(*Cache,*Cur);
-               if (isCandidateVer(Ver))
+               const StateCache &P = PkgState[Ver.ParentPkg()->ID];
+               if (*Cur == P.CandidateVer)
                {
                   if (CanSelect++ == 0)
                   {
