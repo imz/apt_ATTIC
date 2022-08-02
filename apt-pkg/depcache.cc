@@ -932,7 +932,7 @@ int pkgDepCache::MarkInstall0(PkgIterator const &Pkg,
    {
       if (P.Mode == ModeInstall)
          DBG.traceTraversal(0, "the pkg is fine & is already marked for install:",
-                            VerIterator(*Cache,P.InstVer));
+                            VerIterator(*Cache,P.InstallVer));
       else
          DBG.traceTraversal(0, "the pkg is fine & there is no other candidate but the current version:",
                             Pkg.CurrentVer());
@@ -968,7 +968,7 @@ int pkgDepCache::MarkInstall0(PkgIterator const &Pkg,
    MarkAuto(Pkg, getMarkAuto(Pkg));
    P.Mode = ModeInstall;
    P.InstallVer = P.CandidateVer;
-   DBG.traceTraversal(0, "set the pkg's mark to 'install' & the version to be installed to the candidate:"
+   DBG.traceTraversal(0, "set the pkg's mark to 'install' & the version to be installed to the candidate:",
                       VerIterator(*Cache,P.CandidateVer));
    if (P.CandidateVer == Pkg.CurrentVer().operator const pkgCache::Version *())
    {
