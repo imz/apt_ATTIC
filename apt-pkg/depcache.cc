@@ -1073,11 +1073,11 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 	 // See if there are direct matches (at the start of the list)
 	 for (; Start.IsTargetDirect(Cur); Cur++)
 	 {
-            VerIterator const Ver(*Cache,*Cur);
-            const StateCache &P = PkgState[Ver.ParentPkg()->ID];
-            if (*Cur == P.CandidateVer)
+            VerIterator const TrgVer(*Cache,*Cur);
+            const StateCache &TrgP = PkgState[TrgVer.ParentPkg()->ID];
+            if (*Cur == TrgP.CandidateVer)
             {
-               TargetCandidateVer = Ver;
+               TargetCandidateVer = TrgVer;
                DBG.traceTraversal(1, "found a direct target:", TargetCandidateVer);
                break;
             }
@@ -1090,18 +1090,18 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 	    pkgPrioSortList(*Cache,Cur);
 	    for (; *Cur != 0; Cur++)
 	    {
-               VerIterator const Ver(*Cache,*Cur);
-               const StateCache &P = PkgState[Ver.ParentPkg()->ID];
-               if (*Cur == P.CandidateVer)
+               VerIterator const TrgVer(*Cache,*Cur);
+               const StateCache &TrgP = PkgState[TrgVer.ParentPkg()->ID];
+               if (*Cur == TrgP.CandidateVer)
                {
                   if (CanSelect++ == 0)
                   {
-                     TargetCandidateVer = Ver;
+                     TargetCandidateVer = TrgVer;
                      DBG.traceTraversal(1, "found a providing target:", TargetCandidateVer);
                   }
                   else
                   {
-                     DBG.traceTraversal(1, "found another providing target:", Ver);
+                     DBG.traceTraversal(1, "found another providing target:", TrgVer);
                      break;
                   }
                }
