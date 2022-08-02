@@ -931,18 +931,34 @@ int pkgDepCache::MarkInstall0(PkgIterator const &Pkg,
    if (P.InstBroken() == false && (P.Mode == ModeInstall ||
 	P.CandidateVer == Pkg.CurrentVer().operator const pkgCache::Version *()))
    {
+      if (P.Mode == ModeInstall)
+         DBG.traceTraversal(0, "the pkg is fine & is already marked for install:",
+                            VerIterator(*Cache,P.InstallVer));
+      else
+         DBG.traceTraversal(0, "the pkg is fine & there is no other candidate but the current version:",
+                            Pkg.CurrentVer());
       if (P.CandidateVer == Pkg.CurrentVer().operator const pkgCache::Version *() && P.InstallVer == 0)
+      {
+         DBG.traceTraversal(0, "to mark it for keep, as now it is to be not installed");
 	 MarkKeep0(Pkg, false, DBG.deeper());
+      }
+      DBG.traceTraversal(0, "nothing more to do");
       return 0;
    }
 
    // See if there is even any possible instalation candidate
    if (P.CandidateVer == 0)
+   {
+      DBG.traceTraversal(0, "no candidate");
       return -1;
+   }
 
    // We dont even try to install virtual packages..
    if (Pkg->VersionList == 0)
+   {
+      DBG.traceTraversal(0, "a virtual package, not suitable");
       return -1;
+   }
 
    /* Target the candidate version and remove the autoflag. We reset the
       autoflag below if this was called recursively. Otherwise the user
@@ -953,8 +969,13 @@ int pkgDepCache::MarkInstall0(PkgIterator const &Pkg,
    MarkAuto(Pkg, getMarkAuto(Pkg));
    P.Mode = ModeInstall;
    P.InstallVer = P.CandidateVer;
+   DBG.traceTraversal(0, "set the pkg's mark to 'install' & the version to be installed to the candidate:",
+                      VerIterator(*Cache,P.CandidateVer));
    if (P.CandidateVer == Pkg.CurrentVer().operator const pkgCache::Version *())
+   {
+      DBG.traceTraversal(0, "corrected the mark to 'keep', as the candidate coincides with the current version");
       P.Mode = ModeKeep;
+   }
 
    AddStates(Pkg);
    Update(Pkg);
