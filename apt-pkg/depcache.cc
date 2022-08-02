@@ -760,7 +760,7 @@ void pkgDepCache::MarkKeep(const PkgIterator &Pkg,bool const Soft)
 
 void pkgDepCache::MarkKeep0(const PkgIterator &Pkg,bool const Soft,const DbgLogger &DBG)
 {
-   DBG.traceFuncCall(__func__
+   DBG.traceFuncCall(std::string(__func__)
                      + " " + ToDbgStr(Pkg)
                      + " Soft=" + (Soft ? "true" : "false"));
 
@@ -829,7 +829,7 @@ void pkgDepCache::MarkKeep0(const PkgIterator &Pkg,bool const Soft,const DbgLogg
 void pkgDepCache::MarkDelete(const PkgIterator &Pkg, bool const rPurge)
 {
    DbgLogger const DBG;
-   DBG.traceFuncCall(__func__
+   DBG.traceFuncCall(std::string(__func__)
                      + " " + ToDbgStr(Pkg)
                      + " rPurge=" + (rPurge ? "true" : "false"));
    MarkDelete0(Pkg, rPurge, DBG);
@@ -837,7 +837,7 @@ void pkgDepCache::MarkDelete(const PkgIterator &Pkg, bool const rPurge)
 
 void pkgDepCache::MarkDelete0(const PkgIterator &Pkg, bool const rPurge, const DbgLogger &DBG)
 {
-   DBG.traceFuncCall(__func__
+   DBG.traceFuncCall(std::string(__func__)
                      + " " + ToDbgStr(Pkg)
                      + " rPurge=" + (rPurge ? "true" : "false"));
 
