@@ -1074,62 +1074,60 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
       {
          const SPtrArray<Version *> List(Start.AllTargets());
 	 // Right, find the best version to install..
+         VerIterator TargetCandidateVer(*Cache,nullptr); // END as the initial value
 	 Version **Cur = List.get();
-         // a Veriterator which will follow *Cur, and is easier to work with.
-         VerIterator TargetVer(*Cache,nullptr); // END as the initial value
 
 	 // See if there are direct matches (at the start of the list)
 	 for (; Start.IsTargetDirect(Cur); Cur++)
 	 {
-            TargetVer = VerIterator(*Cache,*Cur);
-            if (isCandidateVer(TargetVer))
+            VerIterator const Ver(*Cache,*Cur);
+            if (isCandidateVer(Ver))
+            {
+               TargetCandidateVer = Ver;
+               DBG.traceTraversal(1, "found a direct target:", TargetCandidateVer);
                break;
+            }
 	 }
 
-         // the found target Ver that is candidate
-         VerIterator TargetCandidateVer(*Cache,nullptr); // END as the initial value
-	 if (Start.IsTargetDirect(Cur))
-         {
-            // Found a "direct" target.
-            TargetCandidateVer = TargetVer;
-            DBG.traceTraversal(1, "found a direct target:", TargetCandidateVer);
-         }
-         else
+         // Not found a suitable "direct" target.
+	 if (! Start.IsTargetDirect(Cur))
 	 { // Select the highest priority providing package
 	    int CanSelect = 0;
 	    pkgPrioSortList(*Cache,Cur);
 	    for (; *Cur != 0; Cur++)
 	    {
-               TargetVer = VerIterator(*Cache,*Cur);
-               if (isCandidateVer(TargetVer))
+               VerIterator const Ver(*Cache,*Cur);
+               if (isCandidateVer(Ver))
                {
                   if (CanSelect++ == 0)
                   {
-                     TargetCandidateVer = TargetVer;
+                     TargetCandidateVer = Ver;
                      DBG.traceTraversal(1, "found a providing target:", TargetCandidateVer);
                   }
                   else
+                  {
+                     DBG.traceTraversal(1, "found another providing target:", Ver);
                      break;
+                  }
                }
 	    }
 	    if (CanSelect > 1) {
-               DBG.traceTraversal(1, "found another providing target:", TargetVer);
                // In restricted mode, skip ambiguous dependencies.
                if (Restricted) {
-                  DBG.traceTraversal(0, "target AMBI");
+                  DBG.traceTraversal(0, "target AMBI; for now, skipping resolving this unsatisfied dep");
                   AddMarkAgain = true;
-                  continue;
+                  continue; // to the next dep that might need satisfying
                }
 	    }
 	 }
 
 	 if (TargetCandidateVer.end())
 	 {
-            DBG.traceTraversal(0, "target NONE");
+            DBG.traceTraversal(0, "target NONE; skipping resolving this unsatisfied dep");
             continue;
 	 }
 
-	 DBG.traceTraversal(0, "target selected:", TargetCandidateVer);
+	 DBG.traceTraversal(0, "target selected (to mark in order to satisfy the dep):", TargetCandidateVer);
          // Recursion is always restricted
          MarkInstallRec(TargetCandidateVer.ParentPkg(),/*Restricted*/true,MarkAgain,Depth+1,DBG.deeper());
       }
