@@ -20,8 +20,6 @@ buildpackage 'simple-package-noarch'
 # in MarkInstallRec(): the dep gets broken, and thus needs dealing with.
 buildpackage 'provides-simple-package'
 
-testpkgnotinstalled 'simple-package'
-
 aptgetinstallpackage 'simple-package-update'
 aptgetinstallpackage 'provides-simple-package'
 testpkginstalled 'simple-package'
@@ -42,3 +40,4 @@ testsuccess aptget \
 testpkginstalled 'conflicts-simple-package-less-2'
 
 testpkginstalled 'simple-package'
+testpkgnotinstalled 'provides-simple-package'
