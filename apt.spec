@@ -3,7 +3,7 @@
 
 Name: apt
 Version: 0.5.15lorg2
-Release: alt80
+Release: alt81
 
 Summary: Debian's Advanced Packaging Tool with RPM support
 Summary(ru_RU.UTF-8): Debian APT - Усовершенствованное средство управления пакетами с поддержкой RPM
@@ -563,6 +563,14 @@ exec 1>&2
 %_datadir/%name/tests/
 
 %changelog
+* Wed Aug 03 2022 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt81
+- Fixed bad behavior when satisfying "Conflicts" or "Obsoletes" dependencies
+  (discovered in ALT#42415), namely:
+  + "Obsoletes" causing the deletion of its "virtual" targets (i.e.,
+    providing packages) whereas this behavior is expected for Conflicts only;
+  + versioned "Conflicts" (or "Obsoletes") causing the deletion of packages
+    with non-matching version.
+
 * Thu Jun 02 2022 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt80
 - Fixed the new compilation warnings by simplifying the ALT-specific code
   in pkgcache.cc (AllTargets) from 0.5.15lorg2-alt31. (Discovered by gcc12.)
