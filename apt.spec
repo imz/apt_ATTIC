@@ -570,6 +570,10 @@ exec 1>&2
     providing packages) whereas this behavior is expected for Conflicts only;
   + versioned "Conflicts" (or "Obsoletes") causing the deletion of packages
     with non-matching version.
+- Enriched the output of Debug::pkgMarkInstall with versions of the dependency
+  targets and other details of the traversal of the dependency graph and
+  complemented it with a new option (Debug::pkgMarkAllCalls) -- to understand
+  better why this behaves in an unexpected manner in some cases.
 
 * Thu Jun 02 2022 Ivan Zakharyaschev <imz@altlinux.org> 0.5.15lorg2-alt80
 - Fixed the new compilation warnings by simplifying the ALT-specific code
