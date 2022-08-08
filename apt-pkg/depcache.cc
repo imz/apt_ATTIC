@@ -1012,8 +1012,7 @@ void pkgDepCache::MarkInstall2(PkgIterator const &Pkg)
 
 void pkgDepCache::MarkInstall(const PkgIterator &Pkg,
                               pkgDepCache::AutoMarkFlag const AutoFlag,
-                              bool const AutoInst,
-			      unsigned long const Depth)
+                              bool const AutoInst)
 {
    if (AutoInst == false)
       MarkInstall0(Pkg);
