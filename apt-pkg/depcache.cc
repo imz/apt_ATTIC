@@ -954,13 +954,11 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
                   }
                }
 	    }
-	    if (CanSelect > 1) {
-               // In restricted mode, skip ambiguous dependencies.
-               if (Restricted) {
-                  DEBUG_NEXT("target %s", "AMBI");
-                  AddMarkAgain = true;
-                  continue;
-               }
+	    // In restricted mode, skip ambiguous dependencies.
+	    if (Restricted && CanSelect > 1) {
+	       DEBUG_NEXT("target %s", "AMBI");
+	       AddMarkAgain = true;
+	       continue;
 	    }
 	 }
 
