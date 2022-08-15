@@ -928,10 +928,9 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
          Version * TargetCandidateVer = nullptr;
 	 if (Start.IsTargetDirect(Cur))
          {
-            // Found a "direct" target.
-            TargetCandidateVer = *Cur;
-            VerIterator const TrgVer(*Cache,TargetCandidateVer);
+            VerIterator const TrgVer(*Cache,*Cur);
             DEBUG_NEXT2("found a direct target: %s", ToDbgStr(TrgVer).c_str());
+            TargetCandidateVer = *Cur;
          }
          else
 	 { // Select the highest priority providing package
@@ -942,19 +941,20 @@ void pkgDepCache::MarkInstallRec(const PkgIterator &Pkg,
 	       PkgIterator const TrgPkg = parentPkg(**Cur);
 	       if (PkgState[TrgPkg->ID].CandidateVer == *Cur)
                {
+                  VerIterator const TrgVer(*Cache,*Cur);
                   if (CanSelect++ == 0)
                   {
-                     TargetCandidateVer = *Cur;
-                     VerIterator const TrgVer(*Cache,TargetCandidateVer);
                      DEBUG_NEXT2("found a providing target: %s", ToDbgStr(TrgVer).c_str());
+                     TargetCandidateVer = *Cur;
                   }
                   else
+                  {
+                     DEBUG_NEXT2("found another providing target: %s", ToDbgStr(TrgVer).c_str());
                      break;
+                  }
                }
 	    }
 	    if (CanSelect > 1) {
-               VerIterator const TrgVer(*Cache,*Cur);
-               DEBUG_NEXT2("found another providing target: %s", ToDbgStr(TrgVer).c_str());
                // In restricted mode, skip ambiguous dependencies.
                if (Restricted) {
                   DEBUG_NEXT("target %s", "AMBI");
